@@ -112,7 +112,7 @@ export default function CartPage() {
                       {/* Product Image */}
                       <div className="flex-shrink-0">
                         <Image
-                          src={item.product.images[0] || '/placeholder-product.jpg'}
+                          src={typeof item.product.images?.[0] === 'string' && item.product.images[0] ? item.product.images[0] : '/placeholder-product.jpg'}
                           alt={item.product.name}
                           width={80}
                           height={80}

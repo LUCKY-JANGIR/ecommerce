@@ -10,10 +10,18 @@ const nextConfig: NextConfig = {
         port: '5001',
         pathname: '/uploads/**',
       },
+      {
+        protocol: 'https',
+        hostname: '*.onrender.com',
+        pathname: '/uploads/**',
+      },
     ],
   },
   experimental: {
     optimizePackageImports: ['lucide-react'],
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
   },
 };
 

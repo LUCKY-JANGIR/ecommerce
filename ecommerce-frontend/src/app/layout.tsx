@@ -1,7 +1,7 @@
 import './globals.css';
 import type { Metadata } from 'next';
-import '@fontsource/poppins/400.css';
-import '@fontsource/poppins/700.css';
+import '@fontsource/playfair-display/400.css';
+import '@fontsource/playfair-display/700.css';
 import '@fontsource/pacifico/400.css';
 import '@fontsource/caveat/400.css';
 
@@ -17,7 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-black min-h-screen" style={{ fontFamily: 'Poppins, Inter, sans-serif' }}>
+      <body className="bg-black min-h-screen" style={{ fontFamily: 'Playfair Display, Inter, sans-serif' }}>
         {children}
       </body>
     </html>

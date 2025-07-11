@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Header from '@/components/Header';
@@ -15,7 +16,15 @@ import {
   X
 } from 'lucide-react';
 
-export default function ProductsPage() {
+export default function ProductsPageWrapper() {
+  return (
+    <Suspense>
+      <ProductsPage />
+    </Suspense>
+  );
+}
+
+function ProductsPage() {
   const searchParams = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);

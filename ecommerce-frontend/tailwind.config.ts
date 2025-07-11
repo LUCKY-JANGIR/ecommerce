@@ -97,32 +97,8 @@ const config: Config = {
   	}
   },
   plugins: [
-    require('daisyui'),
     require("tailwindcss-animate")
   ],
-  daisyui: {
-    themes: [
-      {
-        brand: {
-          "primary": "#1e293b",
-          "secondary": "#fbbf24",
-          "accent": "#6366f1",
-          "neutral": "#f3f4f6",
-          "base-100": "#ffffff",
-          "info": "#0ea5e9",
-          "success": "#22c55e",
-          "warning": "#f59e42",
-          "error": "#ef4444",
-        },
-      },
-    ],
-    base: true,
-    styled: true,
-    utils: true,
-    logs: false,
-    rtl: false,
-    prefix: '',
-  },
 };
 
 export default config; 
