@@ -17,7 +17,7 @@ import {
 import toast from 'react-hot-toast';
 
 const Header = () => {
-  const { auth, cart, logout, sidebarOpen, setSidebarOpen } = useStore();
+  const { auth, cart, logout, sidebarOpen, setSidebarOpen, hydrated } = useStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [showUserMenu, setShowUserMenu] = useState(false);
 
@@ -68,7 +68,9 @@ const Header = () => {
           ))}
         </nav>
         <div className="flex items-center space-x-4">
-          {auth.isAuthenticated ? (
+          {!hydrated ? (
+            <div className="w-20 h-6 bg-gold/30 rounded animate-pulse" />
+          ) : auth.isAuthenticated ? (
             <Link href="/profile" className="flex items-center px-3 py-1 rounded hover:bg-blue-100 transition-colors">
               <User className="h-5 w-5 mr-1" />
               <span className="hidden md:inline">Profile</span>
