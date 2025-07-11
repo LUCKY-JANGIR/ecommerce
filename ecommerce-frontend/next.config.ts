@@ -15,6 +15,11 @@ const nextConfig: NextConfig = {
         hostname: '*.onrender.com',
         pathname: '/uploads/**',
       },
+      {
+        protocol: 'https',
+        hostname: '*.vercel.app',
+        pathname: '/uploads/**',
+      },
     ],
   },
   experimental: {
@@ -22,6 +27,9 @@ const nextConfig: NextConfig = {
   },
   eslint: {
     ignoreDuringBuilds: true,
+  },
+  env: {
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   },
 };
 
