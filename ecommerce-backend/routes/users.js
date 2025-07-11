@@ -9,7 +9,7 @@ const router = express.Router();
 // @desc    Get all users (Admin)
 // @route   GET /api/users
 // @access  Private/Admin
-router.get('/', protect, admin, async (req, res) => {
+router.get('/', protect, admin, async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 20;
@@ -46,15 +46,14 @@ router.get('/', protect, admin, async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Get users error:', error);
-        res.status(500).json({ message: 'Server error fetching users' });
+        next(error);
     }
 });
 
 // @desc    Get user by ID (Admin)
 // @route   GET /api/users/:id
 // @access  Private/Admin
-router.get('/:id', protect, admin, async (req, res) => {
+router.get('/:id', protect, admin, async (req, res, next) => {
     try {
         const user = await User.findById(req.params.id).select('-password');
 
@@ -86,11 +85,10 @@ router.get('/:id', protect, admin, async (req, res) => {
             orderStats: stats
         });
     } catch (error) {
-        console.error('Get user error:', error);
         if (error.name === 'CastError') {
             return res.status(404).json({ message: 'User not found' });
         }
-        res.status(500).json({ message: 'Server error fetching user' });
+        next(error);
     }
 });
 
@@ -116,7 +114,7 @@ router.put('/:id', protect, admin, [
         .optional()
         .isMobilePhone()
         .withMessage('Please enter a valid phone number')
-], async (req, res) => {
+], async (req, res, next) => {
     try {
         // Check for validation errors
         const errors = validationResult(req);
@@ -171,15 +169,14 @@ router.put('/:id', protect, admin, [
             }
         });
     } catch (error) {
-        console.error('Update user error:', error);
-        res.status(500).json({ message: 'Server error updating user' });
+        next(error);
     }
 });
 
 // @desc    Delete user (Admin)
 // @route   DELETE /api/users/:id
 // @access  Private/Admin
-router.delete('/:id', protect, admin, async (req, res) => {
+router.delete('/:id', protect, admin, async (req, res, next) => {
     try {
         const user = await User.findById(req.params.id);
 
@@ -204,15 +201,14 @@ router.delete('/:id', protect, admin, async (req, res) => {
 
         res.json({ message: 'User deleted successfully' });
     } catch (error) {
-        console.error('Delete user error:', error);
-        res.status(500).json({ message: 'Server error deleting user' });
+        next(error);
     }
 });
 
 // @desc    Get user statistics (Admin)
 // @route   GET /api/users/stats/overview
 // @access  Private/Admin
-router.get('/stats/overview', protect, admin, async (req, res) => {
+router.get('/stats/overview', protect, admin, async (req, res, next) => {
     try {
         const totalUsers = await User.countDocuments();
         const adminUsers = await User.countDocuments({ role: 'admin' });
@@ -300,8 +296,7 @@ router.get('/stats/overview', protect, admin, async (req, res) => {
             topCustomers
         });
     } catch (error) {
-        console.error('Get user stats error:', error);
-        res.status(500).json({ message: 'Server error fetching user statistics' });
+        next(error);
     }
 });
 
@@ -320,7 +315,7 @@ router.post('/create-admin', protect, admin, [
     body('password')
         .isLength({ min: 6 })
         .withMessage('Password must be at least 6 characters long')
-], async (req, res) => {
+], async (req, res, next) => {
     try {
         // Check for validation errors
         const errors = validationResult(req);
@@ -358,15 +353,14 @@ router.post('/create-admin', protect, admin, [
             }
         });
     } catch (error) {
-        console.error('Create admin error:', error);
-        res.status(500).json({ message: 'Server error creating admin user' });
+        next(error);
     }
 });
 
 // @desc    Toggle user status (Admin)
 // @route   PUT /api/users/:id/toggle-status
 // @access  Private/Admin
-router.put('/:id/toggle-status', protect, admin, async (req, res) => {
+router.put('/:id/toggle-status', protect, admin, async (req, res, next) => {
     try {
         const user = await User.findById(req.params.id);
 
@@ -393,8 +387,7 @@ router.put('/:id/toggle-status', protect, admin, async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Toggle user status error:', error);
-        res.status(500).json({ message: 'Server error toggling user status' });
+        next(error);
     }
 });
 

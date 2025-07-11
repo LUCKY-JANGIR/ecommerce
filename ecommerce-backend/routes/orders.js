@@ -45,7 +45,7 @@ router.post('/', protect, [
     body('paymentMethod')
         .isIn(['PayPal', 'Stripe', 'Credit Card', 'Cash on Delivery'])
         .withMessage('Invalid payment method')
-], async (req, res) => {
+], async (req, res, next) => {
     try {
         // Check for validation errors
         const errors = validationResult(req);
@@ -120,15 +120,14 @@ router.post('/', protect, [
             order: populatedOrder
         });
     } catch (error) {
-        console.error('Create order error:', error);
-        res.status(500).json({ message: 'Server error creating order' });
+        next(error);
     }
 });
 
 // @desc    Get user orders
 // @route   GET /api/orders/my-orders
 // @access  Private
-router.get('/my-orders', protect, async (req, res) => {
+router.get('/my-orders', protect, async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
@@ -153,15 +152,14 @@ router.get('/my-orders', protect, async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Get user orders error:', error);
-        res.status(500).json({ message: 'Server error fetching orders' });
+        next(error);
     }
 });
 
 // @desc    Get order by ID
 // @route   GET /api/orders/:id
 // @access  Private
-router.get('/:id', protect, async (req, res) => {
+router.get('/:id', protect, async (req, res, next) => {
     try {
         const order = await Order.findById(req.params.id)
             .populate('user', 'name email')
@@ -178,7 +176,7 @@ router.get('/:id', protect, async (req, res) => {
 
         res.json(order);
     } catch (error) {
-        console.error('Get order error:', error);
+        next(error);
         if (error.name === 'CastError') {
             return res.status(404).json({ message: 'Order not found' });
         }
@@ -193,7 +191,7 @@ router.put('/:id/pay', protect, [
     body('paymentResult.id').notEmpty().withMessage('Payment ID is required'),
     body('paymentResult.status').notEmpty().withMessage('Payment status is required'),
     body('paymentResult.email_address').optional().isEmail().withMessage('Invalid email address')
-], async (req, res) => {
+], async (req, res, next) => {
     try {
         // Check for validation errors
         const errors = validationResult(req);
@@ -228,15 +226,14 @@ router.put('/:id/pay', protect, [
             order
         });
     } catch (error) {
-        console.error('Update order payment error:', error);
-        res.status(500).json({ message: 'Server error updating order payment' });
+        next(error);
     }
 });
 
 // @desc    Cancel order
 // @route   PUT /api/orders/:id/cancel
 // @access  Private
-router.put('/:id/cancel', protect, async (req, res) => {
+router.put('/:id/cancel', protect, async (req, res, next) => {
     try {
         const order = await Order.findById(req.params.id);
 
@@ -275,8 +272,7 @@ router.put('/:id/cancel', protect, async (req, res) => {
             order
         });
     } catch (error) {
-        console.error('Cancel order error:', error);
-        res.status(500).json({ message: 'Server error cancelling order' });
+        next(error);
     }
 });
 
@@ -285,7 +281,7 @@ router.put('/:id/cancel', protect, async (req, res) => {
 // @desc    Get all orders (Admin)
 // @route   GET /api/orders
 // @access  Private/Admin
-router.get('/', protect, admin, async (req, res) => {
+router.get('/', protect, admin, async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 20;
@@ -320,8 +316,7 @@ router.get('/', protect, admin, async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Get all orders error:', error);
-        res.status(500).json({ message: 'Server error fetching orders' });
+        next(error);
     }
 });
 
@@ -332,7 +327,7 @@ router.put('/:id/status', protect, admin, [
     body('status')
         .isIn(['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Refunded'])
         .withMessage('Invalid order status')
-], async (req, res) => {
+], async (req, res, next) => {
     try {
         // Check for validation errors
         const errors = validationResult(req);
@@ -368,15 +363,14 @@ router.put('/:id/status', protect, admin, [
             order
         });
     } catch (error) {
-        console.error('Update order status error:', error);
-        res.status(500).json({ message: 'Server error updating order status' });
+        next(error);
     }
 });
 
 // @desc    Get order statistics (Admin)
 // @route   GET /api/orders/stats/overview
 // @access  Private/Admin
-router.get('/stats/overview', protect, admin, async (req, res) => {
+router.get('/stats/overview', protect, admin, async (req, res, next) => {
     try {
         const totalOrders = await Order.countDocuments();
         const pendingOrders = await Order.countDocuments({ orderStatus: 'Pending' });
@@ -405,8 +399,7 @@ router.get('/stats/overview', protect, admin, async (req, res) => {
             recentOrders
         });
     } catch (error) {
-        console.error('Get order stats error:', error);
-        res.status(500).json({ message: 'Server error fetching order statistics' });
+        next(error);
     }
 });
 

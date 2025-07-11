@@ -32,7 +32,7 @@ router.get('/', [
     query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
     query('minPrice').optional().isFloat({ min: 0 }).withMessage('Min price must be a positive number'),
     query('maxPrice').optional().isFloat({ min: 0 }).withMessage('Max price must be a positive number')
-], optionalAuth, async (req, res) => {
+], optionalAuth, async (req, res, next) => {
     try {
         // Check for validation errors
         const errors = validationResult(req);
@@ -127,15 +127,14 @@ router.get('/', [
             }
         });
     } catch (error) {
-        console.error('Get products error:', error);
-        res.status(500).json({ message: 'Server error fetching products' });
+        next(error);
     }
 });
 
 // @desc    Get single product by ID
 // @route   GET /api/products/:id
 // @access  Public
-router.get('/:id', optionalAuth, async (req, res) => {
+router.get('/:id', optionalAuth, async (req, res, next) => {
     try {
         const product = await Product.findById(req.params.id)
             .populate('createdBy', 'name')
@@ -152,18 +151,17 @@ router.get('/:id', optionalAuth, async (req, res) => {
 
         res.json(product);
     } catch (error) {
-        console.error('Get product error:', error);
         if (error.name === 'CastError') {
             return res.status(404).json({ message: 'Product not found' });
         }
-        res.status(500).json({ message: 'Server error fetching product' });
+        next(error);
     }
 });
 
 // @desc    Create new product
 // @route   POST /api/products
 // @access  Private/Admin
-router.post('/', protect, admin, upload.array('images', 5), async (req, res) => {
+router.post('/', protect, admin, upload.array('images', 5), async (req, res, next) => {
     try {
         if (!req.user || !req.user._id) {
             return res.status(401).json({ message: 'Not authorized. Please log in as admin.' });
@@ -230,15 +228,14 @@ router.post('/', protect, admin, upload.array('images', 5), async (req, res) => 
             product
         });
     } catch (error) {
-        console.error('Create product error:', error);
-        res.status(500).json({ message: 'Server error creating product' });
+        next(error);
     }
 });
 
 // @desc    Update product
 // @route   PUT /api/products/:id
 // @access  Private/Admin
-router.put('/:id', protect, admin, upload.array('images', 5), async (req, res) => {
+router.put('/:id', protect, admin, upload.array('images', 5), async (req, res, next) => {
     try {
         const product = await Product.findById(req.params.id);
         if (!product) {
@@ -297,15 +294,14 @@ router.put('/:id', protect, admin, upload.array('images', 5), async (req, res) =
             product
         });
     } catch (error) {
-        console.error('Update product error:', error);
-        res.status(500).json({ message: 'Server error updating product' });
+        next(error);
     }
 });
 
 // @desc    Delete product
 // @route   DELETE /api/products/:id
 // @access  Private/Admin
-router.delete('/:id', protect, admin, async (req, res) => {
+router.delete('/:id', protect, admin, async (req, res, next) => {
     try {
         const product = await Product.findById(req.params.id);
         if (!product) {
@@ -316,8 +312,7 @@ router.delete('/:id', protect, admin, async (req, res) => {
 
         res.json({ message: 'Product deleted successfully' });
     } catch (error) {
-        console.error('Delete product error:', error);
-        res.status(500).json({ message: 'Server error deleting product' });
+        next(error);
     }
 });
 
@@ -332,7 +327,7 @@ router.post('/:id/reviews', protect, [
         .trim()
         .isLength({ min: 10, max: 500 })
         .withMessage('Comment must be between 10 and 500 characters')
-], async (req, res) => {
+], async (req, res, next) => {
     try {
         // Check for validation errors
         const errors = validationResult(req);
@@ -375,15 +370,14 @@ router.post('/:id/reviews', protect, [
             review
         });
     } catch (error) {
-        console.error('Add review error:', error);
-        res.status(500).json({ message: 'Server error adding review' });
+        next(error);
     }
 });
 
 // @desc    Get featured products
 // @route   GET /api/products/featured
 // @access  Public
-router.get('/featured/list', async (req, res) => {
+router.get('/featured/list', async (req, res, next) => {
     try {
         const products = await Product.getFeatured()
             .populate('createdBy', 'name')
@@ -392,15 +386,14 @@ router.get('/featured/list', async (req, res) => {
 
         res.json(products);
     } catch (error) {
-        console.error('Get featured products error:', error);
-        res.status(500).json({ message: 'Server error fetching featured products' });
+        next(error);
     }
 });
 
 // @desc    Upload image to Google Drive
 // @route   POST /api/products/upload-image
 // @access  Private/Admin
-router.post('/upload-image', protect, admin, upload.single('image'), async (req, res) => {
+router.post('/upload-image', protect, admin, upload.single('image'), async (req, res, next) => {
     try {
         if (!req.file) {
             return res.status(400).json({ message: 'No image file provided' });
@@ -420,15 +413,14 @@ router.post('/upload-image', protect, admin, upload.single('image'), async (req,
             driveUrl: uploadResult.driveUrl
         });
     } catch (error) {
-        console.error('Image upload error:', error);
-        res.status(500).json({ message: 'Server error uploading image' });
+        next(error);
     }
 });
 
 // @desc    Get products by category
 // @route   GET /api/products/category/:category
 // @access  Public
-router.get('/category/:category', async (req, res) => {
+router.get('/category/:category', async (req, res, next) => {
     try {
         const products = await Product.getByCategory(req.params.category)
             .populate('createdBy', 'name')
@@ -436,8 +428,7 @@ router.get('/category/:category', async (req, res) => {
 
         res.json(products);
     } catch (error) {
-        console.error('Get products by category error:', error);
-        res.status(500).json({ message: 'Server error fetching products by category' });
+        next(error);
     }
 });
 

@@ -20,7 +20,7 @@ router.post('/register', [
     body('password')
         .isLength({ min: 6 })
         .withMessage('Password must be at least 6 characters long')
-], async (req, res) => {
+], async (req, res, next) => {
     try {
         // Check for validation errors
         const errors = validationResult(req);
@@ -60,8 +60,7 @@ router.post('/register', [
             }
         });
     } catch (error) {
-        console.error('Registration error:', error);
-        res.status(500).json({ message: 'Server error during registration' });
+        next(error);
     }
 });
 
@@ -76,7 +75,7 @@ router.post('/login', [
     body('password')
         .notEmpty()
         .withMessage('Password is required')
-], async (req, res) => {
+], async (req, res, next) => {
     try {
         // Check for validation errors
         const errors = validationResult(req);
@@ -120,15 +119,14 @@ router.post('/login', [
             }
         });
     } catch (error) {
-        console.error('Login error:', error);
-        res.status(500).json({ message: 'Server error during login' });
+        next(error);
     }
 });
 
 // @desc    Get current user profile
 // @route   GET /api/auth/profile
 // @access  Private
-router.get('/profile', protect, async (req, res) => {
+router.get('/profile', protect, async (req, res, next) => {
     try {
         const user = await User.findById(req.user.id);
         if (!user) {
@@ -150,8 +148,7 @@ router.get('/profile', protect, async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Profile fetch error:', error);
-        res.status(500).json({ message: 'Server error fetching profile' });
+        next(error);
     }
 });
 
@@ -168,7 +165,7 @@ router.put('/profile', protect, [
         .optional()
         .isMobilePhone()
         .withMessage('Please enter a valid phone number')
-], async (req, res) => {
+], async (req, res, next) => {
     try {
         // Check for validation errors
         const errors = validationResult(req);
@@ -206,8 +203,7 @@ router.put('/profile', protect, [
             }
         });
     } catch (error) {
-        console.error('Profile update error:', error);
-        res.status(500).json({ message: 'Server error updating profile' });
+        next(error);
     }
 });
 
@@ -221,7 +217,7 @@ router.put('/change-password', protect, [
     body('newPassword')
         .isLength({ min: 6 })
         .withMessage('New password must be at least 6 characters long')
-], async (req, res) => {
+], async (req, res, next) => {
     try {
         // Check for validation errors
         const errors = validationResult(req);
@@ -252,8 +248,7 @@ router.put('/change-password', protect, [
 
         res.json({ message: 'Password changed successfully' });
     } catch (error) {
-        console.error('Password change error:', error);
-        res.status(500).json({ message: 'Server error changing password' });
+        next(error);
     }
 });
 

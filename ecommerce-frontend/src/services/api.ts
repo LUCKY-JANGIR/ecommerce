@@ -36,6 +36,16 @@ api.interceptors.response.use(
   }
 );
 
+function handleApiError(error: any) {
+  if (process.env.NODE_ENV === 'development') {
+    console.error('API Error:', error);
+  }
+  // You can customize this further for production logging
+  throw new Error(
+    error?.response?.data?.message || error?.message || 'An unexpected error occurred.'
+  );
+}
+
 // Auth API
 export const authAPI = {
   register: async (userData: {
@@ -44,18 +54,30 @@ export const authAPI = {
     password: string;
     phone?: string;
   }) => {
-    const response = await api.post('/auth/register', userData);
-    return response.data;
+    try {
+      const response = await api.post('/auth/register', userData);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
   },
 
   login: async (credentials: { email: string; password: string }) => {
-    const response = await api.post('/auth/login', credentials);
-    return response.data;
+    try {
+      const response = await api.post('/auth/login', credentials);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
   },
 
   getProfile: async () => {
-    const response = await api.get('/auth/profile');
-    return response.data;
+    try {
+      const response = await api.get('/auth/profile');
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
   },
 
   updateProfile: async (userData: Partial<{
@@ -70,16 +92,24 @@ export const authAPI = {
       country: string;
     };
   }>) => {
-    const response = await api.put('/auth/profile', userData);
-    return response.data;
+    try {
+      const response = await api.put('/auth/profile', userData);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
   },
 
   changePassword: async (passwords: {
     currentPassword: string;
     newPassword: string;
   }) => {
-    const response = await api.put('/auth/change-password', passwords);
-    return response.data;
+    try {
+      const response = await api.put('/auth/change-password', passwords);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
   },
 };
 
@@ -94,54 +124,86 @@ export const productsAPI = {
     maxPrice?: number;
     sort?: string;
   }) => {
-    const response = await api.get('/products', { params });
-    return response.data;
+    try {
+      const response = await api.get('/products', { params });
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
   },
 
   getById: async (id: string) => {
-    const response = await api.get(`/products/${id}`);
-    return response.data;
+    try {
+      const response = await api.get(`/products/${id}`);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
   },
 
   getFeatured: async () => {
-    const response = await api.get('/products/featured/list');
-    return response.data;
+    try {
+      const response = await api.get('/products/featured/list');
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
   },
 
   getByCategory: async (category: string) => {
-    const response = await api.get(`/products/category/${category}`);
-    return response.data;
+    try {
+      const response = await api.get(`/products/category/${category}`);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
   },
 
   create: async (productData: FormData) => {
-    const response = await api.post('/products', productData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return response.data;
+    try {
+      const response = await api.post('/products', productData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
   },
 
   update: async (id: string, productData: FormData) => {
-    const response = await api.put(`/products/${id}`, productData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return response.data;
+    try {
+      const response = await api.put(`/products/${id}`, productData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
   },
 
   delete: async (id: string) => {
-    const response = await api.delete(`/products/${id}`);
-    return response.data;
+    try {
+      const response = await api.delete(`/products/${id}`);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
   },
 
   addReview: async (productId: string, review: {
     rating: number;
     comment: string;
   }) => {
-    const response = await api.post(`/products/${productId}/reviews`, review);
-    return response.data;
+    try {
+      const response = await api.post(`/products/${productId}/reviews`, review);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
   },
 };
 
@@ -162,18 +224,30 @@ export const ordersAPI = {
     };
     paymentMethod: string;
   }) => {
-    const response = await api.post('/orders', orderData);
-    return response.data;
+    try {
+      const response = await api.post('/orders', orderData);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
   },
 
   getMyOrders: async () => {
-    const response = await api.get('/orders/my-orders');
-    return response.data;
+    try {
+      const response = await api.get('/orders/my-orders');
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
   },
 
   getById: async (id: string) => {
-    const response = await api.get(`/orders/${id}`);
-    return response.data;
+    try {
+      const response = await api.get(`/orders/${id}`);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
   },
 
   pay: async (id: string, paymentResult: {
@@ -182,13 +256,21 @@ export const ordersAPI = {
     update_time: string;
     email_address: string;
   }) => {
-    const response = await api.put(`/orders/${id}/pay`, paymentResult);
-    return response.data;
+    try {
+      const response = await api.put(`/orders/${id}/pay`, paymentResult);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
   },
 
   cancel: async (id: string) => {
-    const response = await api.put(`/orders/${id}/cancel`);
-    return response.data;
+    try {
+      const response = await api.put(`/orders/${id}/cancel`);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
   },
 
   // Admin only
@@ -197,18 +279,30 @@ export const ordersAPI = {
     limit?: number;
     status?: string;
   }) => {
-    const response = await api.get('/orders', { params });
-    return response.data;
+    try {
+      const response = await api.get('/orders', { params });
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
   },
 
   updateStatus: async (id: string, orderStatus: string) => {
-    const response = await api.put(`/orders/${id}/status`, { orderStatus });
-    return response.data;
+    try {
+      const response = await api.put(`/orders/${id}/status`, { orderStatus });
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
   },
 
   getStats: async () => {
-    const response = await api.get('/orders/stats/overview');
-    return response.data;
+    try {
+      const response = await api.get('/orders/stats/overview');
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
   },
 };
 
@@ -219,13 +313,21 @@ export const usersAPI = {
     limit?: number;
     role?: string;
   }) => {
-    const response = await api.get('/users', { params });
-    return response.data;
+    try {
+      const response = await api.get('/users', { params });
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
   },
 
   getById: async (id: string) => {
-    const response = await api.get(`/users/${id}`);
-    return response.data;
+    try {
+      const response = await api.get(`/users/${id}`);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
   },
 
   update: async (id: string, userData: Partial<{
@@ -234,13 +336,21 @@ export const usersAPI = {
     role: string;
     isActive: boolean;
   }>) => {
-    const response = await api.put(`/users/${id}`, userData);
-    return response.data;
+    try {
+      const response = await api.put(`/users/${id}`, userData);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
   },
 
   delete: async (id: string) => {
-    const response = await api.delete(`/users/${id}`);
-    return response.data;
+    try {
+      const response = await api.delete(`/users/${id}`);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
   },
 
   createAdmin: async (adminData: {
@@ -248,18 +358,30 @@ export const usersAPI = {
     email: string;
     password: string;
   }) => {
-    const response = await api.post('/users/create-admin', adminData);
-    return response.data;
+    try {
+      const response = await api.post('/users/create-admin', adminData);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
   },
 
   toggleStatus: async (id: string) => {
-    const response = await api.put(`/users/${id}/toggle-status`);
-    return response.data;
+    try {
+      const response = await api.put(`/users/${id}/toggle-status`);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
   },
 
   getStats: async () => {
-    const response = await api.get('/users/stats/overview');
-    return response.data;
+    try {
+      const response = await api.get('/users/stats/overview');
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
   },
 };
 
