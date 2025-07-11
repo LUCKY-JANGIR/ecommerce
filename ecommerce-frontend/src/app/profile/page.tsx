@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Header from '@/components/Header';
 import { useStore } from '@/store/useStore';
 import { authAPI } from '@/services/api';
 import { ArrowLeft, User, Mail, Phone, MapPin } from 'lucide-react';
@@ -48,9 +47,9 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-sand flex items-center justify-center">
-      <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-lg border border-sand">
-        <h1 className="text-3xl font-display font-bold text-primary mb-6">Profile</h1>
+    <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
+      <div className="bg-neutral-900 rounded-lg shadow-lg p-8 w-full max-w-lg border border-neutral-800">
+        <h1 className="text-3xl font-display font-bold text-white mb-6">Profile</h1>
         {/* Back to home */}
         <Link
           href="/"
@@ -61,9 +60,9 @@ export default function ProfilePage() {
         </Link>
 
         {/* Profile Card */}
-        <div className="bg-white rounded-lg shadow-md p-8">
+        <div className="bg-neutral-900 rounded-lg shadow-md p-8">
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">My Profile</h1>
+            <h1 className="text-2xl font-bold text-white mb-2">My Profile</h1>
             <p className="text-gray-600">Manage your account information</p>
           </div>
 
@@ -76,7 +75,7 @@ export default function ProfilePage() {
             <div className="space-y-6">
               {/* Basic Info */}
               <div className="border-b pb-6">
-                <h2 className="text-lg font-semibold text-gray-800 mb-4">Basic Information</h2>
+                <h2 className="text-lg font-semibold text-white mb-4">Basic Information</h2>
                 <div className="space-y-3">
                   <div className="flex items-center">
                     <User className="h-5 w-5 text-gray-400 mr-3" />
@@ -101,7 +100,7 @@ export default function ProfilePage() {
               {/* Address */}
               {profile.address && (
                 <div className="border-b pb-6">
-                  <h2 className="text-lg font-semibold text-gray-800 mb-4">Address</h2>
+                  <h2 className="text-lg font-semibold text-white mb-4">Address</h2>
                   <div className="flex items-start">
                     <MapPin className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
                     <div>
@@ -115,7 +114,7 @@ export default function ProfilePage() {
 
               {/* Account Info */}
               <div>
-                <h2 className="text-lg font-semibold text-gray-800 mb-4">Account Information</h2>
+                <h2 className="text-lg font-semibold text-white mb-4">Account Information</h2>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600">Account Type:</span>

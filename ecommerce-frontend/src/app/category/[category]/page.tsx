@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
 import { productsAPI } from "@/services/api";
 import { Product } from "@/store/useStore";
@@ -30,10 +29,9 @@ export default function CategoryPage() {
   }, [categoryStr]);
 
   return (
-    <div className="min-h-screen bg-sand">
-      <Header />
+    <div className="min-h-screen bg-neutral-950">
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-display font-bold text-primary mb-6 capitalize">
+        <h1 className="text-3xl font-display font-bold text-white mb-6 capitalize">
           {categoryStr?.toString().replace(/-/g, " ")} Products
         </h1>
         {loading ? (

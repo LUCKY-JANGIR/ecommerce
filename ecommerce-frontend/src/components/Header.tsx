@@ -56,17 +56,7 @@ const Header = () => {
         <div className="text-3xl font-bold tracking-wider flex items-center">
           <span className="mr-2">🕌</span> ShopEase
         </div>
-        <nav className="flex space-x-6">
-          {categories.map((category) => (
-            <Link
-              key={category}
-              href={`/category/${category.toLowerCase().replace(/\s+/g, '-')}`}
-              className="text-gray-600 hover:text-gold transition-colors whitespace-nowrap text-sm"
-            >
-              {category}
-            </Link>
-          ))}
-        </nav>
+        {/* Removed categories nav here */}
         <div className="flex items-center space-x-4">
           {!hydrated ? (
             <div className="w-20 h-6 bg-gold/30 rounded animate-pulse" />
@@ -106,24 +96,9 @@ const Header = () => {
         </form>
       </div>
 
-      {/* Navigation */}
-      <nav className="border-t border-gray-200">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center space-x-8 overflow-x-auto py-2">
-            {categories.map((category) => (
-              <Link
-                key={category}
-                href={`/category/${category.toLowerCase().replace(/\s+/g, '-')}`}
-                className="text-gray-600 hover:text-gold transition-colors whitespace-nowrap text-sm"
-              >
-                {category}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </nav>
+      {/* Removed bottom categories nav here */}
 
-      {/* Mobile sidebar */}
+      {/* Mobile sidebar (unchanged) */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
           <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setSidebarOpen(false)} />

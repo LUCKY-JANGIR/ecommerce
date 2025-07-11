@@ -124,21 +124,21 @@ body::-webkit-scrollbar, *::-webkit-scrollbar {
     @apply border-border;
   }
   body {
-    @apply bg-sand text-primary-dark font-body;
+    @apply bg-neutral-950 text-white font-body;
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display text-primary;
+    @apply font-display text-gold;
   }
   a {
-    @apply text-accent hover:text-gold transition-colors;
+    @apply text-gold hover:text-yellow-400 transition-colors;
   }
   button, .btn, [type="button"], [type="submit"] {
-    @apply bg-primary text-white rounded-lg px-4 py-2 font-semibold shadow hover:bg-secondary transition-colors;
+    @apply bg-gold text-neutral-950 rounded-lg px-4 py-2 font-bold shadow hover:bg-yellow-400 transition-colors;
   }
   input, select, textarea {
-    @apply border-primary focus:ring-accent focus:border-accent;
+    @apply border-gold focus:ring-gold focus:border-gold bg-neutral-900 text-gold placeholder-gold;
   }
   .card, .bg-card {
-    @apply bg-white border border-sand shadow-sm rounded-lg;
+    @apply bg-neutral-900 border border-neutral-800 shadow-lg rounded-xl;
   }
 }

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Header from '@/components/Header';
 import { ArrowLeft, Users, Package, ShoppingBag, BarChart3 } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
@@ -66,7 +65,6 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-sand">
-      <Header />
       
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">

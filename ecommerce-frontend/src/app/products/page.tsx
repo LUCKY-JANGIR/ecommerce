@@ -3,10 +3,10 @@
 import { Suspense } from 'react';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import Header from '@/components/Header';
 import ProductCard from '@/components/ProductCard';
 import { productsAPI } from '@/services/api';
 import { Product } from '@/store/useStore';
+import { useStore } from '@/store/useStore';
 import { 
   Filter, 
   Grid, 
@@ -15,6 +15,7 @@ import {
   Search,
   X
 } from 'lucide-react';
+import { FiUser } from "react-icons/fi";
 
 export default function ProductsPageWrapper() {
   return (
@@ -58,6 +59,9 @@ function ProductsPage() {
     { value: 'rating', label: 'Highest Rated' },
     { value: 'name', label: 'Name A-Z' },
   ];
+
+  const { hydrated } = useStore();
+  const { auth } = useStore();
 
   const fetchProducts = async (page = 1) => {
     setLoading(true);
@@ -112,32 +116,38 @@ function ProductsPage() {
     fetchProducts(1);
   };
 
+  if (!hydrated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-neutral-950">
+        <div className="w-12 h-12 border-4 border-gold border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-sand">
-      <Header />
-      
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-neutral-950">
+      <div className="container mx-auto px-4 py-24">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-display font-bold text-primary mb-2">All Products</h1>
-          <p className="text-gold">
+          <h1 className="text-3xl font-display font-bold text-gold mb-2">All Products</h1>
+          <p className="text-white">
             {pagination.totalProducts} products found
           </p>
         </div>
 
         {/* Search and Filters */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8 border border-sand">
+        <div className="bg-neutral-900 rounded-xl shadow-xl p-6 mb-8 border border-neutral-800">
           <div className="flex flex-col lg:flex-row gap-4">
             {/* Search */}
             <div className="flex-1">
-              <form onSubmit={handleSearch} className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-accent" />
+              <form onSubmit={(e) => { console.log('Search submitted'); handleSearch(e); }} className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gold" />
                 <input
                   type="text"
                   placeholder="Search products..."
                   value={filters.search}
-                  onChange={(e) => handleFilterChange('search', e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-primary rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-sand text-primary-dark"
+                  onChange={(e) => { console.log('Search changed', e.target.value); handleFilterChange('search', e.target.value); }}
+                  className="w-full pl-10 pr-4 py-2 border border-gold rounded-lg focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold bg-neutral-950 text-white placeholder-gold"
                 />
               </form>
             </div>
@@ -146,11 +156,11 @@ function ProductsPage() {
             <div className="lg:w-48">
               <select
                 value={filters.sortBy}
-                onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-                className="w-full px-3 py-2 border border-primary rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent bg-sand text-primary-dark"
+                onChange={(e) => { console.log('Sort changed', e.target.value); handleFilterChange('sortBy', e.target.value); }}
+                className="w-full px-3 py-2 border border-gold rounded-lg focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold bg-neutral-950 text-gold"
               >
                 {sortOptions.map((option) => (
-                  <option key={option.value} value={option.value} className="text-primary-dark">
+                  <option key={option.value} value={option.value} className="text-gold bg-neutral-950">
                     {option.label}
                   </option>
                 ))}
@@ -159,8 +169,8 @@ function ProductsPage() {
 
             {/* Filter Toggle */}
             <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="lg:hidden bg-secondary text-gold px-4 py-2 rounded-lg flex items-center space-x-2"
+              onClick={() => { console.log('Filter toggle clicked'); setShowFilters(!showFilters); }}
+              className="lg:hidden bg-gold text-neutral-950 px-4 py-2 rounded-lg flex items-center space-x-2 font-bold shadow hover:bg-yellow-400 transition-colors"
             >
               <Filter className="h-5 w-5" />
               <span>Filters</span>
@@ -169,14 +179,14 @@ function ProductsPage() {
             {/* View Mode */}
             <div className="flex items-center space-x-2">
               <button
-                onClick={() => setViewMode('grid')}
-                className={`p-2 rounded ${viewMode === 'grid' ? 'bg-accent text-gold' : 'bg-sand text-primary-dark'}`}
+                onClick={() => { console.log('Grid view clicked'); setViewMode('grid'); }}
+                className={`p-2 rounded-lg font-bold shadow ${viewMode === 'grid' ? 'bg-gold text-neutral-950' : 'bg-neutral-800 text-gold'} transition-colors`}
               >
                 <Grid className="h-5 w-5" />
               </button>
               <button
-                onClick={() => setViewMode('list')}
-                className={`p-2 rounded ${viewMode === 'list' ? 'bg-accent text-gold' : 'bg-sand text-primary-dark'}`}
+                onClick={() => { console.log('List view clicked'); setViewMode('list'); }}
+                className={`p-2 rounded-lg font-bold shadow ${viewMode === 'list' ? 'bg-gold text-neutral-950' : 'bg-neutral-800 text-gold'} transition-colors`}
               >
                 <List className="h-5 w-5" />
               </button>
@@ -185,31 +195,31 @@ function ProductsPage() {
 
           {/* Mobile Filters */}
           {showFilters && (
-            <div className="mt-4 pt-4 border-t border-gray-200 lg:hidden">
+            <div className="mt-4 pt-4 border-t border-neutral-800 lg:hidden">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                  <label className="block text-sm font-medium text-gold mb-1">Category</label>
                   <select
                     value={filters.category}
-                    onChange={(e) => handleFilterChange('category', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    onChange={(e) => { console.log('Category changed', e.target.value); handleFilterChange('category', e.target.value); }}
+                    className="w-full px-3 py-2 border border-gold rounded-lg focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold bg-neutral-950 text-gold"
                   >
                     <option value="">All Categories</option>
                     {categories.map((category) => (
-                      <option key={category} value={category}>
+                      <option key={category} value={category} className="text-gold bg-neutral-950">
                         {category}
                       </option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Min Price</label>
+                  <label className="block text-sm font-medium text-gold mb-1">Min Price</label>
                   <input
                     type="number"
                     placeholder="Min"
                     value={filters.minPrice}
-                    onChange={(e) => handleFilterChange('minPrice', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    onChange={(e) => { console.log('Min price changed', e.target.value); handleFilterChange('minPrice', e.target.value); }}
+                    className="w-full px-3 py-2 border border-gold rounded-lg focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold bg-neutral-950 text-gold placeholder-gold"
                   />
                 </div>
               </div>
@@ -220,12 +230,12 @@ function ProductsPage() {
         <div className="flex gap-8">
           {/* Desktop Filters */}
           <div className="hidden lg:block w-64 flex-shrink-0">
-            <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
+            <div className="bg-neutral-900 rounded-xl shadow-xl p-6 sticky top-24 border border-neutral-800">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-800">Filters</h3>
+                <h3 className="text-lg font-semibold text-gold">Filters</h3>
                 <button
-                  onClick={clearFilters}
-                  className="text-sm text-blue-600 hover:text-blue-700"
+                  onClick={() => { console.log('Clear filters clicked'); clearFilters(); }}
+                  className="text-sm font-bold text-gold bg-neutral-800 px-4 py-2 rounded-lg hover:bg-gold hover:text-neutral-950 transition-colors shadow"
                 >
                   Clear All
                 </button>
@@ -233,15 +243,15 @@ function ProductsPage() {
 
               {/* Category Filter */}
               <div className="mb-6">
-                <h4 className="font-medium text-gray-700 mb-3">Category</h4>
+                <h4 className="font-medium text-gold mb-3">Category</h4>
                 <select
                   value={filters.category}
-                  onChange={(e) => handleFilterChange('category', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  onChange={(e) => { console.log('Category changed', e.target.value); handleFilterChange('category', e.target.value); }}
+                  className="w-full px-3 py-2 border border-gold rounded-lg focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold bg-neutral-950 text-gold"
                 >
                   <option value="">All Categories</option>
                   {categories.map((category) => (
-                    <option key={category} value={category}>
+                    <option key={category} value={category} className="text-gold bg-neutral-950">
                       {category}
                     </option>
                   ))}
@@ -250,21 +260,21 @@ function ProductsPage() {
 
               {/* Price Range */}
               <div className="mb-6">
-                <h4 className="font-medium text-gray-700 mb-3">Price Range</h4>
+                <h4 className="font-medium text-gold mb-3">Price Range</h4>
                 <div className="space-y-2">
                   <input
                     type="number"
                     placeholder="Min Price"
                     value={filters.minPrice}
-                    onChange={(e) => handleFilterChange('minPrice', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    onChange={(e) => { console.log('Min price changed', e.target.value); handleFilterChange('minPrice', e.target.value); }}
+                    className="w-full px-3 py-2 border border-gold rounded-lg focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold bg-neutral-950 text-gold placeholder-gold"
                   />
                   <input
                     type="number"
                     placeholder="Max Price"
                     value={filters.maxPrice}
-                    onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    onChange={(e) => { console.log('Max price changed', e.target.value); handleFilterChange('maxPrice', e.target.value); }}
+                    className="w-full px-3 py-2 border border-gold rounded-lg focus:outline-none focus:ring-2 focus:ring-gold focus:border-gold bg-neutral-950 text-gold placeholder-gold"
                   />
                 </div>
               </div>
@@ -280,7 +290,7 @@ function ProductsPage() {
                   : 'grid-cols-1'
               }`}>
                 {[...Array(8)].map((_, index) => (
-                  <div key={index} className="bg-gray-200 rounded-lg h-80 animate-pulse"></div>
+                  <div key={index} className="bg-neutral-800 rounded-xl h-80 animate-pulse"></div>
                 ))}
               </div>
             ) : products.length > 0 ? (
@@ -300,31 +310,29 @@ function ProductsPage() {
                   <div className="mt-8 flex items-center justify-center">
                     <div className="flex items-center space-x-2">
                       <button
-                        onClick={() => fetchProducts(pagination.currentPage - 1)}
+                        onClick={() => { console.log('Prev page clicked'); fetchProducts(pagination.currentPage - 1); }}
                         disabled={!pagination.hasPrevPage}
-                        className="px-3 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                        className="px-3 py-2 border border-gold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gold hover:text-neutral-950 bg-neutral-900 text-gold font-bold transition-colors"
                       >
                         Previous
                       </button>
-                      
                       {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => (
                         <button
                           key={page}
-                          onClick={() => fetchProducts(page)}
-                          className={`px-3 py-2 border rounded-lg ${
+                          onClick={() => { console.log('Page clicked', page); fetchProducts(page); }}
+                          className={`px-3 py-2 border rounded-lg font-bold transition-colors ${
                             page === pagination.currentPage
-                              ? 'bg-blue-600 text-white border-blue-600'
-                              : 'border-gray-300 hover:bg-gray-50'
+                              ? 'bg-gold text-neutral-950 border-gold'
+                              : 'border-gold hover:bg-gold hover:text-neutral-950 bg-neutral-900 text-gold'
                           }`}
                         >
                           {page}
                         </button>
                       ))}
-                      
                       <button
-                        onClick={() => fetchProducts(pagination.currentPage + 1)}
+                        onClick={() => { console.log('Next page clicked'); fetchProducts(pagination.currentPage + 1); }}
                         disabled={!pagination.hasNextPage}
-                        className="px-3 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                        className="px-3 py-2 border border-gold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gold hover:text-neutral-950 bg-neutral-900 text-gold font-bold transition-colors"
                       >
                         Next
                       </button>
@@ -334,10 +342,10 @@ function ProductsPage() {
               </>
             ) : (
               <div className="text-center py-12">
-                <p className="text-gray-600">No products found matching your criteria.</p>
+                <p className="text-gold">No products found matching your criteria.</p>
                 <button
-                  onClick={clearFilters}
-                  className="mt-4 text-blue-600 hover:text-blue-700 font-medium"
+                  onClick={() => { console.log('Clear filters clicked (no products)'); clearFilters(); }}
+                  className="mt-4 text-gold hover:text-neutral-950 hover:bg-gold font-bold px-4 py-2 rounded-lg transition-colors bg-neutral-900"
                 >
                   Clear filters
                 </button>

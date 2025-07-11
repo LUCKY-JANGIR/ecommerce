@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Header from '@/components/Header';
 import { ArrowLeft, Heart, ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
@@ -12,8 +11,7 @@ export default function WishlistPage() {
   const [loading, setLoading] = useState(false);
 
   return (
-    <div className="min-h-screen bg-sand">
-      <Header />
+    <div className="min-h-screen bg-neutral-950">
       
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-display font-bold text-primary mb-6">Your Wishlist</h1>

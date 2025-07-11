@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Header from '@/components/Header';
 import { useStore } from '@/store/useStore';
 import { ordersAPI } from '@/services/api';
 import { ArrowLeft, Package, Calendar, DollarSign } from 'lucide-react';
@@ -58,11 +57,10 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-sand">
-      <Header />
+    <div className="min-h-screen bg-neutral-950">
       
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-display font-bold text-primary mb-6">Your Orders</h1>
+        <h1 className="text-3xl font-display font-bold text-white mb-6">Your Orders</h1>
         <div className="max-w-4xl mx-auto">
           {/* Back to home */}
           <Link
@@ -74,8 +72,8 @@ export default function OrdersPage() {
           </Link>
 
           {/* Orders Header */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">My Orders</h1>
+          <div className="bg-neutral-800 rounded-lg shadow-md p-6 mb-6">
+            <h1 className="text-2xl font-bold text-white mb-2">My Orders</h1>
             <p className="text-gray-600">Track your order history and status</p>
           </div>
 
@@ -87,12 +85,12 @@ export default function OrdersPage() {
           ) : orders.length > 0 ? (
             <div className="space-y-4">
               {orders.map((order) => (
-                <div key={order._id} className="bg-white rounded-lg shadow-md p-6">
+                <div key={order._id} className="bg-neutral-800 rounded-lg shadow-md p-6">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-4">
                       <Package className="h-6 w-6 text-blue-600" />
                       <div>
-                        <h3 className="font-semibold text-gray-800">
+                        <h3 className="font-semibold text-white">
                           Order #{order._id.slice(-8).toUpperCase()}
                         </h3>
                         <p className="text-sm text-gray-600">
@@ -123,8 +121,8 @@ export default function OrdersPage() {
                     </div>
                   </div>
 
-                  <div className="border-t pt-4">
-                    <h4 className="font-medium text-gray-800 mb-2">Order Items:</h4>
+                  <div className="border-t border-neutral-700 pt-4">
+                    <h4 className="font-medium text-white mb-2">Order Items:</h4>
                     <div className="space-y-2">
                       {order.orderItems.map((item: any, index: number) => (
                         <div key={index} className="flex items-center justify-between text-sm">
@@ -142,7 +140,7 @@ export default function OrdersPage() {
           ) : (
             <div className="text-center py-8">
               <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-800 mb-2">No orders yet</h3>
+              <h3 className="text-lg font-medium text-white mb-2">No orders yet</h3>
               <p className="text-gray-600 mb-4">Start shopping to see your orders here</p>
               <Link
                 href="/products"
