@@ -53,22 +53,10 @@ const productSchema = new mongoose.Schema({
         max: [100, 'Discount cannot be more than 100%']
     },
     category: {
-        type: String,
-        required: [true, 'Product category is required'],
-        enum: [
-            'Electronics',
-            'Clothing',
-            'Books',
-            'Home & Garden',
-            'Sports',
-            'Beauty',
-            'Toys',
-            'Automotive',
-            'Health',
-            'Food',
-            'Other'
-        ]
-    },
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category',
+        required: false // TEMP: Make optional for migration, set to true after all products updated
+    }, // TODO: Set required: true after migration
     subcategory: {
         type: String,
         default: ''

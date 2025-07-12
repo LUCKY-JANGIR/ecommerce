@@ -7,6 +7,7 @@ import '@fontsource/caveat/400.css';
 import HeroHeader from "@/components/HeroHeader";
 import HydrationProvider from "@/components/HydrationProvider";
 import "@/app/fonts.css";
+import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Indian Handloom - Your Online Shop',

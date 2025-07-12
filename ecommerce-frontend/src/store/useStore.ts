@@ -133,6 +133,12 @@ interface AppState {
   // Hydration
   hydrated: boolean;
   setHydrated: (hydrated: boolean) => void;
+
+  // Wishlist
+  wishlist: Product[];
+  addToWishlist: (product: Product) => void;
+  removeFromWishlist: (productId: string) => void;
+  clearWishlist: () => void;
 }
 
 export const useStore = create<AppState>()(
@@ -276,6 +282,19 @@ export const useStore = create<AppState>()(
       // Hydration
       hydrated: false,
       setHydrated: (hydrated: boolean) => set({ hydrated }),
+
+      // Wishlist state
+      wishlist: [],
+      addToWishlist: (product: Product) =>
+        set((state) => {
+          if (state.wishlist.find((p) => p._id === product._id)) return {};
+          return { wishlist: [...state.wishlist, product] };
+        }),
+      removeFromWishlist: (productId: string) =>
+        set((state) => ({
+          wishlist: state.wishlist.filter((p) => p._id !== productId),
+        })),
+      clearWishlist: () => set({ wishlist: [] }),
     }),
     {
       name: 'ecommerce-store',
@@ -286,6 +305,7 @@ export const useStore = create<AppState>()(
           isAuthenticated: state.auth.isAuthenticated,
         },
         cart: state.cart,
+        wishlist: state.wishlist,
       }),
     }
   )

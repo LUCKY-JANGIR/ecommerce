@@ -10,56 +10,13 @@ const config: Config = {
   theme: {
   	extend: {
   		colors: {
-  			primary: {
-  				DEFAULT: '#b87333', // Rajasthan sandstone brown
-  				dark: '#8d5524',
-  				light: '#e6b07a',
-  			},
-  			secondary: {
-  				DEFAULT: '#d2691e', // Terracotta
-  				dark: '#a0521d',
-  				light: '#f4a460',
-  			},
-  			accent: {
-  				DEFAULT: '#2d4059', // Deep blue
-  				light: '#3a5a7a',
-  			},
-  			gold: {
-  				DEFAULT: '#ffd700',
-  			},
-  			sand: {
-  				DEFAULT: '#f5deb3',
-  			},
-  			background: {
-  				DEFAULT: '#f9f6f2',
-  			},
-  			foreground: 'hsl(var(--foreground))',
-  			card: {
-  				DEFAULT: 'hsl(var(--card))',
-  				foreground: 'hsl(var(--card-foreground))'
-  			},
-  			popover: {
-  				DEFAULT: 'hsl(var(--popover))',
-  				foreground: 'hsl(var(--popover-foreground))'
-  			},
-  			muted: {
-  				DEFAULT: 'hsl(var(--muted))',
-  				foreground: 'hsl(var(--muted-foreground))'
-  			},
-  			destructive: {
-  				DEFAULT: 'hsl(var(--destructive))',
-  				foreground: 'hsl(var(--destructive-foreground))'
-  			},
-  			border: 'hsl(var(--border))',
-  			input: 'hsl(var(--input))',
-  			ring: 'hsl(var(--ring))',
-  			chart: {
-  				'1': 'hsl(var(--chart-1))',
-  				'2': 'hsl(var(--chart-2))',
-  				'3': 'hsl(var(--chart-3))',
-  				'4': 'hsl(var(--chart-4))',
-  				'5': 'hsl(var(--chart-5))'
-  			}
+        background: '#0E0E0E',
+        primary: '#D4AF37',
+        secondary: '#F3F2ED',
+        border: '#2B2B2B',
+        'text-main': '#EAEAEA',
+        'text-muted': '#B8B8B8',
+        'shadow-gold': '#D4AF37',
   		},
   		animation: {
   			'fade-in': 'fadeIn 0.5s ease-in-out',

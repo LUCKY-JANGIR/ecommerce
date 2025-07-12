@@ -15,6 +15,11 @@ interface Product {
   [key: string]: any;
 }
 
+interface Category {
+  _id: string;
+  name: string;
+}
+
 export default function AdminProductsPage() {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
@@ -30,10 +35,7 @@ export default function AdminProductsPage() {
   const [imagePreview, setImagePreview] = useState<string>('');
   const [editSelectedImage, setEditSelectedImage] = useState<File | null>(null);
   const [editImagePreview, setEditImagePreview] = useState<string>('');
-
-  const CATEGORY_OPTIONS = [
-    'Electronics', 'Clothing', 'Books', 'Home & Garden', 'Sports', 'Beauty', 'Toys', 'Automotive', 'Health', 'Food', 'Other'
-  ];
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -49,6 +51,10 @@ export default function AdminProductsPage() {
 
   useEffect(() => {
     fetchProducts();
+    // Fetch categories
+    fetch('/api/categories')
+      .then(res => res.json())
+      .then(data => setCategories(data));
   }, []);
 
   const handleDelete = async (id: string) => {
@@ -75,7 +81,7 @@ export default function AdminProductsPage() {
     });
   };
 
-  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setEditForm({ ...editForm, [e.target.name]: e.target.value });
   };
 
@@ -200,7 +206,7 @@ export default function AdminProductsPage() {
               {products.map((product) => (
                 <tr key={product._id} className="border-b">
                   <td className="px-4 py-2">{product.name}</td>
-                  <td className="px-4 py-2">{product.category}</td>
+                  <td className="px-4 py-2">{categories.find(cat => cat._id === product.category)?.name || 'N/A'}</td>
                   <td className="px-4 py-2">${product.price}</td>
                   <td className="px-4 py-2">{product.stock}</td>
                   <td className="px-4 py-2 space-x-2">
@@ -244,14 +250,17 @@ export default function AdminProductsPage() {
                 className="w-full border rounded px-3 py-2"
                 placeholder="Product Name"
               />
-              <input
-                type="text"
+              <select
                 name="category"
                 value={editForm.category}
                 onChange={handleEditChange}
                 className="w-full border rounded px-3 py-2"
-                placeholder="Category"
-              />
+              >
+                <option value="">Select Category</option>
+                {categories.map((cat) => (
+                  <option key={cat._id} value={cat._id}>{cat.name}</option>
+                ))}
+              </select>
               <input
                 type="number"
                 name="price"
@@ -334,8 +343,8 @@ export default function AdminProductsPage() {
                 className="w-full border rounded px-3 py-2"
               >
                 <option value="">Select Category*</option>
-                {CATEGORY_OPTIONS.map((cat) => (
-                  <option key={cat} value={cat}>{cat}</option>
+                {categories.map((cat) => (
+                  <option key={cat._id} value={cat._id}>{cat.name}</option>
                 ))}
               </select>
               <input

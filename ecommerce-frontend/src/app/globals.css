@@ -124,21 +124,24 @@ body::-webkit-scrollbar, *::-webkit-scrollbar {
     @apply border-border;
   }
   body {
-    @apply bg-neutral-950 text-white font-body;
+    @apply bg-background text-text-main font-body;
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display text-gold;
+    @apply font-display text-primary;
   }
   a {
-    @apply text-gold hover:text-yellow-400 transition-colors;
+    @apply text-primary hover:text-secondary transition-colors;
   }
   button, .btn, [type="button"], [type="submit"] {
-    @apply bg-gold text-neutral-950 rounded-lg px-4 py-2 font-bold shadow hover:bg-yellow-400 transition-colors;
+    @apply bg-primary text-background rounded-xl px-4 py-2 font-bold shadow-[0_4px_24px_0_theme('colors.shadow-gold')/20] hover:bg-secondary hover:text-primary transition-colors;
   }
   input, select, textarea {
-    @apply border-gold focus:ring-gold focus:border-gold bg-neutral-900 text-gold placeholder-gold;
+    @apply border-border focus:ring-primary focus:border-primary bg-background text-text-main placeholder-text-muted rounded-lg;
   }
   .card, .bg-card {
-    @apply bg-neutral-900 border border-neutral-800 shadow-lg rounded-xl;
+    @apply bg-secondary border border-border shadow-[0_4px_24px_0_theme('colors.shadow-gold')/20] rounded-xl;
+  }
+  .muted {
+    @apply text-text-muted;
   }
 }

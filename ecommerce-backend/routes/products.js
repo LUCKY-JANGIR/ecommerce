@@ -1,6 +1,7 @@
 const express = require('express');
 const { body, validationResult, query } = require('express-validator');
 const Product = require('../models/Product');
+const Category = require('../models/Category');
 const { protect, admin, optionalAuth } = require('../middleware/auth');
 const multer = require('multer');
 const path = require('path');
@@ -431,5 +432,7 @@ router.get('/category/:category', async (req, res, next) => {
         next(error);
     }
 });
+
+// Category routes will be registered in a new file (categories.js)
 
 module.exports = router;

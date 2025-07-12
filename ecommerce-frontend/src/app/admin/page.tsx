@@ -60,6 +60,13 @@ export default function AdminPage() {
       icon: BarChart3,
       href: '/admin/analytics',
       color: 'bg-orange-500'
+    },
+    {
+      title: 'Category Management',
+      description: 'Add, edit, and manage categories',
+      icon: BarChart3, // Use a suitable icon, can be changed later
+      href: '/admin/categories',
+      color: 'bg-yellow-500'
     }
   ];
 

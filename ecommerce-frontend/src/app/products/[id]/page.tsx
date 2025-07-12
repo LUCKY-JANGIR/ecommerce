@@ -48,8 +48,8 @@ export default function ProductDetailsPage() {
 
   return (
     <div className="min-h-screen bg-neutral-950">
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid md:grid-cols-2 gap-10">
+      <div className="container mx-auto px-4 py-8 md:py-16">
+        <div className="bg-black/40 backdrop-blur border-[#d4af37] rounded-xl p-6 md:p-10 flex flex-col md:flex-row gap-8 shadow-lg animate-fadein">
           {/* Product Images */}
           <div className="bg-neutral-900 rounded-lg shadow-lg p-6 border border-neutral-800 flex flex-col items-center">
             <img
@@ -70,17 +70,17 @@ export default function ProductDetailsPage() {
           </div>
           {/* Product Info */}
           <div className="bg-neutral-900 rounded-lg shadow-lg p-8 border border-neutral-800 flex flex-col">
-            <h1 className="text-3xl font-display font-bold text-gold mb-2">{product.name}</h1>
-            <p className="text-lg text-gold font-bold mb-2">₹{product.price}</p>
-            <p className="text-white-dark mb-2">Category: <span className="capitalize">{product.category}</span></p>
-            <p className="mb-4 text-white-dark">{product.description}</p>
+            <h1 className="font-playfair text-3xl md:text-4xl text-[#d4af37] font-bold mb-2">{product.name}</h1>
+            <p className="text-2xl text-[#d4af37] font-bold mb-4">₹{product.price}</p>
+            <p className="text-gray-200 mb-2">Category: <span className="capitalize">{product.category}</span></p>
+            <p className="mb-4 text-gray-200">{product.description}</p>
             <div className="mb-4">
               <span className="font-semibold text-gold">Stock:</span> {product.stock > 0 ? `${product.stock} available` : <span className="text-red-600">Out of stock</span>}
             </div>
             <button
               onClick={() => addToCart(product, 1)}
               disabled={product.stock === 0}
-              className="bg-gold text-gold hover:bg-gold hover:text-accent font-semibold rounded-lg px-6 py-3 transition-colors mt-2 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
+              className="bg-[#d4af37] text-black rounded-lg px-6 py-3 font-bold shadow hover:bg-[#e6c385] transition-colors w-full md:w-auto"
             >
               Add to Cart
             </button>
