@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useStore } from '@/store/useStore';
-import { authAPI } from '@/services/api';
+import { authAPI } from '@/components/services/api';
 import { ArrowLeft, User, Mail, Phone, MapPin, Heart, ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
@@ -48,21 +48,21 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-950 flex flex-col items-center justify-start">
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-start">
       <div className="container w-full px-4 py-8 md:py-16">
         {/* Top Section: Profile Info and Actions */}
-        <div className="bg-black/40 backdrop-blur border-[#d4af37] rounded-xl shadow-lg animate-fadein px-6 py-8 md:p-12 w-full mb-10">
+        <div className="bg-white/80 backdrop-blur border-gray-200 rounded-xl shadow-lg animate-fadein px-6 py-8 md:p-12 w-full mb-10">
           {/* User Avatar */}
           <div className="text-center mb-8">
             <div className="w-24 h-24 bg-[#d4af37] rounded-full flex items-center justify-center text-white text-4xl font-bold mb-4 mx-auto">
               {profile?.name ? profile.name.split(' ').map((n: string) => n[0]).join('').toUpperCase() : 'U'}
             </div>
-            <h1 className="text-4xl font-cinzel font-bold text-white mb-2">My Profile</h1>
+            <h1 className="text-4xl font-cinzel font-bold text-gray-900 mb-2">My Profile</h1>
             <p className="text-gray-600">Manage your account information</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Basic Info */}
-            <div className="bg-neutral-900/30 border border-[#d4af37] rounded-lg p-6 shadow-md">
+            <div className="bg-white/30 border border-gray-200 rounded-lg p-6 shadow-md">
               <h2 className="text-2xl font-playfair font-bold text-[#d4af37] mb-4 flex items-center gap-2"><User className="h-6 w-6" /> Basic Information</h2>
               <div className="space-y-3">
                 <div className="flex items-center">
@@ -86,7 +86,7 @@ export default function ProfilePage() {
             </div>
             {/* Address */}
             {profile?.address && (
-              <div className="bg-neutral-900/30 border border-[#d4af37] rounded-lg p-6 shadow-md">
+              <div className="bg-white/30 border border-gray-200 rounded-lg p-6 shadow-md">
                 <h2 className="text-2xl font-playfair font-bold text-[#d4af37] mb-4 flex items-center gap-2"><MapPin className="h-6 w-6" /> Address</h2>
                 <div className="flex items-start">
                   <MapPin className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
@@ -99,7 +99,7 @@ export default function ProfilePage() {
               </div>
             )}
             {/* Account Info */}
-            <div className="bg-neutral-900/30 border border-[#d4af37] rounded-lg p-6 shadow-md">
+            <div className="bg-white/30 border border-gray-200 rounded-lg p-6 shadow-md">
               <h2 className="text-2xl font-playfair font-bold text-[#d4af37] mb-4 flex items-center gap-2"><User className="h-6 w-6" /> Account Information</h2>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -139,7 +139,7 @@ export default function ProfilePage() {
           </div>
         </div>
         {/* Bottom Section: Wishlist */}
-        <div className="bg-black/40 backdrop-blur border-[#d4af37] rounded-xl shadow-lg animate-fadein px-6 py-8 md:p-12 w-full">
+        <div className="bg-white/80 backdrop-blur border-gray-200 rounded-xl shadow-lg animate-fadein px-6 py-8 md:p-12 w-full">
           <h2 className="text-2xl font-playfair font-bold text-[#d4af37] mb-4 flex items-center gap-2"><Heart className="h-6 w-6" /> My Wishlist</h2>
           {wishlist.length === 0 ? (
             <div className="text-gray-400 text-center py-8">Your wishlist is empty.</div>

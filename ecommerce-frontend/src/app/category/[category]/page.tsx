@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import ProductCard from "@/components/ProductCard";
-import { productsAPI } from "@/services/api";
+import { productsAPI } from "@/components/services/api";
 import { Product } from "@/store/useStore";
 
 export default function CategoryPage() {
@@ -29,7 +29,7 @@ export default function CategoryPage() {
   }, [categoryStr]);
 
   return (
-    <div className="min-h-screen bg-neutral-950">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-display font-bold text-white mb-6 capitalize">
           {categoryStr?.toString().replace(/-/g, " ")} Products

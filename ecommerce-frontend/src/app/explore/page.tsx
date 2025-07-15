@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { categoriesAPI } from "@/components/services/api";
 
 interface Category {
   _id: string;
@@ -14,10 +15,17 @@ export default function ExplorePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/categories')
-      .then(res => res.json())
-      .then(data => setCategories(data))
-      .finally(() => setLoading(false));
+    const fetchCategories = async () => {
+      try {
+        const data = await categoriesAPI.getAll();
+        setCategories(data);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCategories();
   }, []);
 
   return (

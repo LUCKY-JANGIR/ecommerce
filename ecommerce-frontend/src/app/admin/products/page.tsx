@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { productsAPI } from "@/services/api";
+import { productsAPI, categoriesAPI } from "@/components/services/api";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import { getOptimizedImageUrl } from "@/lib/imageUtils";
 
 interface Product {
   _id: string;
@@ -12,6 +13,7 @@ interface Product {
   category: string;
   price: number;
   stock: number;
+  images?: Array<{ url: string; alt?: string }>;
   [key: string]: any;
 }
 
@@ -36,25 +38,44 @@ export default function AdminProductsPage() {
   const [editSelectedImage, setEditSelectedImage] = useState<File | null>(null);
   const [editImagePreview, setEditImagePreview] = useState<string>('');
   const [categories, setCategories] = useState<Category[]>([]);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const fetchProducts = async () => {
     setLoading(true);
     try {
       const data = await productsAPI.getAll();
-      setProducts(data.products || data);
+      // The API now returns {products: [...], pagination: {...}}
+      let productsArray = [];
+      if (Array.isArray(data)) {
+        productsArray = data;
+      } else if (data && Array.isArray(data.products)) {
+        productsArray = data.products;
+      } else if (data && data.data && Array.isArray(data.data.products)) {
+        // Fallback for old response structure
+        productsArray = data.data.products;
+      }
+      setProducts(productsArray);
     } catch (error) {
       toast.error("Failed to load products");
+      setProducts([]); // Ensure products is always an array on error
     } finally {
       setLoading(false);
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const data = await categoriesAPI.getAll();
+      setCategories(data);
+    } catch (error) {
+      console.error('Failed to fetch categories:', error);
+      toast.error('Failed to load categories');
+    }
+  };
+
   useEffect(() => {
     fetchProducts();
-    // Fetch categories
-    fetch('/api/categories')
-      .then(res => res.json())
-      .then(data => setCategories(data));
+    fetchCategories();
   }, []);
 
   const handleDelete = async (id: string) => {
@@ -79,6 +100,8 @@ export default function AdminProductsPage() {
       price: product.price.toString(),
       stock: product.stock.toString(),
     });
+    setEditImagePreview(product.images?.[0]?.url || '');
+    setEditSelectedImage(null);
   };
 
   const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -95,7 +118,7 @@ export default function AdminProductsPage() {
       formData.append('price', editForm.price);
       formData.append('stock', editForm.stock);
       
-      // Add image if selected
+      // Add new image file directly to FormData if selected
       if (editSelectedImage) {
         formData.append('images', editSelectedImage);
       }
@@ -104,10 +127,11 @@ export default function AdminProductsPage() {
       toast.success('Product updated successfully');
       setEditing(null);
       fetchProducts();
-    } catch (error) {
-      toast.error('Failed to update product');
+    } catch (error: any) {
+      toast.error(error?.message || 'Failed to update product');
     } finally {
       setEditLoading(false);
+      setUploadingImage(false);
     }
   };
 
@@ -146,6 +170,16 @@ export default function AdminProductsPage() {
     }
   };
 
+  const removeImage = () => {
+    setSelectedImage(null);
+    setImagePreview('');
+  };
+
+  const removeEditImage = () => {
+    setEditSelectedImage(null);
+    setEditImagePreview('');
+  };
+
   const handleAddSave = async () => {
     if (!addForm.name || !addForm.description || !addForm.category || !addForm.price || !addForm.stock || !addForm.sku) {
       toast.error('Please fill all required fields.');
@@ -161,9 +195,18 @@ export default function AdminProductsPage() {
       formData.append('stock', addForm.stock);
       formData.append('sku', addForm.sku);
       
-      // Add image if selected
+      // Add image files directly to FormData
       if (selectedImage) {
         formData.append('images', selectedImage);
+        console.log('Image added to form data:', selectedImage.name, selectedImage.size, selectedImage.type);
+      } else {
+        console.log('No image selected');
+      }
+      
+      // Debug: Log form data contents
+      console.log('Form data entries:');
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
       }
       
       await productsAPI.create(formData);
@@ -171,53 +214,69 @@ export default function AdminProductsPage() {
       setAdding(false);
       fetchProducts();
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Failed to add product');
+      console.error('Error creating product:', error);
+      toast.error(error?.message || 'Failed to add product');
     } finally {
       setAddLoading(false);
+      setUploadingImage(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-sand p-8">
-      <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-lg p-8">
+    <div className="min-h-screen bg-background p-8">
+      <div className="max-w-6xl mx-auto bg-secondary rounded-lg shadow-lg p-8 border border-primary">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-primary">Product Management</h1>
+          <h1 className="text-2xl font-bold text-text-main">Product Management</h1>
           <button
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-semibold"
+            className="bg-primary text-background px-4 py-2 rounded hover:bg-primary-light font-semibold transition-colors"
             onClick={openAdd}
           >
             Add Product
           </button>
         </div>
         {loading ? (
-          <div className="text-center py-8">Loading...</div>
+          <div className="text-center py-8 text-text-main">Loading...</div>
         ) : (
-          <table className="min-w-full divide-y divide-gray-200">
+          <table className="min-w-full divide-y divide-primary">
             <thead>
               <tr>
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Stock</th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-text-muted uppercase">Image</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-text-muted uppercase">Name</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-text-muted uppercase">Category</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-text-muted uppercase">Price</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-text-muted uppercase">Stock</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-text-muted uppercase">Actions</th>
               </tr>
             </thead>
             <tbody>
               {products.map((product) => (
-                <tr key={product._id} className="border-b">
-                  <td className="px-4 py-2">{product.name}</td>
-                  <td className="px-4 py-2">{categories.find(cat => cat._id === product.category)?.name || 'N/A'}</td>
-                  <td className="px-4 py-2">${product.price}</td>
-                  <td className="px-4 py-2">{product.stock}</td>
+                <tr key={product._id} className="border-b border-primary">
+                  <td className="px-4 py-2">
+                    {product.images?.[0]?.url ? (
+                      <img
+                        src={getOptimizedImageUrl(product.images[0].url, { width: 50, height: 50 })}
+                        alt={product.name}
+                        className="w-12 h-12 object-cover rounded border border-primary"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 bg-background rounded border border-primary flex items-center justify-center text-text-muted text-xs">
+                        No img
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-4 py-2 text-text-main">{product.name}</td>
+                  <td className="px-4 py-2 text-text-main">{categories.find(cat => cat._id === product.category)?.name || 'N/A'}</td>
+                  <td className="px-4 py-2 text-text-main">${product.price}</td>
+                  <td className="px-4 py-2 text-text-main">{product.stock}</td>
                   <td className="px-4 py-2 space-x-2">
                     <button
-                      className="bg-yellow-400 text-white px-3 py-1 rounded hover:bg-yellow-500 text-sm"
+                      className="bg-accent-gold text-background px-3 py-1 rounded hover:bg-accent-bronze text-sm transition-colors"
                       onClick={() => openEdit(product)}
                     >
                       Edit
                     </button>
                     <button
-                      className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-sm disabled:opacity-50"
+                      className="bg-error text-secondary px-3 py-1 rounded hover:bg-error/80 text-sm disabled:opacity-50 transition-colors"
                       disabled={deleting === product._id}
                       onClick={() => handleDelete(product._id)}
                     >
@@ -233,28 +292,28 @@ export default function AdminProductsPage() {
       {/* Edit Modal */}
       {editing && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative">
+          <div className="bg-secondary rounded-lg shadow-lg p-8 w-full max-w-md relative border border-primary">
             <button
-              className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-2xl"
+              className="absolute top-2 right-2 text-text-muted hover:text-text-main text-2xl"
               onClick={() => setEditing(null)}
             >
               &times;
             </button>
-            <h2 className="text-xl font-bold mb-4">Edit Product</h2>
+            <h2 className="text-xl font-bold mb-4 text-text-main">Edit Product</h2>
             <div className="space-y-4">
               <input
                 type="text"
                 name="name"
                 value={editForm.name}
                 onChange={handleEditChange}
-                className="w-full border rounded px-3 py-2"
+                className="w-full border border-primary rounded px-3 py-2 bg-background text-text-main placeholder-text-muted"
                 placeholder="Product Name"
               />
               <select
                 name="category"
                 value={editForm.category}
                 onChange={handleEditChange}
-                className="w-full border rounded px-3 py-2"
+                className="w-full border border-primary rounded px-3 py-2 bg-background text-text-main"
               >
                 <option value="">Select Category</option>
                 {categories.map((cat) => (
@@ -266,7 +325,7 @@ export default function AdminProductsPage() {
                 name="price"
                 value={editForm.price}
                 onChange={handleEditChange}
-                className="w-full border rounded px-3 py-2"
+                className="w-full border border-primary rounded px-3 py-2 bg-background text-text-main placeholder-text-muted"
                 placeholder="Price"
               />
               <input
@@ -274,36 +333,44 @@ export default function AdminProductsPage() {
                 name="stock"
                 value={editForm.stock}
                 onChange={handleEditChange}
-                className="w-full border rounded px-3 py-2"
+                className="w-full border border-primary rounded px-3 py-2 bg-background text-text-main placeholder-text-muted"
                 placeholder="Stock"
               />
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-text-main mb-2">
                   Product Image (Optional)
                 </label>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handleEditImageChange}
-                  className="w-full border rounded px-3 py-2"
+                  className="w-full border border-primary rounded px-3 py-2 bg-background text-text-main"
                 />
-                {editImagePreview && (
-                  <div className="mt-2">
+                {(editImagePreview || editing.images?.[0]?.url) && (
+                  <div className="mt-2 relative">
                     <img
-                      src={editImagePreview}
+                      src={editImagePreview || editing.images?.[0]?.url}
                       alt="Preview"
-                      className="w-32 h-32 object-cover rounded border"
+                      className="w-32 h-32 object-cover rounded border border-primary"
                     />
+                    <button
+                      type="button"
+                      onClick={removeEditImage}
+                      className="absolute -top-2 -right-2 bg-error text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-error/80 transition-colors"
+                      title="Remove image"
+                    >
+                      ×
+                    </button>
                   </div>
                 )}
               </div>
             </div>
             <button
-              className="mt-6 w-full bg-primary text-gold font-semibold rounded-lg px-4 py-2 hover:bg-gold hover:text-primary transition-colors"
+              className="mt-6 w-full bg-primary text-background font-semibold rounded-lg px-4 py-2 hover:bg-primary-light transition-colors disabled:opacity-50"
               onClick={handleEditSave}
-              disabled={editLoading}
+              disabled={editLoading || uploadingImage}
             >
-              {editLoading ? 'Saving...' : 'Save Changes'}
+              {editLoading || uploadingImage ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
         </div>
@@ -311,28 +378,28 @@ export default function AdminProductsPage() {
       {/* Add Modal */}
       {adding && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative">
+          <div className="bg-secondary rounded-lg shadow-lg p-8 w-full max-w-md relative border border-primary">
             <button
-              className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-2xl"
+              className="absolute top-2 right-2 text-text-muted hover:text-text-main text-2xl"
               onClick={() => setAdding(false)}
             >
               &times;
             </button>
-            <h2 className="text-xl font-bold mb-4">Add Product</h2>
+            <h2 className="text-xl font-bold mb-4 text-text-main">Add Product</h2>
             <div className="space-y-4">
               <input
                 type="text"
                 name="name"
                 value={addForm.name}
                 onChange={handleAddChange}
-                className="w-full border rounded px-3 py-2"
+                className="w-full border border-primary rounded px-3 py-2 bg-background text-text-main placeholder-text-muted"
                 placeholder="Product Name*"
               />
               <textarea
                 name="description"
                 value={addForm.description}
                 onChange={handleAddChange}
-                className="w-full border rounded px-3 py-2"
+                className="w-full border border-primary rounded px-3 py-2 bg-background text-text-main placeholder-text-muted"
                 placeholder="Description*"
                 rows={3}
               />
@@ -340,7 +407,7 @@ export default function AdminProductsPage() {
                 name="category"
                 value={addForm.category}
                 onChange={handleAddChange}
-                className="w-full border rounded px-3 py-2"
+                className="w-full border border-primary rounded px-3 py-2 bg-background text-text-main"
               >
                 <option value="">Select Category*</option>
                 {categories.map((cat) => (
@@ -352,7 +419,7 @@ export default function AdminProductsPage() {
                 name="sku"
                 value={addForm.sku}
                 onChange={handleAddChange}
-                className="w-full border rounded px-3 py-2"
+                className="w-full border border-primary rounded px-3 py-2 bg-background text-text-main placeholder-text-muted"
                 placeholder="SKU*"
               />
               <input
@@ -360,7 +427,7 @@ export default function AdminProductsPage() {
                 name="price"
                 value={addForm.price}
                 onChange={handleAddChange}
-                className="w-full border rounded px-3 py-2"
+                className="w-full border border-primary rounded px-3 py-2 bg-background text-text-main placeholder-text-muted"
                 placeholder="Price*"
               />
               <input
@@ -368,36 +435,44 @@ export default function AdminProductsPage() {
                 name="stock"
                 value={addForm.stock}
                 onChange={handleAddChange}
-                className="w-full border rounded px-3 py-2"
+                className="w-full border border-primary rounded px-3 py-2 bg-background text-text-main placeholder-text-muted"
                 placeholder="Stock*"
               />
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-text-main mb-2">
                   Product Image
                 </label>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handleImageChange}
-                  className="w-full border rounded px-3 py-2"
+                  className="w-full border border-primary rounded px-3 py-2 bg-background text-text-main"
                 />
                 {imagePreview && (
-                  <div className="mt-2">
+                  <div className="mt-2 relative">
                     <img
                       src={imagePreview}
                       alt="Preview"
-                      className="w-32 h-32 object-cover rounded border"
+                      className="w-32 h-32 object-cover rounded border border-primary"
                     />
+                    <button
+                      type="button"
+                      onClick={removeImage}
+                      className="absolute -top-2 -right-2 bg-error text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-error/80 transition-colors"
+                      title="Remove image"
+                    >
+                      ×
+                    </button>
                   </div>
                 )}
               </div>
             </div>
             <button
-              className="mt-6 w-full bg-primary text-gold font-semibold rounded-lg px-4 py-2 hover:bg-gold hover:text-primary transition-colors"
+              className="mt-6 w-full bg-primary text-background font-semibold rounded-lg px-4 py-2 hover:bg-primary-light transition-colors disabled:opacity-50"
               onClick={handleAddSave}
-              disabled={addLoading}
+              disabled={addLoading || uploadingImage}
             >
-              {addLoading ? 'Saving...' : 'Add Product'}
+              {addLoading || uploadingImage ? 'Saving...' : 'Add Product'}
             </button>
           </div>
         </div>

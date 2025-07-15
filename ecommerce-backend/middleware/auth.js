@@ -12,7 +12,8 @@ const protect = async (req, res, next) => {
             token = req.headers.authorization.split(' ')[1];
 
             // Verify token
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const jwtSecret = process.env.JWT_SECRET || 'fallback-secret-key-for-development';
+            const decoded = jwt.verify(token, jwtSecret);
 
             // Get user from token (excluding password)
             req.user = await User.findById(decoded.id).select('-password');
@@ -47,7 +48,8 @@ const optionalAuth = async (req, res, next) => {
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         try {
             token = req.headers.authorization.split(' ')[1];
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const jwtSecret = process.env.JWT_SECRET || 'fallback-secret-key-for-development';
+            const decoded = jwt.verify(token, jwtSecret);
             req.user = await User.findById(decoded.id).select('-password');
         } catch (error) {
             // Token is invalid but we don't fail the request
@@ -60,7 +62,8 @@ const optionalAuth = async (req, res, next) => {
 
 // Generate JWT token
 const generateToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, {
+    const jwtSecret = process.env.JWT_SECRET || 'fallback-secret-key-for-development';
+    return jwt.sign({ id }, jwtSecret, {
         expiresIn: process.env.JWT_EXPIRE || '7d'
     });
 };

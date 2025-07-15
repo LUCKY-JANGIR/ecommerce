@@ -3,9 +3,11 @@ const { body, validationResult, query } = require('express-validator');
 const Product = require('../models/Product');
 const Category = require('../models/Category');
 const { protect, admin, optionalAuth } = require('../middleware/auth');
+const { asyncHandler, ApiError } = require('../middleware/errorHandler');
 const multer = require('multer');
 const path = require('path');
-const driveService = require('../utils/drive');
+const { uploadToCloudinary } = require('../utils/cloudinary');
+const cloudinary = require('cloudinary').v2;
 
 const router = express.Router();
 
@@ -33,91 +35,138 @@ router.get('/', [
     query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100'),
     query('minPrice').optional().isFloat({ min: 0 }).withMessage('Min price must be a positive number'),
     query('maxPrice').optional().isFloat({ min: 0 }).withMessage('Max price must be a positive number')
-], optionalAuth, async (req, res, next) => {
-    try {
-        // Check for validation errors
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({
-                message: 'Validation failed',
-                errors: errors.array()
-            });
+], optionalAuth, asyncHandler(async (req, res) => {
+    // Check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        throw new ApiError('Validation failed', 400);
+    }
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 12;
+    const skip = (page - 1) * limit;
+
+    // Build filter object
+    let filter = {};
+    if (!req.user || req.user.role !== 'admin') {
+        filter.isActive = true;
+    }
+
+    // Optimized search filter: partial, multi-word, AND logic
+    if (req.query.search) {
+        const words = req.query.search.trim().split(/\s+/).filter(Boolean);
+        if (words.length > 0) {
+            filter.$and = words.map(word => ({
+                $or: [
+                    { name: { $regex: word, $options: 'i' } },
+                    { description: { $regex: word, $options: 'i' } },
+                    { brand: { $regex: word, $options: 'i' } },
+                    { tags: { $regex: word, $options: 'i' } }
+                ]
+            }));
         }
+    }
 
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 12;
-        const skip = (page - 1) * limit;
-
-        // Build filter object
-        let filter = {};
-        if (!req.user || req.user.role !== 'admin') {
-            filter.isActive = true;
+    // Robust category filter: support both ObjectId and name, never throw CastError
+    if (req.query.category) {
+        const mongoose = require('mongoose');
+        let categoryId = req.query.category;
+        if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+            // Try to find category by name (case-insensitive)
+            const categoryDoc = await Category.findOne({ name: { $regex: `^${categoryId}$`, $options: 'i' } });
+            if (categoryDoc) {
+                categoryId = categoryDoc._id;
+            } else {
+                // No such category, return empty result
+                return res.status(200).json({
+                    success: true,
+                    data: {
+                        products: [],
+                        pagination: {
+                            currentPage: 1,
+                            totalPages: 1,
+                            totalProducts: 0,
+                            hasNextPage: false,
+                            hasPrevPage: false
+                        }
+                    },
+                    message: 'No products found for the given category.'
+                });
+            }
         }
+        filter.category = categoryId;
+    }
 
-        // Category filter
-        if (req.query.category) {
-            filter.category = req.query.category;
-        }
+    // Price range filter
+    if (req.query.minPrice || req.query.maxPrice) {
+        filter.price = {};
+        if (req.query.minPrice) filter.price.$gte = parseFloat(req.query.minPrice);
+        if (req.query.maxPrice) filter.price.$lte = parseFloat(req.query.maxPrice);
+    }
 
-        // Price range filter
-        if (req.query.minPrice || req.query.maxPrice) {
-            filter.price = {};
-            if (req.query.minPrice) filter.price.$gte = parseFloat(req.query.minPrice);
-            if (req.query.maxPrice) filter.price.$lte = parseFloat(req.query.maxPrice);
-        }
+    // Rating filter
+    if (req.query.minRating) {
+        filter.rating = { $gte: parseFloat(req.query.minRating) };
+    }
 
-        // Search filter
-        if (req.query.search) {
-            filter.$text = { $search: req.query.search };
-        }
+    // Build sort object
+    let sort = {};
+    switch (req.query.sortBy) {
+        case 'price_asc':
+            sort.price = 1;
+            break;
+        case 'price_desc':
+            sort.price = -1;
+            break;
+        case 'rating':
+            sort.rating = -1;
+            break;
+        case 'newest':
+            sort.createdAt = -1;
+            break;
+        case 'oldest':
+            sort.createdAt = 1;
+            break;
+        case 'name':
+            sort.name = 1;
+            break;
+        default:
+            sort.createdAt = -1;
+    }
 
-        // Brand filter
-        if (req.query.brand) {
-            filter.brand = new RegExp(req.query.brand, 'i');
-        }
+    // Execute query
+    const products = await Product.find(filter)
+        .populate('createdBy', 'name')
+        .populate('category', 'name') // Populate category name
+        .sort(sort)
+        .skip(skip)
+        .limit(limit)
+        .select('-reviews'); // Exclude reviews for performance
 
-        // Rating filter
-        if (req.query.minRating) {
-            filter.rating = { $gte: parseFloat(req.query.minRating) };
-        }
+    // Get total count for pagination
+    const total = await Product.countDocuments(filter);
 
-        // Build sort object
-        let sort = {};
-        switch (req.query.sortBy) {
-            case 'price_asc':
-                sort.price = 1;
-                break;
-            case 'price_desc':
-                sort.price = -1;
-                break;
-            case 'rating':
-                sort.rating = -1;
-                break;
-            case 'newest':
-                sort.createdAt = -1;
-                break;
-            case 'oldest':
-                sort.createdAt = 1;
-                break;
-            case 'name':
-                sort.name = 1;
-                break;
-            default:
-                sort.createdAt = -1;
-        }
+    // If no products found, return empty array with message (not 404)
+    if (!products || products.length === 0) {
+        return res.status(200).json({
+            success: true,
+            data: {
+                products: [],
+                pagination: {
+                    currentPage: page,
+                    totalPages: 1,
+                    totalProducts: 0,
+                    hasNextPage: false,
+                    hasPrevPage: false
+                }
+            },
+            message: 'No products found for the given criteria.'
+        });
+    }
 
-        // Execute query
-        const products = await Product.find(filter)
-            .populate('createdBy', 'name')
-            .sort(sort)
-            .skip(skip)
-            .limit(limit)
-            .select('-reviews'); // Exclude reviews for performance
-
-        // Get total count for pagination
-        const total = await Product.countDocuments(filter);
-
-        res.json({
+    res.json({
+        success: true,
+        data: {
             products,
             pagination: {
                 currentPage: page,
@@ -126,44 +175,52 @@ router.get('/', [
                 hasNextPage: page < Math.ceil(total / limit),
                 hasPrevPage: page > 1
             }
-        });
-    } catch (error) {
-        next(error);
-    }
-});
+        }
+    });
+}));
 
 // @desc    Get single product by ID
 // @route   GET /api/products/:id
 // @access  Public
-router.get('/:id', optionalAuth, async (req, res, next) => {
-    try {
-        const product = await Product.findById(req.params.id)
-            .populate('createdBy', 'name')
-            .populate('reviews.user', 'name avatar');
+router.get('/:id', optionalAuth, asyncHandler(async (req, res) => {
+    const product = await Product.findById(req.params.id)
+        .populate('createdBy', 'name')
+        .populate('category', 'name') // Populate category name
+        .populate('reviews.user', 'name avatar');
 
-        if (!product) {
-            return res.status(404).json({ message: 'Product not found' });
-        }
-
-        // Only show active products to non-admin users
-        if (!product.isActive && (!req.user || req.user.role !== 'admin')) {
-            return res.status(404).json({ message: 'Product not found' });
-        }
-
-        res.json(product);
-    } catch (error) {
-        if (error.name === 'CastError') {
-            return res.status(404).json({ message: 'Product not found' });
-        }
-        next(error);
+    if (!product) {
+        throw new ApiError('Product not found', 404);
     }
-});
+
+    // Only show active products to non-admin users
+    if (!product.isActive && (!req.user || req.user.role !== 'admin')) {
+        throw new ApiError('Product not found', 404);
+    }
+
+    res.json({
+        success: true,
+        data: product
+    });
+}));
 
 // @desc    Create new product
 // @route   POST /api/products
 // @access  Private/Admin
 router.post('/', protect, admin, upload.array('images', 5), async (req, res, next) => {
     try {
+        console.log('Product creation request received');
+        console.log('Files received:', req.files ? req.files.length : 0);
+        if (req.files && req.files.length > 0) {
+            req.files.forEach((file, index) => {
+                console.log(`File ${index}:`, {
+                    originalname: file.originalname,
+                    mimetype: file.mimetype,
+                    size: file.size
+                });
+            });
+        }
+        console.log('Body received:', req.body);
+
         if (!req.user || !req.user._id) {
             return res.status(401).json({ message: 'Not authorized. Please log in as admin.' });
         }
@@ -192,13 +249,12 @@ router.post('/', protect, admin, upload.array('images', 5), async (req, res, nex
         const images = [];
         if (req.files && req.files.length > 0) {
             for (const file of req.files) {
-                const uploadResult = await driveService.uploadFile(file);
-                if (uploadResult.success) {
-                    images.push({
-                        url: uploadResult.url,
-                        alt: name
-                    });
-                }
+                const result = await uploadToCloudinary(file.buffer, file.originalname);
+                images.push({
+                    url: result.secure_url,
+                    alt: req.body.name || file.originalname,
+                    public_id: result.public_id,
+                });
             }
         }
 
@@ -277,13 +333,12 @@ router.put('/:id', protect, admin, upload.array('images', 5), async (req, res, n
         if (req.files && req.files.length > 0) {
             const newImages = [];
             for (const file of req.files) {
-                const uploadResult = await driveService.uploadFile(file);
-                if (uploadResult.success) {
-                    newImages.push({
-                        url: uploadResult.url,
-                        alt: product.name
-                    });
-                }
+                const result = await uploadToCloudinary(file.buffer, file.originalname);
+                newImages.push({
+                    url: result.secure_url,
+                    alt: product.name,
+                    public_id: result.public_id,
+                });
             }
             product.images = [...product.images, ...newImages];
         }
@@ -302,20 +357,24 @@ router.put('/:id', protect, admin, upload.array('images', 5), async (req, res, n
 // @desc    Delete product
 // @route   DELETE /api/products/:id
 // @access  Private/Admin
-router.delete('/:id', protect, admin, async (req, res, next) => {
-    try {
-        const product = await Product.findById(req.params.id);
-        if (!product) {
-            return res.status(404).json({ message: 'Product not found' });
-        }
-
-        await Product.findByIdAndDelete(req.params.id);
-
-        res.json({ message: 'Product deleted successfully' });
-    } catch (error) {
-        next(error);
+router.delete('/:id', protect, admin, asyncHandler(async (req, res) => {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+        return res.status(404).json({ message: 'Product not found' });
     }
-});
+    // Delete images from Cloudinary
+    for (const image of product.images) {
+        if (image.public_id) {
+            try {
+                await cloudinary.uploader.destroy(image.public_id);
+            } catch (err) {
+                console.error('Cloudinary deletion error:', err.message);
+            }
+        }
+    }
+    await product.deleteOne();
+    res.json({ message: 'Product and images deleted successfully' });
+}));
 
 // @desc    Add product review
 // @route   POST /api/products/:id/reviews
@@ -378,7 +437,7 @@ router.post('/:id/reviews', protect, [
 // @desc    Get featured products
 // @route   GET /api/products/featured
 // @access  Public
-router.get('/featured/list', async (req, res, next) => {
+router.get('/featured', async (req, res, next) => {
     try {
         const products = await Product.getFeatured()
             .populate('createdBy', 'name')
@@ -399,19 +458,11 @@ router.post('/upload-image', protect, admin, upload.single('image'), async (req,
         if (!req.file) {
             return res.status(400).json({ message: 'No image file provided' });
         }
-
-        // Upload to Google Drive (or local storage for development)
-        const uploadResult = await driveService.uploadFile(req.file);
-
-        if (!uploadResult.success) {
-            return res.status(500).json({ message: 'Failed to upload image', error: uploadResult.error });
-        }
-
+        const result = await uploadToCloudinary(req.file.buffer, req.file.originalname);
         res.json({
             message: 'Image uploaded successfully',
-            imageUrl: uploadResult.url,
-            filename: uploadResult.filename,
-            driveUrl: uploadResult.driveUrl
+            imageUrl: result.secure_url,
+            public_id: result.public_id,
         });
     } catch (error) {
         next(error);

@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import { categoriesAPI, productsAPI } from "@/components/services/api";
 
 interface Product {
   _id: string;
@@ -25,13 +26,23 @@ export default function CategoryProductsPage() {
   useEffect(() => {
     if (!categoryId) return;
     setLoading(true);
-    fetch(`/api/categories/${categoryId}`)
-      .then(res => res.json())
-      .then(data => setCategory(data));
-    fetch(`/api/products?category=${categoryId}`)
-      .then(res => res.json())
-      .then(data => setProducts(data.products || data))
-      .finally(() => setLoading(false));
+    
+    const fetchData = async () => {
+      try {
+        const [categoryData, productsData] = await Promise.all([
+          categoriesAPI.getById(categoryId),
+          productsAPI.getByCategory(categoryId)
+        ]);
+        setCategory(categoryData);
+        setProducts(productsData.products || productsData);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
   }, [categoryId]);
 
   return (

@@ -9,18 +9,10 @@ const config: Config = {
   ],
   theme: {
   	extend: {
-  		colors: {
-        background: '#0E0E0E',
-        primary: '#D4AF37',
-        secondary: '#F3F2ED',
-        border: '#2B2B2B',
-        'text-main': '#EAEAEA',
-        'text-muted': '#B8B8B8',
-        'shadow-gold': '#D4AF37',
-  		},
   		animation: {
   			'fade-in': 'fadeIn 0.5s ease-in-out',
-  			'slide-up': 'slideUp 0.3s ease-out'
+  			'slide-up': 'slideUp 0.3s ease-out',
+  			'glow': 'glow 2s ease-in-out infinite alternate'
   		},
   		keyframes: {
   			fadeIn: {
@@ -40,16 +32,25 @@ const config: Config = {
   					transform: 'translateY(0)',
   					opacity: '1'
   				}
+  			},
+  			glow: {
+  				'0%': {
+  					boxShadow: '0 0 5px #DAA520, 0 0 10px #DAA520, 0 0 15px #DAA520'
+  				},
+  				'100%': {
+  					boxShadow: '0 0 10px #DAA520, 0 0 20px #DAA520, 0 0 30px #DAA520'
+  				}
   			}
   		},
   		borderRadius: {
-  			lg: 'var(--radius)',
-  			md: 'calc(var(--radius) - 2px)',
-  			sm: 'calc(var(--radius) - 4px)'
+      lg: '0.5rem',
+      md: '0.375rem',
+      sm: '0.25rem'
   		},
   		fontFamily: {
-  			display: ['Merriweather', 'serif'],
-  			body: ['Inter', 'sans-serif'],
+      display: ['Playfair Display', 'Georgia', 'serif'],
+      body: ['Inter', 'system-ui', 'sans-serif'],
+      accent: ['Caveat', 'cursive'],
   		}
   	}
   },

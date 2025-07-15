@@ -1,7 +1,10 @@
 // seed.js
 const mongoose = require('mongoose');
 
-const MONGODB_URI = 'mongodb+srv://samikhanbeswa11:LUCKY%40JANGIR0090@user.5wzoe.mongodb.net/?retryWrites=true&w=majority&appName=User';
+const MONGODB_URI = process.env.MONGODB_URI;
+if (!MONGODB_URI) {
+    console.warn('Warning: MONGODB_URI is not set in environment variables.');
+}
 
 // --- Define Schemas (minimal for seeding) ---
 const userSchema = new mongoose.Schema({

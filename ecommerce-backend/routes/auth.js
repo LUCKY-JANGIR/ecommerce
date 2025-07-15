@@ -2,6 +2,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 const { protect, generateToken } = require('../middleware/auth');
+const bcrypt = require('bcrypt');
 
 const router = express.Router();
 
@@ -91,13 +92,15 @@ router.post('/login', [
         // Find user and include password for comparison
         const user = await User.findOne({ email }).select('+password');
         if (!user) {
-            return res.status(401).json({ message: 'Invalid email or password' });
+            console.warn(`Login failed: User not found for email ${email}`);
+            return res.status(401).json({ message: 'User not found' });
         }
 
-        // Check password
-        const isPasswordValid = await user.comparePassword(password);
+        // Check password using bcrypt
+        const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
-            return res.status(401).json({ message: 'Invalid email or password' });
+            console.warn(`Login failed: Incorrect password for email ${email}`);
+            return res.status(401).json({ message: 'Incorrect password' });
         }
 
         // Update last login

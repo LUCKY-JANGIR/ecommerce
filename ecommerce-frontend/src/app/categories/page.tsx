@@ -1,0 +1,185 @@
+"use client";
+
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import ProductCard from '@/components/ProductCard';
+import { Product } from '@/store/useStore';
+import { categoriesAPI, productsAPI } from '@/components/services/api';
+
+interface Category {
+  _id: string;
+  name: string;
+  description: string;
+  image: string;
+}
+
+interface CategoryWithProducts extends Category {
+  products: Product[];
+}
+
+export default function CategoriesPage() {
+  const [categories, setCategories] = useState<CategoryWithProducts[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchCategoriesAndProducts = async () => {
+      setLoading(true);
+      try {
+        // Fetch categories
+        const categoriesData: Category[] = await categoriesAPI.getAll();
+
+        // Fetch products for each category
+        const categoriesWithProducts = await Promise.all(
+          categoriesData.map(async (category) => {
+            try {
+              const productsData = await productsAPI.getByCategory(category._id);
+              return {
+                ...category,
+                products: productsData.products || []
+              };
+            } catch (error) {
+              return {
+                ...category,
+                products: []
+              };
+            }
+          })
+        );
+
+        setCategories(categoriesWithProducts);
+      } catch (error) {
+        console.error('Failed to fetch categories:', error);
+        setCategories([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategoriesAndProducts();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-white text-lg">Loading categories...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-neutral-950">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-4">
+            Shop by Category
+          </h1>
+          <p className="text-gray-400 max-w-2xl mx-auto text-lg">
+            Explore our curated collection of handcrafted products organized by category
+          </p>
+        </div>
+
+        {/* Categories Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+          {categories.map((category, index) => (
+            <motion.div
+              key={category._id}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1, duration: 0.5 }}
+              className="bg-neutral-900 rounded-xl p-6 border border-neutral-800 hover:border-primary/50 transition-all duration-300"
+            >
+              <div className="text-center mb-4">
+                {category.image ? (
+                  <img
+                    src={category.image}
+                    alt={category.name}
+                    className="w-16 h-16 object-cover rounded-lg mx-auto mb-3"
+                  />
+                ) : (
+                  <div className="w-16 h-16 bg-primary/20 rounded-lg mx-auto mb-3 flex items-center justify-center">
+                    <span className="text-primary text-2xl font-bold">
+                      {category.name.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                )}
+                <h3 className="text-xl font-bold text-white mb-2">{category.name}</h3>
+                {category.description && (
+                  <p className="text-gray-400 text-sm mb-4">{category.description}</p>
+                )}
+                <p className="text-primary font-semibold">
+                  {category.products.length} {category.products.length === 1 ? 'product' : 'products'}
+                </p>
+              </div>
+              
+              <div className="space-y-3">
+                <button
+                  onClick={() => setSelectedCategory(selectedCategory === category._id ? null : category._id)}
+                  className="w-full bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary/80 transition-colors font-semibold"
+                >
+                  {selectedCategory === category._id ? 'Hide Products' : 'View Products'}
+                </button>
+                <Link
+                  href={`/category/${encodeURIComponent(category.name)}`}
+                  className="block w-full bg-neutral-800 text-white py-2 px-4 rounded-lg hover:bg-neutral-700 transition-colors font-semibold text-center"
+                >
+                  Browse All
+                </Link>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Products Preview */}
+        {selectedCategory && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="mb-16"
+          >
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-white mb-2">
+                {categories.find(cat => cat._id === selectedCategory)?.name} Products
+              </h2>
+              <p className="text-gray-400">
+                Preview of products in this category
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {categories
+                .find(cat => cat._id === selectedCategory)
+                ?.products.slice(0, 8)
+                .map((product) => (
+                  <ProductCard key={product._id} product={product} />
+                ))}
+            </div>
+            
+            {categories.find(cat => cat._id === selectedCategory)?.products.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-gray-400 text-lg">No products found in this category yet.</p>
+              </div>
+            )}
+          </motion.div>
+        )}
+
+        {/* All Products Section */}
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-white mb-8">All Products</h2>
+          <Link
+            href="/products"
+            className="inline-block bg-primary text-white py-3 px-8 rounded-lg hover:bg-primary/80 transition-colors font-semibold text-lg"
+          >
+            View All Products
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+} 

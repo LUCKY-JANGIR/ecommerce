@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useStore } from '@/store/useStore';
-import { authAPI } from '@/services/api';
+import { authAPI } from '@/components/services/api';
 import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -59,7 +59,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
+    <div className="min-h-screen bg-white flex items-center justify-center">
       
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-md mx-auto">
@@ -73,12 +73,12 @@ export default function RegisterPage() {
           </Link>
 
           {/* Register Form */}
-          <div className="bg-neutral-900 rounded-lg shadow-lg p-8 w-full max-w-md border border-neutral-800">
-            <h1 className="text-3xl font-display font-bold text-white mb-6">Register</h1>
+          <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md border border-gray-200">
+            <h1 className="text-3xl font-display font-bold text-gray-900 mb-6">Register</h1>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               {/* Name */}
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="name" className="block text-sm font-medium text-gray-900 mb-2">
                   Full Name
                 </label>
                 <div className="relative">
@@ -98,7 +98,7 @@ export default function RegisterPage() {
 
               {/* Email */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="email" className="block text-sm font-medium text-gray-900 mb-2">
                   Email Address
                 </label>
                 <div className="relative">
@@ -118,7 +118,7 @@ export default function RegisterPage() {
 
               {/* Phone (Optional) */}
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="phone" className="block text-sm font-medium text-gray-900 mb-2">
                   Phone Number (Optional)
                 </label>
                 <div className="relative">
@@ -135,7 +135,7 @@ export default function RegisterPage() {
 
               {/* Password */}
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-900 mb-2">
                   Password
                 </label>
                 <div className="relative">
@@ -162,7 +162,7 @@ export default function RegisterPage() {
 
               {/* Confirm Password */}
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-900 mb-2">
                   Confirm Password
                 </label>
                 <div className="relative">

@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useStore } from '@/store/useStore';
-import { authAPI } from '@/services/api';
+import { authAPI } from '@/components/services/api';
 import { Eye, EyeOff, Mail, Lock, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -47,7 +47,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
+    <div className="min-h-screen bg-white flex items-center justify-center">
      
       
       <div className="container mx-auto px-4 py-8">
@@ -62,8 +62,8 @@ export default function LoginPage() {
           </Link>
 
           {/* Login Form */}
-          <div className="bg-neutral-900 rounded-lg shadow-lg p-8 w-full max-w-md border border-neutral-800">
-            <h1 className="text-3xl font-display font-bold text-white mb-6">Login</h1>
+          <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md border border-gray-200">
+            <h1 className="text-3xl font-display font-bold text-gray-900 mb-6">Login</h1>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               {/* Email */}
               <div>
@@ -76,7 +76,7 @@ export default function LoginPage() {
                     {...register('email')}
                     type="email"
                     id="email"
-                    className="w-full pl-10 pr-4 py-3 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Enter your email"
                   />
                 </div>
@@ -96,7 +96,7 @@ export default function LoginPage() {
                     {...register('password')}
                     type={showPassword ? 'text' : 'password'}
                     id="password"
-                    className="w-full pl-10 pr-12 py-3 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-10 pr-12 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Enter your password"
                   />
                   <button
@@ -138,14 +138,14 @@ export default function LoginPage() {
 
             {/* Divider */}
             <div className="my-6 flex items-center">
-              <div className="flex-1 border-t border-gray-700"></div>
+              <div className="flex-1 border-t border-gray-200"></div>
               <span className="px-4 text-sm text-gray-500">or</span>
-              <div className="flex-1 border-t border-gray-700"></div>
+              <div className="flex-1 border-t border-gray-200"></div>
             </div>
 
             {/* Social Login (Mock) */}
             <div className="space-y-3">
-              <button className="w-full bg-neutral-800 border border-gray-700 text-gray-300 py-3 px-4 rounded-lg font-semibold hover:bg-neutral-700 transition-colors flex items-center justify-center">
+              <button className="w-full bg-gray-100 border border-gray-200 text-gray-900 py-3 px-4 rounded-lg font-semibold hover:bg-gray-200 transition-colors flex items-center justify-center">
                 <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                   <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>

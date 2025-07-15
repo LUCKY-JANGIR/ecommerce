@@ -1,172 +1,85 @@
-'use client';
-
-import { useState } from 'react';
-import Link from 'next/link';
+"use client";
+import { FiUser, FiShoppingCart, FiLogIn, FiShield, FiMenu, FiX } from "react-icons/fi";
 import { useStore } from '@/store/useStore';
-import { 
-  ShoppingCart, 
-  User, 
-  Search, 
-  Menu, 
-  X, 
-  LogOut,
-  Settings,
-  Heart,
-  Package
-} from 'lucide-react';
-import toast from 'react-hot-toast';
+import { useState } from 'react';
 
-const Header = () => {
-  const { auth, cart, logout, sidebarOpen, setSidebarOpen, hydrated } = useStore();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showUserMenu, setShowUserMenu] = useState(false);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      // Navigate to search results page
-      window.location.href = `/search?q=${encodeURIComponent(searchQuery)}`;
-    }
-  };
-
-  const handleLogout = () => {
-    logout();
-    setShowUserMenu(false);
-    toast.success('Logged out successfully');
-  };
-
-  const categories = [
-    'Electronics', 'Clothing', 'Books', 'Home & Garden', 
-    'Sports', 'Beauty', 'Toys', 'Automotive', 'Health', 'Food'
-  ];
+export default function Header() {
+  const { auth } = useStore();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="bg-primary text-gold shadow-lg border-b-4 border-gold font-display">
-      {/* Top bar */}
-      <div className="bg-blue-600 text-white py-2">
-        <div className="container mx-auto px-4">
-          <p className="text-center text-sm">
-            🎉 Free shipping on orders over $50! Shop now
-          </p>
+    <header className="fixed top-0 left-0 w-full z-50 bg-transparent">
+      <nav className="max-w-7xl mx-auto flex items-center justify-between py-2 px-4 md:px-8 lg:px-16">
+        {/* Logo/Title */}
+        <div className="text-lg md:text-xl font-bold tracking-tight text-primary select-none font-display">
+          Indian Handlooms
         </div>
-      </div>
-
-      {/* Main header */}
-      <div className="container mx-auto flex items-center justify-between py-4 px-6">
-        <div className="text-3xl font-bold tracking-wider flex items-center">
-          <span className="mr-2">🕌</span> ShopEase
+        {/* Center Nav (Desktop) */}
+        <div className="hidden md:flex flex-1 justify-center items-center gap-4">
+          <a href="/" className="text-primary hover:text-blue-700 transition-colors font-semibold px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-primary">Home</a>
+          <a href="/categories" className="text-primary hover:text-blue-700 transition-colors font-semibold px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-primary">Categories</a>
+          <a href="/products" className="text-primary hover:text-blue-700 transition-colors font-semibold px-2 py-1 rounded focus:outline-none focus:ring-2 focus:ring-primary">Shop</a>
         </div>
-        {/* Removed categories nav here */}
-        <div className="flex items-center space-x-4">
-          {!hydrated ? (
-            <div className="w-20 h-6 bg-gold/30 rounded animate-pulse" />
-          ) : auth.isAuthenticated ? (
-            <Link href="/profile" className="flex items-center px-3 py-1 rounded hover:bg-blue-100 transition-colors">
-              <User className="h-5 w-5 mr-1" />
-              <span className="hidden md:inline">Profile</span>
-            </Link>
+        {/* Right Icons (Desktop) */}
+        <div className="hidden md:flex items-center gap-2">
+          <a href="/cart" className="flex items-center justify-center w-9 h-9 rounded-full bg-primary/10 hover:bg-primary/20 text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary" aria-label="Cart">
+            <FiShoppingCart className="text-xl" />
+          </a>
+          {auth.isAuthenticated ? (
+            <>
+              <a href="/profile" className="flex items-center justify-center w-9 h-9 rounded-full bg-primary/10 hover:bg-primary/20 text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary" aria-label="Profile">
+                <FiUser className="text-xl" />
+              </a>
+              {auth.user?.role === 'admin' && (
+                <a href="/admin" className="flex items-center justify-center w-9 h-9 rounded-full bg-primary/10 hover:bg-primary/20 text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary" aria-label="Admin">
+                  <FiShield className="text-xl" />
+                </a>
+              )}
+            </>
           ) : (
-            <Link href="/login" className="flex items-center px-3 py-1 rounded hover:bg-blue-100 transition-colors">
-              <User className="h-5 w-5 mr-1" />
-              <span className="hidden md:inline">Login</span>
-            </Link>
+            <a href="/login" className="flex items-center justify-center w-9 h-9 rounded-full bg-primary/10 hover:bg-primary/20 text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary" aria-label="Login">
+              <FiLogIn className="text-xl" />
+            </a>
           )}
         </div>
-      </div>
-
-      {/* Search bar - Mobile */}
-      <div className="md:hidden mt-4">
-        <form onSubmit={handleSearch}>
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search products..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-2 pl-10 pr-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-            <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-            <button
-              type="submit"
-              className="absolute right-2 top-1.5 bg-blue-600 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-700 transition-colors"
-            >
-              Search
-            </button>
-          </div>
-        </form>
-      </div>
-
-      {/* Removed bottom categories nav here */}
-
-      {/* Mobile sidebar (unchanged) */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
-          <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setSidebarOpen(false)} />
-          <div className="fixed right-0 top-0 h-full w-64 bg-white shadow-lg">
-            <div className="p-4">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold">Menu</h2>
-                <button onClick={() => setSidebarOpen(false)}>
-                  <X className="h-6 w-6" />
-                </button>
-              </div>
-              
-              <div className="space-y-4">
-                {auth.isAuthenticated ? (
-                  <>
-                    <Link
-                      href="/profile"
-                      className="block py-2 text-gray-600 hover:text-blue-600"
-                      onClick={() => setSidebarOpen(false)}
-                    >
-                      Profile
-                    </Link>
-                    <Link
-                      href="/orders"
-                      className="block py-2 text-gray-600 hover:text-blue-600"
-                      onClick={() => setSidebarOpen(false)}
-                    >
-                      My Orders
-                    </Link>
-                    <Link
-                      href="/wishlist"
-                      className="block py-2 text-gray-600 hover:text-blue-600"
-                      onClick={() => setSidebarOpen(false)}
-                    >
-                      Wishlist
-                    </Link>
-                    {auth.user?.role === 'admin' && (
-                      <Link
-                        href="/admin"
-                        className="block py-2 text-gray-600 hover:text-blue-600"
-                        onClick={() => setSidebarOpen(false)}
-                      >
-                        Admin Panel
-                      </Link>
-                    )}
-                    <button
-                      onClick={handleLogout}
-                      className="block w-full text-left py-2 text-gray-600 hover:text-blue-600"
-                    >
-                      Logout
-                    </button>
-                  </>
-                ) : (
-                  <Link
-                    href="/login"
-                    className="block py-2 text-gray-600 hover:text-blue-600"
-                    onClick={() => setSidebarOpen(false)}
-                  >
-                    Login
-                  </Link>
+        {/* Hamburger for Mobile */}
+        <button
+          className="md:hidden flex items-center text-primary text-2xl focus:outline-none ml-2"
+          onClick={() => setMenuOpen((open) => !open)}
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+        >
+          {menuOpen ? <FiX /> : <FiMenu />}
+        </button>
+      </nav>
+      {/* Mobile Dropdown Menu */}
+      {menuOpen && (
+        <div className="md:hidden absolute top-full left-0 w-full bg-white/95 shadow-lg z-50 animate-fadein border-b border-primary">
+          <div className="flex flex-col items-center gap-2 py-4">
+            <a href="/" className="text-primary hover:text-blue-700 font-semibold px-4 py-2 rounded w-full text-center" onClick={() => setMenuOpen(false)}>Home</a>
+            <a href="/categories" className="text-primary hover:text-blue-700 font-semibold px-4 py-2 rounded w-full text-center" onClick={() => setMenuOpen(false)}>Categories</a>
+            <a href="/products" className="text-primary hover:text-blue-700 font-semibold px-4 py-2 rounded w-full text-center" onClick={() => setMenuOpen(false)}>Shop</a>
+            <a href="/cart" className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 hover:bg-primary/20 text-primary transition-colors mt-2" aria-label="Cart" onClick={() => setMenuOpen(false)}>
+              <FiShoppingCart className="text-xl" />
+            </a>
+            {auth.isAuthenticated ? (
+              <>
+                <a href="/profile" className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 hover:bg-primary/20 text-primary transition-colors" aria-label="Profile" onClick={() => setMenuOpen(false)}>
+                  <FiUser className="text-xl" />
+                </a>
+                {auth.user?.role === 'admin' && (
+                  <a href="/admin" className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 hover:bg-primary/20 text-primary transition-colors" aria-label="Admin" onClick={() => setMenuOpen(false)}>
+                    <FiShield className="text-xl" />
+                  </a>
                 )}
-              </div>
-            </div>
+              </>
+            ) : (
+              <a href="/login" className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 hover:bg-primary/20 text-primary transition-colors" aria-label="Login" onClick={() => setMenuOpen(false)}>
+                <FiLogIn className="text-xl" />
+              </a>
+            )}
           </div>
         </div>
       )}
     </header>
   );
-};
-
-export default Header; 
+} 

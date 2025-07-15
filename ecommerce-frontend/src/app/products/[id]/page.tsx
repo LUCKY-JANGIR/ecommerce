@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { productsAPI } from "@/services/api";
+import { productsAPI } from "@/components/services/api";
 import { Product } from "@/store/useStore";
 import { useStore } from "@/store/useStore";
 
@@ -72,7 +72,7 @@ export default function ProductDetailsPage() {
           <div className="bg-neutral-900 rounded-lg shadow-lg p-8 border border-neutral-800 flex flex-col">
             <h1 className="font-playfair text-3xl md:text-4xl text-[#d4af37] font-bold mb-2">{product.name}</h1>
             <p className="text-2xl text-[#d4af37] font-bold mb-4">₹{product.price}</p>
-            <p className="text-gray-200 mb-2">Category: <span className="capitalize">{product.category}</span></p>
+            <p className="text-gray-200 mb-2">Category: <span className="capitalize">{typeof product.category === 'object' && product.category !== null ? product.category.name : product.category}</span></p>
             <p className="mb-4 text-gray-200">{product.description}</p>
             <div className="mb-4">
               <span className="font-semibold text-gold">Stock:</span> {product.stock > 0 ? `${product.stock} available` : <span className="text-red-600">Out of stock</span>}

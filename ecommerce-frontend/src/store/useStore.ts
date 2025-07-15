@@ -23,7 +23,7 @@ export interface Product {
   name: string;
   description: string;
   price: number;
-  category: string;
+  category: string | { _id: string; name: string };
   subcategory?: string;
   brand?: string;
   sku: string;

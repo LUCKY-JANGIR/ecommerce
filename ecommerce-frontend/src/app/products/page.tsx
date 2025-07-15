@@ -1,10 +1,10 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useCallback, useRef } from 'react';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import ProductCard from '@/components/ProductCard';
-import { productsAPI } from '@/services/api';
+import { productsAPI, categoriesAPI } from '@/components/services/api';
 import { Product } from '@/store/useStore';
 import { useStore } from '@/store/useStore';
 import { 
@@ -16,6 +16,7 @@ import {
   X
 } from 'lucide-react';
 import { FiUser } from "react-icons/fi";
+import { useDebounce } from '@/hooks/useDebounce';
 
 export default function ProductsPageWrapper() {
   return (
@@ -29,6 +30,7 @@ function ProductsPage() {
   const searchParams = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
@@ -45,11 +47,10 @@ function ProductsPage() {
     hasNextPage: false,
     hasPrevPage: false,
   });
-
-  const categories = [
-    'Electronics', 'Clothing', 'Books', 'Home & Garden', 
-    'Sports', 'Beauty', 'Toys', 'Automotive', 'Health', 'Food'
-  ];
+  const [categories, setCategories] = useState<string[]>([]);
+  const observer = useRef<IntersectionObserver | undefined>(undefined);
+  const [searchInput, setSearchInput] = useState(filters.search);
+  const debouncedSearch = useDebounce(searchInput, 700);
 
   const sortOptions = [
     { value: 'newest', label: 'Newest First' },
@@ -63,8 +64,76 @@ function ProductsPage() {
   const { hydrated } = useStore();
   const { auth } = useStore();
 
-  const fetchProducts = async (page = 1) => {
-    setLoading(true);
+  const loadMoreProducts = useCallback(async () => {
+    if (loadingMore || !pagination.hasNextPage) return;
+    
+    setLoadingMore(true);
+    try {
+      const nextPage = pagination.currentPage + 1;
+      const params: any = {
+        page: nextPage,
+        limit: 12,
+        sortBy: filters.sortBy,
+      };
+
+      if (filters.category) params.category = filters.category;
+      if (filters.search) params.search = filters.search;
+      if (filters.minPrice) params.minPrice = filters.minPrice;
+      if (filters.maxPrice) params.maxPrice = filters.maxPrice;
+
+      const response = await productsAPI.getAll(params);
+      if (response.products && response.products.length > 0) {
+        setProducts(prev => [...prev, ...response.products]);
+        setPagination(response.pagination);
+      }
+    } catch (error) {
+      console.error('Error loading more products:', error);
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [loadingMore, pagination.hasNextPage, pagination.currentPage, filters]);
+
+  // Intersection Observer for infinite scroll
+  const lastProductElementRef = useCallback((node: HTMLDivElement) => {
+    if (loading || loadingMore) return;
+    if (observer.current) observer.current.disconnect();
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && pagination.hasNextPage) {
+        // Call loadMoreProducts directly without dependency
+        if (!loadingMore && pagination.hasNextPage) {
+          loadMoreProducts();
+        }
+      }
+    });
+    if (node) observer.current.observe(node);
+  }, [loading, loadingMore, pagination.hasNextPage]);
+
+  useEffect(() => {
+    // Fetch categories from backend
+    const fetchCategories = async () => {
+      try {
+        const data = await categoriesAPI.getAll();
+        setCategories(data.map((cat: any) => cat.name));
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        setCategories([]);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    setFilters(prev => ({ ...prev, search: debouncedSearch }));
+    // Only update filter when debounced value changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch]);
+
+  const fetchProducts = async (page = 1, reset = true) => {
+    if (reset) {
+      setLoading(true);
+      setProducts([]);
+    }
+    
     try {
       const params: any = {
         page,
@@ -78,7 +147,11 @@ function ProductsPage() {
       if (filters.maxPrice) params.maxPrice = filters.maxPrice;
 
       const response = await productsAPI.getAll(params);
-      setProducts(response.products || []);
+      if (reset) {
+        setProducts(response.products || []);
+      } else {
+        setProducts(prev => [...prev, ...(response.products || [])]);
+      }
       setPagination(response.pagination || {
         currentPage: 1,
         totalPages: 1,
@@ -94,7 +167,7 @@ function ProductsPage() {
   };
 
   useEffect(() => {
-    fetchProducts();
+    fetchProducts(1, true);
   }, [filters]);
 
   const handleFilterChange = (key: string, value: string) => {
@@ -113,24 +186,24 @@ function ProductsPage() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    fetchProducts(1);
+    fetchProducts(1, true);
   };
 
   if (!hydrated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-neutral-950">
-        <div className="w-12 h-12 border-4 border-gold border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-neutral-950">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-16 md:py-24">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-playfair font-bold text-[#d4af37] mb-2">All Products</h1>
-          <p className="text-gray-200 text-lg">{pagination.totalProducts} products found</p>
+          <h1 className="text-3xl md:text-4xl font-display font-bold text-primary mb-2">All Products</h1>
+          <p className="text-secondary text-lg">{pagination.totalProducts} products found</p>
         </div>
 
         {/* Search and Filters */}
@@ -138,26 +211,24 @@ function ProductsPage() {
           {/* Search Bar & Sort */}
           <div className="flex-1 flex flex-col md:flex-row gap-4">
             <form onSubmit={handleSearch} className="flex-1 relative">
-              <div className="flex items-center bg-black/40 backdrop-blur border border-[#d4af37] rounded-xl px-4 py-2">
-                <Search className="mr-2 h-5 w-5 text-[#d4af37]" />
+              <div className="flex items-center bg-secondary backdrop-blur border border-primary rounded-xl px-4 py-2">
+                <Search className="mr-2 h-5 w-5 text-primary" />
                 <input
                   type="text"
                   placeholder="Search products..."
-                  value={filters.search}
-                  onChange={(e) => handleFilterChange('search', e.target.value)}
-                  className="flex-1 bg-transparent outline-none text-gray-100 placeholder-[#d4af37] font-medium text-base px-2"
-                  style={{ outlineColor: '#d4af37' }}
+                  value={searchInput}
+                  onChange={e => setSearchInput(e.target.value)}
+                  className="flex-1 bg-transparent outline-none text-text-main placeholder-text-muted font-medium text-base px-2"
                 />
               </div>
             </form>
             <select
               value={filters.sortBy}
               onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-              className="bg-black/40 backdrop-blur border border-[#d4af37] rounded-xl px-4 py-2 text-[#d4af37] font-semibold outline-none focus:ring-2 focus:ring-[#d4af37]"
-              style={{ outlineColor: '#d4af37' }}
+              className="bg-secondary backdrop-blur border border-primary rounded-xl px-4 py-2 text-text-main font-semibold outline-none focus:ring-2 focus:ring-primary"
             >
               {sortOptions.map((option) => (
-                <option key={option.value} value={option.value} className="text-[#d4af37] bg-black">
+                <option key={option.value} value={option.value} className="text-text-main bg-secondary">
                   {option.label}
                 </option>
               ))}
@@ -165,7 +236,7 @@ function ProductsPage() {
             <button
               onClick={() => setShowFilters(!showFilters)}
               type="button"
-              className="md:hidden bg-[#d4af37] text-black px-4 py-2 rounded-xl font-bold shadow hover:bg-[#e6c385] transition-colors"
+              className="md:hidden bg-primary text-background px-4 py-2 rounded-xl font-bold shadow hover:bg-primary-light transition-colors"
             >
               <Filter className="h-5 w-5 mr-1" /> Filters
             </button>
@@ -176,28 +247,27 @@ function ProductsPage() {
         <div className="flex flex-col md:flex-row gap-6">
           {/* Filter Sidebar */}
           <div className={`w-full md:w-64 flex-shrink-0 ${showFilters ? '' : 'hidden md:block'}`}>
-            <div className="bg-black/40 backdrop-blur border border-[#d4af37] rounded-xl p-6 mb-4 flex flex-col gap-6">
+            <div className="bg-secondary backdrop-blur border border-primary rounded-xl p-6 mb-4 flex flex-col gap-6">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-lg font-playfair font-semibold text-[#d4af37]">Filters</h3>
+                <h3 className="text-lg font-display font-semibold text-text-main">Filters</h3>
                 <button
                   onClick={clearFilters}
-                  className="text-sm font-bold text-[#d4af37] bg-transparent px-3 py-1 rounded hover:bg-[#d4af37]/10 transition-colors"
+                  className="text-sm font-bold text-primary bg-transparent px-3 py-1 rounded hover:bg-primary/10 transition-colors"
                 >
                   Clear All
                 </button>
               </div>
               {/* Category Filter */}
               <div>
-                <label className="block text-sm font-medium text-[#d4af37] mb-1">Category</label>
+                <label className="block text-sm font-medium text-text-main mb-1">Category</label>
                 <select
                   value={filters.category}
                   onChange={(e) => handleFilterChange('category', e.target.value)}
-                  className="w-full bg-black/30 border border-[#d4af37] rounded-lg px-3 py-2 text-[#d4af37] outline-none focus:ring-2 focus:ring-[#d4af37]"
-                  style={{ outlineColor: '#d4af37' }}
+                  className="w-full bg-background border border-primary rounded-lg px-3 py-2 text-text-main outline-none focus:ring-2 focus:ring-primary"
                 >
                   <option value="">All Categories</option>
                   {categories.map((category) => (
-                    <option key={category} value={category} className="text-[#d4af37] bg-black">
+                    <option key={category} value={category} className="text-text-main bg-background">
                       {category}
                     </option>
                   ))}
@@ -205,22 +275,20 @@ function ProductsPage() {
               </div>
               {/* Price Range */}
               <div className="flex flex-col gap-2">
-                <label className="block text-sm font-medium text-[#d4af37] mb-1">Price Range</label>
+                <label className="block text-sm font-medium text-text-main mb-1">Price Range</label>
                 <input
                   type="number"
                   placeholder="Min Price"
                   value={filters.minPrice}
                   onChange={(e) => handleFilterChange('minPrice', e.target.value)}
-                  className="bg-black/30 border border-[#d4af37] rounded-lg px-3 py-2 text-[#d4af37] outline-none focus:ring-2 focus:ring-[#d4af37] placeholder-[#d4af37]"
-                  style={{ outlineColor: '#d4af37' }}
+                  className="bg-background border border-primary rounded-lg px-3 py-2 text-text-main outline-none focus:ring-2 focus:ring-primary placeholder-text-muted"
                 />
                 <input
                   type="number"
                   placeholder="Max Price"
                   value={filters.maxPrice}
                   onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
-                  className="bg-black/30 border border-[#d4af37] rounded-lg px-3 py-2 text-[#d4af37] outline-none focus:ring-2 focus:ring-[#d4af37] placeholder-[#d4af37]"
-                  style={{ outlineColor: '#d4af37' }}
+                  className="bg-background border border-primary rounded-lg px-3 py-2 text-text-main outline-none focus:ring-2 focus:ring-primary placeholder-text-muted"
                 />
               </div>
             </div>
@@ -231,21 +299,30 @@ function ProductsPage() {
             <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 animate-fadein">
               {loading ? (
                 [...Array(8)].map((_, index) => (
-                  <div key={index} className="bg-black/40 border border-[#d4af37] rounded-xl h-52 animate-pulse" />
+                  <div key={index} className="bg-secondary border border-primary rounded-xl h-52 animate-pulse" />
                 ))
               ) : products.length > 0 ? (
-                products.map((product) => (
-                  <ProductCard key={product._id} product={product} />
+                products.map((product, index) => (
+                  <div key={product._id} ref={index === products.length - 1 ? lastProductElementRef : null}>
+                    <ProductCard product={product} />
+                  </div>
                 ))
               ) : (
                 <div className="text-center py-12">
-                  <p className="text-[#d4af37] text-lg">No products found matching your criteria.</p>
+                  <p className="text-primary text-lg">No products found matching your criteria.</p>
                   <button
                     onClick={clearFilters}
-                    className="mt-4 text-[#d4af37] hover:text-black hover:bg-[#d4af37] font-bold px-4 py-2 rounded-lg transition-colors bg-black/40 border border-[#d4af37]"
+                    className="mt-4 text-primary hover:text-background hover:bg-primary font-bold px-4 py-2 rounded-lg transition-colors bg-secondary border border-primary"
                   >
                     Clear filters
                   </button>
+                </div>
+              )}
+              
+              {/* Loading more indicator */}
+              {loadingMore && (
+                <div className="col-span-full flex justify-center py-8">
+                  <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
                 </div>
               )}
             </div>
