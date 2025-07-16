@@ -62,24 +62,24 @@ export default function CategoriesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-white text-lg">Loading categories...</p>
+          <p className="text-gray-800 text-lg">Loading categories...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-neutral-950">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-white">
+      <div className="container mx-auto px-4 pt-24 pb-8">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-4">
+          <h1 className="text-4xl md:text-5xl font-display font-bold text-gray-900 mb-4">
             Shop by Category
           </h1>
-          <p className="text-gray-400 max-w-2xl mx-auto text-lg">
+          <p className="text-gray-600 max-w-2xl mx-auto text-lg">
             Explore our curated collection of handcrafted products organized by category
           </p>
         </div>
@@ -87,51 +87,41 @@ export default function CategoriesPage() {
         {/* Categories Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           {categories.map((category, index) => (
-            <motion.div
+            <Link
               key={category._id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1, duration: 0.5 }}
-              className="bg-neutral-900 rounded-xl p-6 border border-neutral-800 hover:border-primary/50 transition-all duration-300"
+              href={`/category/${encodeURIComponent(category.name)}`}
+              className="group"
             >
-              <div className="text-center mb-4">
-                {category.image ? (
-                  <img
-                    src={category.image}
-                    alt={category.name}
-                    className="w-16 h-16 object-cover rounded-lg mx-auto mb-3"
-                  />
-                ) : (
-                  <div className="w-16 h-16 bg-primary/20 rounded-lg mx-auto mb-3 flex items-center justify-center">
-                    <span className="text-primary text-2xl font-bold">
-                      {category.name.charAt(0).toUpperCase()}
-                    </span>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1, duration: 0.5 }}
+                className="relative rounded-xl overflow-hidden border border-neutral-200 hover:border-primary/50 transition-all duration-300 min-h-[220px] flex items-end bg-white cursor-pointer"
+                style={category.image ? { backgroundImage: `url(${category.image})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+              >
+                {category.image && (
+                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all" />
+                )}
+                <div className="relative w-full p-6 z-10">
+                  <div className="text-center mb-4">
+                    {!category.image && (
+                      <div className="w-16 h-16 bg-primary/20 rounded-lg mx-auto mb-3 flex items-center justify-center">
+                        <span className="text-primary text-2xl font-bold">
+                          {category.name.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                    )}
+                    <h3 className="text-xl font-bold text-white mb-2 drop-shadow-lg">{category.name}</h3>
+                    {category.description && (
+                      <p className="text-gray-200 text-sm mb-4 drop-shadow-lg">{category.description}</p>
+                    )}
+                    <p className="text-primary font-semibold drop-shadow-lg">
+                      {category.products.length} {category.products.length === 1 ? 'product' : 'products'}
+                    </p>
                   </div>
-                )}
-                <h3 className="text-xl font-bold text-white mb-2">{category.name}</h3>
-                {category.description && (
-                  <p className="text-gray-400 text-sm mb-4">{category.description}</p>
-                )}
-                <p className="text-primary font-semibold">
-                  {category.products.length} {category.products.length === 1 ? 'product' : 'products'}
-                </p>
-              </div>
-              
-              <div className="space-y-3">
-                <button
-                  onClick={() => setSelectedCategory(selectedCategory === category._id ? null : category._id)}
-                  className="w-full bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary/80 transition-colors font-semibold"
-                >
-                  {selectedCategory === category._id ? 'Hide Products' : 'View Products'}
-                </button>
-                <Link
-                  href={`/category/${encodeURIComponent(category.name)}`}
-                  className="block w-full bg-neutral-800 text-white py-2 px-4 rounded-lg hover:bg-neutral-700 transition-colors font-semibold text-center"
-                >
-                  Browse All
-                </Link>
-              </div>
-            </motion.div>
+                </div>
+              </motion.div>
+            </Link>
           ))}
         </div>
 
@@ -168,17 +158,6 @@ export default function CategoriesPage() {
             )}
           </motion.div>
         )}
-
-        {/* All Products Section */}
-        <div className="text-center">
-          <h2 className="text-3xl font-bold text-white mb-8">All Products</h2>
-          <Link
-            href="/products"
-            className="inline-block bg-primary text-white py-3 px-8 rounded-lg hover:bg-primary/80 transition-colors font-semibold text-lg"
-          >
-            View All Products
-          </Link>
-        </div>
       </div>
     </div>
   );

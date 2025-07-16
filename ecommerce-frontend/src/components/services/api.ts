@@ -31,7 +31,12 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
+      console.log('Auth error detected, logging out user');
       useStore.getState().logout();
+      // Redirect to login page if not already there
+      if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
@@ -40,7 +45,31 @@ api.interceptors.response.use(
 
 
 // Auth API
-export const authAPI = {
+export const authAPI: {
+  register: (userData: {
+    name: string;
+    email: string;
+    password: string;
+    phone?: string;
+  }) => Promise<any>;
+  login: (credentials: { email: string; password: string }) => Promise<any>;
+  getProfile: () => Promise<any>;
+  updateProfile: (userData: Partial<{
+    name: string;
+    email: string;
+    phone: string;
+    address: {
+      street: string;
+      city: string;
+      state: string;
+      zipCode: string;
+      country: string;
+    };
+  }>) => Promise<any>;
+  changePassword: (passwords: { currentPassword: string; newPassword: string }) => Promise<any>;
+  forgotPassword: (email: string) => Promise<any>;
+  resetPassword: (params: { email: string; token: string; newPassword: string }) => Promise<any>;
+} = {
   register: async (userData: {
     name: string;
     email: string;
@@ -104,6 +133,24 @@ export const authAPI = {
       handleApiError(error);
     }
   },
+
+  forgotPassword: async (email: string) => {
+    try {
+      const response = await api.post('/auth/forgot-password', { email });
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
+  },
+
+  resetPassword: async ({ email, token, newPassword }: { email: string; token: string; newPassword: string }) => {
+    try {
+      const response = await api.post('/auth/reset-password', { email, token, newPassword });
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
+  },
 };
 
 // Categories API
@@ -126,18 +173,20 @@ export const categoriesAPI = {
     }
   },
 
-  create: async (categoryData: { name: string; description?: string }) => {
+  create: async (categoryData: { name: string; description?: string; image?: string } | FormData) => {
     try {
-      const response = await api.post('/categories', categoryData);
+      const isFormData = typeof FormData !== 'undefined' && categoryData instanceof FormData;
+      const response = await api.post('/categories', categoryData, isFormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : undefined);
       return response.data;
     } catch (error) {
       handleApiError(error);
     }
   },
 
-  update: async (id: string, categoryData: { name: string; description?: string }) => {
+  update: async (id: string, categoryData: { name: string; description?: string; image?: string } | FormData) => {
     try {
-      const response = await api.put(`/categories/${id}`, categoryData);
+      const isFormData = typeof FormData !== 'undefined' && categoryData instanceof FormData;
+      const response = await api.put(`/categories/${id}`, categoryData, isFormData ? { headers: { 'Content-Type': 'multipart/form-data' } } : undefined);
       return response.data;
     } catch (error) {
       handleApiError(error);
@@ -200,7 +249,11 @@ export const productsAPI = {
   getById: async (id: string) => {
     try {
       const response = await api.get(`/products/${id}`);
-      return response.data;
+      // Handle the response structure: {success: true, data: product}
+      if (response.data && response.data.success && response.data.data) {
+        return response.data.data; // Return the product object
+      }
+      return response.data; // Fallback for other response structures
     } catch (error) {
       handleApiError(error);
     }
@@ -265,6 +318,46 @@ export const productsAPI = {
   }) => {
     try {
       const response = await api.post(`/products/${productId}/reviews`, review);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
+  },
+
+  // Get product reviews
+  getProductReviews: async (productId: string) => {
+    try {
+      const response = await api.get(`/products/${productId}/reviews`);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
+  },
+
+  // Add review to product
+  addProductReview: async (productId: string, reviewData: { rating: number; comment: string }) => {
+    try {
+      const response = await api.post(`/products/${productId}/reviews`, reviewData);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
+  },
+
+  // Update review
+  updateProductReview: async (productId: string, reviewId: string, reviewData: { rating?: number; comment?: string }) => {
+    try {
+      const response = await api.put(`/products/${productId}/reviews/${reviewId}`, reviewData);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
+  },
+
+  // Delete review
+  deleteProductReview: async (productId: string, reviewId: string) => {
+    try {
+      const response = await api.delete(`/products/${productId}/reviews/${reviewId}`);
       return response.data;
     } catch (error) {
       handleApiError(error);

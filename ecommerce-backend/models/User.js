@@ -48,8 +48,8 @@ const userSchema = new mongoose.Schema({
         default: false
     },
     emailVerificationToken: String,
-    passwordResetToken: String,
-    passwordResetExpires: Date,
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
     lastLogin: {
         type: Date,
         default: Date.now
@@ -86,13 +86,13 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
 userSchema.methods.createPasswordResetToken = function () {
     const resetToken = require('crypto').randomBytes(32).toString('hex');
 
-    this.passwordResetToken = require('crypto')
+    this.resetPasswordToken = require('crypto')
         .createHash('sha256')
         .update(resetToken)
         .digest('hex');
 
     // Token expires in 10 minutes
-    this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+    this.resetPasswordExpires = Date.now() + 10 * 60 * 1000;
 
     return resetToken;
 };
@@ -101,8 +101,8 @@ userSchema.methods.createPasswordResetToken = function () {
 userSchema.methods.toJSON = function () {
     const userObject = this.toObject();
     delete userObject.password;
-    delete userObject.passwordResetToken;
-    delete userObject.passwordResetExpires;
+    delete userObject.resetPasswordToken;
+    delete userObject.resetPasswordExpires;
     delete userObject.emailVerificationToken;
     return userObject;
 };

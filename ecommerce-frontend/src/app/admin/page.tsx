@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Users, Package, ShoppingBag, BarChart3, Tag, Settings, Plus, Edit, Trash2, X } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import { productsAPI, categoriesAPI } from "@/components/services/api";
+import { productsAPI, categoriesAPI, uploadAPI } from "@/components/services/api";
 import { getOptimizedImageUrl } from "@/lib/imageUtils";
 import { FiMenu, FiX } from 'react-icons/fi';
 
@@ -260,17 +260,19 @@ export default function AdminPage() {
       toast.error('Name is required');
       return;
     }
-    
     setCategoryAddLoading(true);
     try {
-      await categoriesAPI.create({
-        name: categoryAddForm.name,
-        description: categoryAddForm.description
-      });
-      
+      const formData = new FormData();
+      formData.append('name', categoryAddForm.name);
+      formData.append('description', categoryAddForm.description);
+      if (categoryImageFile) {
+        formData.append('image', categoryImageFile);
+      }
+      await categoriesAPI.create(formData);
       toast.success('Category added successfully');
       setCategoryAdding(false);
       setCategoryAddForm({ name: '', description: '', image: '' });
+      setCategoryImageFile(null);
       fetchCategories();
     } catch (error: any) {
       toast.error(error.message || 'Failed to add category');
@@ -292,13 +294,16 @@ export default function AdminPage() {
     if (!categoryEditing) return;
     setCategoryEditLoading(true);
     try {
-      await categoriesAPI.update(categoryEditing._id, {
-        name: categoryEditForm.name,
-        description: categoryEditForm.description
-      });
-      
+      const formData = new FormData();
+      formData.append('name', categoryEditForm.name);
+      formData.append('description', categoryEditForm.description);
+      if (categoryImageFile) {
+        formData.append('image', categoryImageFile);
+      }
+      await categoriesAPI.update(categoryEditing._id, formData);
       toast.success('Category updated successfully');
       setCategoryEditing(null);
+      setCategoryImageFile(null);
       fetchCategories();
     } catch (error: any) {
       toast.error(error.message || 'Failed to update category');
@@ -877,6 +882,55 @@ export default function AdminPage() {
                       />
                     </div>
 
+                    <div className="space-y-3">
+                      <label className="block text-sm font-medium text-gray-700">
+                        Category Image
+                      </label>
+                      <div className="flex items-center space-x-4">
+                        <div className="flex-1">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={async e => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                setCategoryImageFile(file);
+                                setCategoryImageUploading(true);
+                                try {
+                                  const uploadRes = await uploadAPI.uploadImage(file, 'categories');
+                                  if (uploadRes && uploadRes.data && uploadRes.data.url) {
+                                    setCategoryAddForm(f => ({ ...f, image: uploadRes.data.url }));
+                                    toast.success('Image uploaded!');
+                                  } else {
+                                    toast.error('Image upload failed');
+                                  }
+                                } catch (err) {
+                                  toast.error('Image upload failed');
+                                } finally {
+                                  setCategoryImageUploading(false);
+                                }
+                              }
+                            }}
+                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-colors"
+                          />
+                        </div>
+                        {categoryAddForm.image && (
+                          <div className="relative">
+                            <img src={categoryAddForm.image} alt="Preview" className="w-20 h-20 object-cover rounded-lg border-2 border-gray-200" />
+                            <button
+                              onClick={() => {
+                                setCategoryImageFile(null);
+                                setCategoryAddForm(f => ({ ...f, image: '' }));
+                              }}
+                              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
                     {/* Action Buttons */}
                     <div className="flex gap-3 pt-4 border-t border-gray-200">
                       <button
@@ -952,6 +1006,55 @@ export default function AdminPage() {
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none"
                         rows={4}
                       />
+                    </div>
+
+                    <div className="space-y-3">
+                      <label className="block text-sm font-medium text-gray-700">
+                        Category Image
+                      </label>
+                      <div className="flex items-center space-x-4">
+                        <div className="flex-1">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={async e => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                setCategoryImageFile(file);
+                                setCategoryImageUploading(true);
+                                try {
+                                  const uploadRes = await uploadAPI.uploadImage(file, 'categories');
+                                  if (uploadRes && uploadRes.data && uploadRes.data.url) {
+                                    setCategoryEditForm(f => ({ ...f, image: uploadRes.data.url }));
+                                    toast.success('Image uploaded!');
+                                  } else {
+                                    toast.error('Image upload failed');
+                                  }
+                                } catch (err) {
+                                  toast.error('Image upload failed');
+                                } finally {
+                                  setCategoryImageUploading(false);
+                                }
+                              }
+                            }}
+                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-colors"
+                          />
+                        </div>
+                        {categoryEditForm.image && (
+                          <div className="relative">
+                            <img src={categoryEditForm.image} alt="Preview" className="w-20 h-20 object-cover rounded-lg border-2 border-gray-200" />
+                            <button
+                              onClick={() => {
+                                setCategoryImageFile(null);
+                                setCategoryEditForm(f => ({ ...f, image: '' }));
+                              }}
+                              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     {/* Action Buttons */}
@@ -1135,15 +1238,15 @@ export default function AdminPage() {
           {/* Mobile Tab Bar */}
           <div className="md:hidden flex items-center gap-2 px-2 py-2 overflow-x-auto bg-background border-t border-primary mb-4">
             {navLinks.map(link => (
-              <button
+                <button
                 key={link.key}
                 onClick={() => setActiveSection(link.key)}
                 className={`flex-shrink-0 flex items-center gap-1 px-3 py-1.5 rounded font-semibold text-sm transition-colors ${activeSection === link.key ? 'bg-white text-blue-600 border border-primary hover:text-white hover:bg-primary' : 'bg-primary/10 text-primary hover:bg-primary hover:text-white'}`}
               >
                 {link.icon}
                 {link.label}
-              </button>
-            ))}
+                </button>
+              ))}
           </div>
 
           {/* Section Content */}

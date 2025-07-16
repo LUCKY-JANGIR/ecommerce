@@ -30,10 +30,13 @@ export default function CategoryPage() {
 
   return (
     <div className="min-h-screen">
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-display font-bold text-white mb-6 capitalize">
-          {categoryStr?.toString().replace(/-/g, " ")} Products
+      <div className="container mx-auto px-4 pt-24 pb-8">
+        <h1 className="text-4xl md:text-5xl font-display font-bold text-gray-900 mb-2 capitalize">
+          {categoryStr?.toString().replace(/-/g, " ")}
         </h1>
+        <h2 className="text-2xl font-bold text-gray-700 mb-6 capitalize">
+          Products
+        </h2>
         {loading ? (
           <div className="text-accent">Loading...</div>
         ) : products.length === 0 ? (

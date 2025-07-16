@@ -32,17 +32,17 @@ export default function DragAndDropImage({ value, previewUrl, onChange, label, d
       {label && <label className="block text-sm font-medium text-gray-700">{label}</label>}
       <div
         {...getRootProps()}
-        className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-white'} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+        className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer transition-colors ${isDragActive ? 'border-blue-500 bg-blue-100' : 'border-primary bg-neutral-900'} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
         <input {...(getInputProps() as React.InputHTMLAttributes<HTMLInputElement>)} />
         {value || previewUrl ? (
           <img
             src={value ? URL.createObjectURL(value) : previewUrl}
             alt="Preview"
-            className="w-24 h-24 object-cover rounded mb-2 border"
+            className="w-24 h-24 object-cover rounded mb-2 border border-primary"
           />
         ) : (
-          <span className="text-gray-400 text-sm">Drag & drop or click to select an image</span>
+          <span className="text-gray-300 text-sm">Drag & drop or click to select an image</span>
         )}
         {value && (
           <button

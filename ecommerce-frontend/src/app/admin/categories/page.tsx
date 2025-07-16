@@ -5,6 +5,7 @@ import { useStore } from "@/store/useStore";
 import { useRouter } from "next/navigation";
 import { categoriesAPI } from "@/components/services/api";
 import { useRef } from "react";
+import DragAndDropImage from '@/app/components/ui/DragAndDropImage';
 
 interface Category {
   _id: string;
@@ -228,11 +229,41 @@ export default function AdminCategoriesPage() {
             <div className="space-y-4">
               <input type="text" name="name" value={addForm.name} onChange={handleAddChange} className="w-full border border-neutral-700 bg-neutral-800 text-white rounded px-3 py-2" placeholder="Category Name*" />
               <textarea name="description" value={addForm.description} onChange={handleAddChange} className="w-full border border-neutral-700 bg-neutral-800 text-white rounded px-3 py-2" placeholder="Description" rows={2} />
-              <div>
-                <input type="file" accept="image/*" ref={fileInputRef} onChange={e => handleImageChange(e, 'add')} className="hidden" />
-                <button type="button" className="bg-primary text-white px-4 py-2 rounded hover:bg-primary/80 font-semibold" onClick={() => fileInputRef.current?.click()} disabled={imageUploading}>{imageUploading ? 'Uploading...' : 'Upload Image'}</button>
-                {addForm.image && <img src={addForm.image} alt="Preview" className="w-16 h-16 object-cover rounded mt-2" />}
-              </div>
+              <DragAndDropImage
+                value={imageFile}
+                previewUrl={addForm.image}
+                onChange={async (file) => {
+                  if (!file) {
+                    setImageFile(null);
+                    setAddForm(f => ({ ...f, image: '' }));
+                    return;
+                  }
+                  setImageUploading(true);
+                  const formData = new FormData();
+                  formData.append('file', file);
+                  try {
+                    const res = await fetch('/api/upload', {
+                      method: 'POST',
+                      body: formData,
+                      credentials: 'include',
+                    });
+                    const data = await res.json();
+                    if (data.success && data.data.url) {
+                      setAddForm(f => ({ ...f, image: data.data.url }));
+                      setImageFile(file);
+                      toast.success('Image uploaded!');
+                    } else {
+                      toast.error('Image upload failed');
+                    }
+                  } catch (err) {
+                    toast.error('Image upload failed');
+                  } finally {
+                    setImageUploading(false);
+                  }
+                }}
+                label="Category Image (optional)"
+                disabled={imageUploading}
+              />
             </div>
             <button className="mt-6 w-full bg-primary text-white font-semibold rounded-lg px-4 py-2 hover:bg-primary/80 transition-colors" onClick={handleAddSave} disabled={addLoading}>{addLoading ? 'Saving...' : 'Add Category'}</button>
           </div>
@@ -247,11 +278,41 @@ export default function AdminCategoriesPage() {
             <div className="space-y-4">
               <input type="text" name="name" value={editForm.name} onChange={handleEditChange} className="w-full border border-neutral-700 bg-neutral-800 text-white rounded px-3 py-2" placeholder="Category Name*" />
               <textarea name="description" value={editForm.description} onChange={handleEditChange} className="w-full border border-neutral-700 bg-neutral-800 text-white rounded px-3 py-2" placeholder="Description" rows={2} />
-              <div>
-                <input type="file" accept="image/*" ref={fileInputRef} onChange={e => handleImageChange(e, 'edit')} className="hidden" />
-                <button type="button" className="bg-primary text-white px-4 py-2 rounded hover:bg-primary/80 font-semibold" onClick={() => fileInputRef.current?.click()} disabled={imageUploading}>{imageUploading ? 'Uploading...' : 'Upload Image'}</button>
-                {editForm.image && <img src={editForm.image} alt="Preview" className="w-16 h-16 object-cover rounded mt-2" />}
-              </div>
+              <DragAndDropImage
+                value={imageFile}
+                previewUrl={editForm.image}
+                onChange={async (file) => {
+                  if (!file) {
+                    setImageFile(null);
+                    setEditForm(f => ({ ...f, image: '' }));
+                    return;
+                  }
+                  setImageUploading(true);
+                  const formData = new FormData();
+                  formData.append('file', file);
+                  try {
+                    const res = await fetch('/api/upload', {
+                      method: 'POST',
+                      body: formData,
+                      credentials: 'include',
+                    });
+                    const data = await res.json();
+                    if (data.success && data.data.url) {
+                      setEditForm(f => ({ ...f, image: data.data.url }));
+                      setImageFile(file);
+                      toast.success('Image uploaded!');
+                    } else {
+                      toast.error('Image upload failed');
+                    }
+                  } catch (err) {
+                    toast.error('Image upload failed');
+                  } finally {
+                    setImageUploading(false);
+                  }
+                }}
+                label="Category Image (optional)"
+                disabled={imageUploading}
+              />
             </div>
             <button className="mt-6 w-full bg-primary text-white font-semibold rounded-lg px-4 py-2 hover:bg-primary/80 transition-colors" onClick={handleEditSave} disabled={editLoading}>{editLoading ? 'Saving...' : 'Update Category'}</button>
           </div>

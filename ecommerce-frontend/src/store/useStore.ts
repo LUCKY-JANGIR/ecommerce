@@ -32,7 +32,7 @@ export interface Product {
     alt?: string;
   }>;
   stock: number;
-  rating: number;
+  averageRating: number;
   numReviews: number;
   reviews: Review[];
   specifications: Array<{

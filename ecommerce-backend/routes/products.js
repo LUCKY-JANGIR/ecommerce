@@ -52,19 +52,16 @@ router.get('/', [
         filter.isActive = true;
     }
 
-    // Optimized search filter: partial, multi-word, AND logic
+    let products = [];
+    let total = 0;
+    let usedRegexFallback = false;
+
+    // Professional search: use $text if search query is present
+    let useTextSearch = false;
     if (req.query.search) {
-        const words = req.query.search.trim().split(/\s+/).filter(Boolean);
-        if (words.length > 0) {
-            filter.$and = words.map(word => ({
-                $or: [
-                    { name: { $regex: word, $options: 'i' } },
-                    { description: { $regex: word, $options: 'i' } },
-                    { brand: { $regex: word, $options: 'i' } },
-                    { tags: { $regex: word, $options: 'i' } }
-                ]
-            }));
-        }
+        // If a text index exists, use $text search for relevance
+        filter.$text = { $search: req.query.search };
+        useTextSearch = true;
     }
 
     // Robust category filter: support both ObjectId and name, never throw CastError
@@ -111,40 +108,83 @@ router.get('/', [
 
     // Build sort object
     let sort = {};
-    switch (req.query.sortBy) {
-        case 'price_asc':
-            sort.price = 1;
-            break;
-        case 'price_desc':
-            sort.price = -1;
-            break;
-        case 'rating':
-            sort.rating = -1;
-            break;
-        case 'newest':
-            sort.createdAt = -1;
-            break;
-        case 'oldest':
-            sort.createdAt = 1;
-            break;
-        case 'name':
-            sort.name = 1;
-            break;
-        default:
-            sort.createdAt = -1;
+    if (useTextSearch) {
+        sort = { score: { $meta: 'textScore' } };
+    } else {
+        switch (req.query.sortBy) {
+            case 'price_asc':
+                sort.price = 1;
+                break;
+            case 'price_desc':
+                sort.price = -1;
+                break;
+            case 'rating':
+                sort.rating = -1;
+                break;
+            case 'newest':
+                sort.createdAt = -1;
+                break;
+            case 'oldest':
+                sort.createdAt = 1;
+                break;
+            case 'name':
+                sort.name = 1;
+                break;
+            default:
+                sort.createdAt = -1;
+        }
     }
 
     // Execute query
-    const products = await Product.find(filter)
-        .populate('createdBy', 'name')
-        .populate('category', 'name') // Populate category name
+    let query = Product.find(filter)
+        .populate('category', 'name')
         .sort(sort)
         .skip(skip)
         .limit(limit)
-        .select('-reviews'); // Exclude reviews for performance
+        .select('-reviews');
+    if (useTextSearch) {
+        query = query.select({ score: { $meta: 'textScore' } });
+    }
+    products = await query;
+    total = await Product.countDocuments(filter);
 
-    // Get total count for pagination
-    const total = await Product.countDocuments(filter);
+    // Regex fallback for substring/typo search
+    if (req.query.search && (products.length === 0 || req.query.search.length < 3)) {
+        usedRegexFallback = true;
+        const regex = new RegExp(req.query.search, 'i');
+        const regexFilter = {
+            $or: [
+                { name: regex },
+                { description: regex },
+                { brand: regex },
+                { tags: regex },
+                { sku: regex },
+            ],
+            ...(!req.user || req.user.role !== 'admin' ? { isActive: true } : {}),
+        };
+        // Merge with other filters (category, price, etc.)
+        if (filter.category) regexFilter.category = filter.category;
+        if (filter.price) regexFilter.price = filter.price;
+        if (filter.rating) regexFilter.rating = filter.rating;
+        // For regex fallback, do NOT use textScore sort/select
+        let regexSort = {};
+        switch (req.query.sortBy) {
+            case 'price_asc': regexSort.price = 1; break;
+            case 'price_desc': regexSort.price = -1; break;
+            case 'rating': regexSort.rating = -1; break;
+            case 'newest': regexSort.createdAt = -1; break;
+            case 'oldest': regexSort.createdAt = 1; break;
+            case 'name': regexSort.name = 1; break;
+            default: regexSort.createdAt = -1;
+        }
+        products = await Product.find(regexFilter)
+            .populate('category', 'name')
+            .sort(regexSort)
+            .skip(skip)
+            .limit(limit)
+            .select('-reviews');
+        total = await Product.countDocuments(regexFilter);
+    }
 
     // If no products found, return empty array with message (not 404)
     if (!products || products.length === 0) {
@@ -184,16 +224,10 @@ router.get('/', [
 // @access  Public
 router.get('/:id', optionalAuth, asyncHandler(async (req, res) => {
     const product = await Product.findById(req.params.id)
-        .populate('createdBy', 'name')
         .populate('category', 'name') // Populate category name
-        .populate('reviews.user', 'name avatar');
+        .populate('reviews.user', 'name');
 
     if (!product) {
-        throw new ApiError('Product not found', 404);
-    }
-
-    // Only show active products to non-admin users
-    if (!product.isActive && (!req.user || req.user.role !== 'admin')) {
         throw new ApiError('Product not found', 404);
     }
 
@@ -277,7 +311,7 @@ router.post('/', protect, admin, upload.array('images', 5), async (req, res, nex
             specifications: specifications ? JSON.parse(specifications) : [],
             tags: tags ? JSON.parse(tags) : [],
             isFeatured: isFeatured === 'true',
-            createdBy: req.user._id
+            // Note: createdBy field removed from schema
         });
 
         res.status(201).json({
@@ -312,11 +346,7 @@ router.put('/:id', protect, admin, upload.array('images', 5), async (req, res, n
             }
         });
 
-        // Always preserve createdBy
-        if (!product.createdBy) {
-            // If for some reason createdBy is missing, set it to the current user
-            product.createdBy = req.user._id;
-        }
+
 
         // Handle complex fields
         if (req.body.dimensions) {
@@ -376,6 +406,26 @@ router.delete('/:id', protect, admin, asyncHandler(async (req, res) => {
     res.json({ message: 'Product and images deleted successfully' });
 }));
 
+// @desc    Get product reviews
+// @route   GET /api/products/:id/reviews
+// @access  Public
+router.get('/:id/reviews', asyncHandler(async (req, res) => {
+    const product = await Product.findById(req.params.id)
+        .populate('reviews.user', 'name')
+        .select('reviews');
+
+    if (!product) {
+        throw new ApiError('Product not found', 404);
+    }
+
+    res.json({
+        success: true,
+        reviews: product.reviews,
+        averageRating: product.averageRating,
+        numReviews: product.numReviews
+    });
+}));
+
 // @desc    Add product review
 // @route   POST /api/products/:id/reviews
 // @access  Private
@@ -387,52 +437,151 @@ router.post('/:id/reviews', protect, [
         .trim()
         .isLength({ min: 10, max: 500 })
         .withMessage('Comment must be between 10 and 500 characters')
-], async (req, res, next) => {
-    try {
-        // Check for validation errors
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({
-                message: 'Validation failed',
-                errors: errors.array()
-            });
-        }
-
-        const { rating, comment } = req.body;
-
-        const product = await Product.findById(req.params.id);
-        if (!product) {
-            return res.status(404).json({ message: 'Product not found' });
-        }
-
-        // Check if user already reviewed this product
-        const existingReview = product.reviews.find(
-            review => review.user.toString() === req.user._id.toString()
-        );
-
-        if (existingReview) {
-            return res.status(400).json({ message: 'You have already reviewed this product' });
-        }
-
-        // Add review
-        const review = {
-            user: req.user._id,
-            name: req.user.name,
-            rating,
-            comment
-        };
-
-        product.reviews.push(review);
-        await product.save();
-
-        res.status(201).json({
-            message: 'Review added successfully',
-            review
-        });
-    } catch (error) {
-        next(error);
+], asyncHandler(async (req, res) => {
+    // Check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        throw new ApiError('Validation failed', 400);
     }
-});
+
+    const { rating, comment } = req.body;
+
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+        throw new ApiError('Product not found', 404);
+    }
+
+    // Check if user already reviewed this product
+    const existingReview = product.reviews.find(
+        review => review.user.toString() === req.user._id.toString()
+    );
+
+    if (existingReview) {
+        return res.status(400).json({
+            success: false,
+            message: 'You have already reviewed this product. You can edit your existing review instead.',
+            existingReview: {
+                _id: existingReview._id,
+                rating: existingReview.rating,
+                comment: existingReview.comment,
+                createdAt: existingReview.createdAt
+            }
+        });
+    }
+
+    // Add review
+    product.reviews.push({
+        user: req.user._id,
+        rating: parseInt(rating),
+        comment: comment.trim()
+    });
+
+    // Calculate new average rating
+    product.calculateAverageRating();
+
+    await product.save();
+
+    // Populate user info for the new review
+    await product.populate('reviews.user', 'name');
+    const newReview = product.reviews[product.reviews.length - 1];
+
+    res.status(201).json({
+        success: true,
+        message: 'Review added successfully',
+        review: newReview,
+        averageRating: product.averageRating,
+        numReviews: product.numReviews
+    });
+}));
+
+// @desc    Update review
+// @route   PUT /api/products/:id/reviews/:reviewId
+// @access  Private
+router.put('/:id/reviews/:reviewId', protect, [
+    body('rating').optional().isInt({ min: 1, max: 5 }).withMessage('Rating must be between 1 and 5'),
+    body('comment').optional().trim().isLength({ min: 10, max: 500 }).withMessage('Comment must be between 10 and 500 characters')
+], asyncHandler(async (req, res) => {
+    // Check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        throw new ApiError('Validation failed', 400);
+    }
+
+    const { rating, comment } = req.body;
+
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+        throw new ApiError('Product not found', 404);
+    }
+
+    // Find the review
+    const review = product.reviews.id(req.params.reviewId);
+    if (!review) {
+        throw new ApiError('Review not found', 404);
+    }
+
+    // Check if user owns this review
+    if (review.user.toString() !== req.user._id.toString()) {
+        throw new ApiError('You can only edit your own reviews', 403);
+    }
+
+    // Update review
+    if (rating !== undefined) review.rating = parseInt(rating);
+    if (comment !== undefined) review.comment = comment.trim();
+
+    // Calculate new average rating
+    product.calculateAverageRating();
+
+    await product.save();
+
+    // Populate user info
+    await product.populate('reviews.user', 'name');
+    const updatedReview = product.reviews.id(req.params.reviewId);
+
+    res.json({
+        success: true,
+        message: 'Review updated successfully',
+        review: updatedReview,
+        averageRating: product.averageRating,
+        numReviews: product.numReviews
+    });
+}));
+
+// @desc    Delete review
+// @route   DELETE /api/products/:id/reviews/:reviewId
+// @access  Private
+router.delete('/:id/reviews/:reviewId', protect, asyncHandler(async (req, res) => {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+        throw new ApiError('Product not found', 404);
+    }
+
+    // Find the review
+    const review = product.reviews.id(req.params.reviewId);
+    if (!review) {
+        throw new ApiError('Review not found', 404);
+    }
+
+    // Check if user owns this review or is admin
+    if (review.user.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+        throw new ApiError('You can only delete your own reviews', 403);
+    }
+
+    // Remove review
+    review.remove();
+
+    // Calculate new average rating
+    product.calculateAverageRating();
+
+    await product.save();
+
+    res.json({
+        success: true,
+        message: 'Review deleted successfully',
+        averageRating: product.averageRating,
+        numReviews: product.numReviews
+    });
+}));
 
 // @desc    Get featured products
 // @route   GET /api/products/featured
@@ -440,7 +589,6 @@ router.post('/:id/reviews', protect, [
 router.get('/featured', async (req, res, next) => {
     try {
         const products = await Product.getFeatured()
-            .populate('createdBy', 'name')
             .limit(8)
             .select('-reviews');
 
@@ -475,7 +623,7 @@ router.post('/upload-image', protect, admin, upload.single('image'), async (req,
 router.get('/category/:category', async (req, res, next) => {
     try {
         const products = await Product.getByCategory(req.params.category)
-            .populate('createdBy', 'name')
+            .limit(8)
             .select('-reviews');
 
         res.json(products);

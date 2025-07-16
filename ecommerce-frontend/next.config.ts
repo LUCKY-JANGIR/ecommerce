@@ -2,7 +2,6 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ['localhost', 'res.cloudinary.com'],
     remotePatterns: [
       {
         protocol: 'http',
@@ -19,6 +18,11 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: '*.vercel.app',
         pathname: '/uploads/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        pathname: '/**',
       },
     ],
   },

@@ -49,6 +49,10 @@ router.post('/', protect, admin, upload.single('image'), async (req, res, next) 
             imageUrl = result.secure_url;
             imagePublicId = result.public_id;
         }
+        // Accept image URL from body if provided and no file is uploaded
+        if (req.body.image && !req.file && req.body.image.trim() !== '') {
+            imageUrl = req.body.image;
+        }
         const category = await Category.create({
             name: req.body.name,
             description: req.body.description,
@@ -79,6 +83,10 @@ router.put('/:id', protect, admin, upload.single('image'), async (req, res, next
             const result = await uploadToCloudinary(req.file.buffer, req.file.originalname);
             category.image = result.secure_url;
             category.imagePublicId = result.public_id;
+        }
+        // Accept image URL from body if provided and no file is uploaded
+        if (req.body.image && !req.file && req.body.image.trim() !== '') {
+            category.image = req.body.image;
         }
         // Handle image removal
         if (req.body.removeImage === 'true' && category.imagePublicId) {

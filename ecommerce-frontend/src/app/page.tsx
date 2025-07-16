@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { FiUser } from "react-icons/fi";
 import { useStore } from '@/store/useStore';
 import '@fontsource/playfair-display/700.css';
+import Link from 'next/link';
 
 // --- Design System ---
 const navLinks = [
@@ -97,14 +98,15 @@ function HeroSection() {
         <p className="text-base md:text-lg text-secondary mb-8 font-body max-w-xl" style={{ textShadow: '0 2px 12px #000a' }}>
           Experience the artistry of finest heritage products and textiles.
         </p>
-        <motion.a
-          href="/products"
+        <Link href="/products">
+          <motion.button
           whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.97 }}
-          className="inline-block px-8 py-3 rounded-full bg-primary text-background font-bold text-lg shadow-lg transition-all hover:bg-primary-light"
+            whileTap={{ scale: 0.98 }}
+            className="inline-block px-8 py-3 text-lg font-bold rounded-lg shadow-lg bg-primary text-white hover:bg-primary-dark transition"
         >
           Shop Now
-        </motion.a>
+          </motion.button>
+        </Link>
       </motion.div>
     </section>
   );

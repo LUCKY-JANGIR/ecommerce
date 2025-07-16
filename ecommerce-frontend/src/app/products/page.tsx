@@ -199,7 +199,7 @@ function ProductsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-16 md:py-24">
+      <div className="container mx-auto px-4 pt-24 pb-8">
         {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-display font-bold text-primary mb-2">All Products</h1>
@@ -211,7 +211,7 @@ function ProductsPage() {
           {/* Search Bar & Sort */}
           <div className="flex-1 flex flex-col md:flex-row gap-4">
             <form onSubmit={handleSearch} className="flex-1 relative">
-              <div className="flex items-center bg-secondary backdrop-blur border border-primary rounded-xl px-4 py-2">
+              <div className="flex items-center bg-secondary backdrop-blur border border-primary rounded-xl px-4 py-2 relative">
                 <Search className="mr-2 h-5 w-5 text-primary" />
                 <input
                   type="text"
@@ -219,7 +219,9 @@ function ProductsPage() {
                   value={searchInput}
                   onChange={e => setSearchInput(e.target.value)}
                   className="flex-1 bg-transparent outline-none text-text-main placeholder-text-muted font-medium text-base px-2"
+                  // Removed onFocus and onBlur for suggestions
                 />
+                {/* Suggestions dropdown removed */}
               </div>
             </form>
             <select
@@ -252,7 +254,7 @@ function ProductsPage() {
                 <h3 className="text-lg font-display font-semibold text-text-main">Filters</h3>
                 <button
                   onClick={clearFilters}
-                  className="text-sm font-bold text-primary bg-transparent px-3 py-1 rounded hover:bg-primary/10 transition-colors"
+                  className="text-sm font-bold text-blue-600 border border-blue-600 bg-transparent px-3 py-1 rounded transition-colors hover:bg-blue-600 hover:text-white"
                 >
                   Clear All
                 </button>
@@ -312,7 +314,7 @@ function ProductsPage() {
                   <p className="text-primary text-lg">No products found matching your criteria.</p>
                   <button
                     onClick={clearFilters}
-                    className="mt-4 text-primary hover:text-background hover:bg-primary font-bold px-4 py-2 rounded-lg transition-colors bg-secondary border border-primary"
+                    className="mt-4 text-blue-600 border border-blue-600 bg-secondary font-bold px-4 py-2 rounded-lg transition-colors hover:bg-blue-600 hover:text-white"
                   >
                     Clear filters
                   </button>

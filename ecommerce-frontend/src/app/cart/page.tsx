@@ -112,7 +112,7 @@ export default function CartPage() {
                           src={
                             typeof item.product.images?.[0] === 'string'
                               ? item.product.images[0]
-                              : item.product.images?.[0]?.url || '/placeholder-product.jpg'
+                              : item.product.images?.[0]?.url || '/placeholder-product.svg'
                           }
                           alt={item.product.name}
                           width={80}
@@ -124,7 +124,7 @@ export default function CartPage() {
                       {/* Product Details */}
                       <div className="flex-1 min-w-0">
                         <Link
-                          href={`/product/${item.product._id}`}
+                          href={`/products/${item.product._id}`}
                           className="text-lg font-semibold text-gray-900 hover:text-blue-600 transition-colors"
                         >
                           {item.product.name}

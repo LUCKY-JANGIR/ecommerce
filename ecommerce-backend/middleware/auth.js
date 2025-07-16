@@ -11,6 +11,11 @@ const protect = async (req, res, next) => {
             // Get token from header
             token = req.headers.authorization.split(' ')[1];
 
+            // Validate token format
+            if (!token || token === 'null' || token === 'undefined') {
+                return res.status(401).json({ message: 'Invalid token format' });
+            }
+
             // Verify token
             const jwtSecret = process.env.JWT_SECRET || 'fallback-secret-key-for-development';
             const decoded = jwt.verify(token, jwtSecret);
@@ -24,8 +29,16 @@ const protect = async (req, res, next) => {
 
             next();
         } catch (error) {
-            console.error('Token verification error:', error);
-            return res.status(401).json({ message: 'Not authorized, token failed' });
+            console.error('Token verification error:', error.message);
+
+            // Handle specific JWT errors
+            if (error.name === 'JsonWebTokenError') {
+                return res.status(401).json({ message: 'Invalid token' });
+            } else if (error.name === 'TokenExpiredError') {
+                return res.status(401).json({ message: 'Token expired' });
+            } else {
+                return res.status(401).json({ message: 'Not authorized, token failed' });
+            }
         }
     } else {
         return res.status(401).json({ message: 'Not authorized, no token' });
@@ -48,11 +61,19 @@ const optionalAuth = async (req, res, next) => {
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         try {
             token = req.headers.authorization.split(' ')[1];
+
+            // Validate token format
+            if (!token || token === 'null' || token === 'undefined') {
+                req.user = null;
+                return next();
+            }
+
             const jwtSecret = process.env.JWT_SECRET || 'fallback-secret-key-for-development';
             const decoded = jwt.verify(token, jwtSecret);
             req.user = await User.findById(decoded.id).select('-password');
         } catch (error) {
             // Token is invalid but we don't fail the request
+            console.log('Optional auth token error:', error.message);
             req.user = null;
         }
     }

@@ -1,10 +1,33 @@
+require('dotenv').config();
+
+// Validate required environment variables
+const requiredEnvVars = [
+    'MONGODB_URI',
+    'JWT_SECRET',
+    'EMAILJS_SERVICE_ID',
+    'EMAILJS_OTP_TEMPLATE_ID',
+    'EMAILJS_LINK_TEMPLATE_ID',
+    'EMAILJS_PUBLIC_KEY',
+    'EMAILJS_PRIVATE_KEY'
+];
+
+const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+if (missingEnvVars.length > 0) {
+    console.error('❌ Missing required environment variables:');
+    missingEnvVars.forEach(varName => console.error(`   - ${varName}`));
+    console.error('Please check your .env file and restart the server.');
+    process.exit(1);
+}
+
+console.log('✅ All required environment variables are set');
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { errorHandler, notFound } = require('./middleware/errorHandler');
-require('dotenv').config();
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -20,7 +43,28 @@ console.log('Using URI:', process.env.MONGODB_URI ? 'SET' : 'NOT SET');
 const app = express();
 
 // Security middleware
-app.use(helmet());
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com"],
+            imgSrc: ["'self'", "data:", "https:"],
+            scriptSrc: ["'self'"],
+            connectSrc: ["'self'"],
+        },
+    },
+    crossOriginEmbedderPolicy: false,
+}));
+
+// Additional security headers
+app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    next();
+});
 
 // Rate limiting
 const limiter = rateLimit({
