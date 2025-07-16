@@ -13,9 +13,16 @@ import toast from 'react-hot-toast';
 import axios from 'axios';
 
 const registerSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
+  name: z.string()
+    .min(2, 'Name must be at least 2 characters')
+    .max(50, 'Name must be at most 50 characters')
+    .regex(/^[a-zA-Z\s]+$/, 'Name can only contain letters and spaces'),
   email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: z.string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number'),
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
@@ -36,6 +43,7 @@ export default function RegisterPage() {
   const [otpError, setOtpError] = useState('');
   const [otpSuccess, setOtpSuccess] = useState('');
   const [otpVerified, setOtpVerified] = useState(false);
+  const [showProfileReminder, setShowProfileReminder] = useState(false);
 
   const {
     register,
@@ -94,12 +102,15 @@ export default function RegisterPage() {
         name: data.name,
         email: data.email,
         password: data.password,
+        confirmPassword: data.confirmPassword,
       });
       login(response.user, response.token);
       toast.success('Registration successful!');
-      router.push('/');
+      setTimeout(() => setShowProfileReminder(true), 1000); // Show reminder after 1s
+      setTimeout(() => router.push('/'), 3500); // Redirect after 3.5s
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Registration failed');
+      const backendError = error.response?.data?.errors?.[0]?.msg || error.response?.data?.message || 'Registration failed';
+      toast.error(backendError);
     } finally {
       setIsLoading(false);
     }
@@ -107,6 +118,21 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center">
+      {/* Profile Setup Reminder Modal */}
+      {showProfileReminder && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
+          <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full text-center">
+            <h2 className="text-xl font-bold mb-4">Welcome!</h2>
+            <p className="mb-6">Registration successful. Don’t forget to set up your profile for a better experience!</p>
+            <button
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition"
+              onClick={() => { setShowProfileReminder(false); router.push('/profile'); }}
+            >
+              Go to Profile Setup
+            </button>
+          </div>
+        </div>
+      )}
       
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">

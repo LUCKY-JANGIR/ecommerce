@@ -181,15 +181,26 @@ router.post('/register', [
         .isLength({ min: 8 })
         .withMessage('Password must be at least 8 characters long')
         .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-        .withMessage('Password must contain at least one uppercase letter, one lowercase letter, and one number')
+        .withMessage('Password must contain at least one uppercase letter, one lowercase letter, and one number'),
+    body('confirmPassword')
+        .optional()
+        .custom((value, { req }) => {
+            if (value !== undefined && value !== req.body.password) {
+                throw new Error('Passwords do not match');
+            }
+            return true;
+        })
 ], async (req, res, next) => {
     try {
         // Check for validation errors
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
+            // Log all validation errors for debugging
+            console.warn('Registration validation failed:', errors.array());
+            const firstError = errors.array()[0];
             return res.status(400).json({
                 message: 'Validation failed',
-                errors: errors.array()
+                errors: [firstError]
             });
         }
 
@@ -197,7 +208,10 @@ router.post('/register', [
 
         // Check if email is verified
         if (!verifiedEmails.has(email)) {
-            return res.status(400).json({ message: 'Please verify your email before registering.' });
+            return res.status(400).json({
+                message: 'Please verify your email before registering. Check your email for the OTP and verify before registering.',
+                errors: [{ msg: 'Email not verified via OTP', param: 'email', location: 'body' }]
+            });
         }
         verifiedEmails.delete(email); // One-time use
 
@@ -209,7 +223,6 @@ router.post('/register', [
             isEmailVerified: true
         });
 
-        // Generate token
         const token = generateToken(user._id);
 
         res.status(201).json({
@@ -223,7 +236,18 @@ router.post('/register', [
             }
         });
     } catch (error) {
-        next(error);
+        // Handle known errors gracefully
+        if (error.message && error.message.includes('User already exists')) {
+            return res.status(400).json({
+                message: 'Registration failed',
+                errors: [{ msg: 'User already exists with this email', param: 'email', location: 'body' }]
+            });
+        }
+        // Fallback for unexpected errors
+        return res.status(500).json({
+            message: 'An unexpected error occurred during registration. Please try again later.',
+            errors: [{ msg: error.message || 'Unknown error', param: 'server', location: 'internal' }]
+        });
     }
 });
 

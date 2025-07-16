@@ -41,6 +41,7 @@ console.log('MONGODB_URI:', process.env.MONGODB_URI ? 'SET' : 'NOT SET');
 console.log('JWT_SECRET:', process.env.JWT_SECRET ? 'SET' : 'NOT SET');
 console.log('Using URI:', process.env.MONGODB_URI ? 'SET' : 'NOT SET');
 const app = express();
+app.set('trust proxy', 1); // trust first proxy for Render and similar platforms
 
 // Security middleware
 app.use(helmet({

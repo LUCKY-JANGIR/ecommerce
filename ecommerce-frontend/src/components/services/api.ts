@@ -50,6 +50,7 @@ export const authAPI: {
     name: string;
     email: string;
     password: string;
+    confirmPassword?: string;
     phone?: string;
   }) => Promise<any>;
   login: (credentials: { email: string; password: string }) => Promise<any>;
@@ -74,6 +75,7 @@ export const authAPI: {
     name: string;
     email: string;
     password: string;
+    confirmPassword?: string;
     phone?: string;
   }) => {
     try {
