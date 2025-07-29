@@ -107,7 +107,8 @@ export default function RegisterPage() {
       login(response.user, response.token);
       toast.success('Registration successful!');
       setTimeout(() => setShowProfileReminder(true), 1000); // Show reminder after 1s
-      setTimeout(() => router.push('/'), 3500); // Redirect after 3.5s
+      // Remove the automatic redirect to home
+      // setTimeout(() => router.push('/'), 3500); // (Remove this line)
     } catch (error: any) {
       const backendError = error.response?.data?.errors?.[0]?.msg || error.response?.data?.message || 'Registration failed';
       toast.error(backendError);
@@ -126,9 +127,9 @@ export default function RegisterPage() {
             <p className="mb-6">Registration successful. Don’t forget to set up your profile for a better experience!</p>
             <button
               className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition"
-              onClick={() => { setShowProfileReminder(false); router.push('/profile'); }}
+              onClick={() => { setShowProfileReminder(false); router.push('/products'); }}
             >
-              Go to Profile Setup
+              Go to Products
             </button>
           </div>
         </div>

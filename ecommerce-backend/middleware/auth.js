@@ -19,18 +19,19 @@ const protect = async (req, res, next) => {
             // Verify token
             const jwtSecret = process.env.JWT_SECRET || 'fallback-secret-key-for-development';
             const decoded = jwt.verify(token, jwtSecret);
+            console.log('Decoded JWT:', decoded);
 
             // Get user from token (excluding password)
             req.user = await User.findById(decoded.id).select('-password');
 
             if (!req.user) {
-                return res.status(401).json({ message: 'User not found' });
+                console.log('User not found for decoded id:', decoded.id);
+                return res.status(401).json({ message: 'Not authorized, user not found' });
             }
 
             next();
         } catch (error) {
-            console.error('Token verification error:', error.message);
-
+            console.log('JWT verification error:', error);
             // Handle specific JWT errors
             if (error.name === 'JsonWebTokenError') {
                 return res.status(401).json({ message: 'Invalid token' });
@@ -41,6 +42,7 @@ const protect = async (req, res, next) => {
             }
         }
     } else {
+        console.log('No token found in Authorization header');
         return res.status(401).json({ message: 'Not authorized, no token' });
     }
 };

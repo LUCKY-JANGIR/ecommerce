@@ -314,7 +314,7 @@ function ProductsPage() {
                   <p className="text-primary text-lg">No products found matching your criteria.</p>
                   <button
                     onClick={clearFilters}
-                    className="mt-4 text-blue-600 border border-blue-600 bg-secondary font-bold px-4 py-2 rounded-lg transition-colors hover:bg-blue-600 hover:text-white"
+                    className="mt-4 border-2 border-blue-600 text-blue-600 bg-white font-bold px-4 py-2 rounded-lg transition-colors hover:bg-blue-600 hover:text-white hover:bg-blue-600"
                   >
                     Clear filters
                   </button>

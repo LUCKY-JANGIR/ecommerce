@@ -391,4 +391,55 @@ router.put('/:id/toggle-status', protect, admin, async (req, res, next) => {
     }
 });
 
+// @desc    Get current user's wishlist
+// @route   GET /api/users/wishlist
+// @access  Private
+router.get('/wishlist', protect, async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user._id).populate('wishlist');
+        res.json({ wishlist: user.wishlist });
+    } catch (error) {
+        next(error);
+    }
+});
+
+// @desc    Add product to wishlist
+// @route   POST /api/users/wishlist
+// @access  Private
+router.post('/wishlist', protect, async (req, res, next) => {
+    try {
+        const { productId } = req.body;
+        if (!productId) {
+            return res.status(400).json({ message: 'Product ID is required' });
+        }
+        const user = await User.findById(req.user._id);
+        if (!user.wishlist.includes(productId)) {
+            user.wishlist.push(productId);
+            await user.save();
+        }
+        const updatedUser = await User.findById(req.user._id).populate('wishlist');
+        res.json({ wishlist: updatedUser.wishlist });
+    } catch (error) {
+        next(error);
+    }
+});
+
+// @desc    Remove product from wishlist
+// @route   DELETE /api/users/wishlist/:productId
+// @access  Private
+router.delete('/wishlist/:productId', protect, async (req, res, next) => {
+    try {
+        const { productId } = req.params;
+        const user = await User.findById(req.user._id);
+        user.wishlist = user.wishlist.filter(
+            (id) => id.toString() !== productId
+        );
+        await user.save();
+        const updatedUser = await User.findById(req.user._id).populate('wishlist');
+        res.json({ wishlist: updatedUser.wishlist });
+    } catch (error) {
+        next(error);
+    }
+});
+
 module.exports = router;

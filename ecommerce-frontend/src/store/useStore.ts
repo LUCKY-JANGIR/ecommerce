@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { authAPI } from '@/components/services/api';
+import { usersAPI } from '@/components/services/api';
 
 export interface User {
   _id: string;
@@ -136,8 +138,9 @@ interface AppState {
 
   // Wishlist
   wishlist: Product[];
-  addToWishlist: (product: Product) => void;
-  removeFromWishlist: (productId: string) => void;
+  fetchWishlist: () => Promise<void>;
+  addToWishlist: (product: Product) => Promise<void>;
+  removeFromWishlist: (productId: string) => Promise<void>;
   clearWishlist: () => void;
 }
 
@@ -152,7 +155,7 @@ export const useStore = create<AppState>()(
         loading: false,
       },
       
-      login: (user: User, token: string) =>
+      login: async (user: User, token: string) => {
         set((state) => ({
           auth: {
             ...state.auth,
@@ -161,7 +164,10 @@ export const useStore = create<AppState>()(
             isAuthenticated: true,
             loading: false,
           },
-        })),
+        }));
+        // Fetch wishlist from backend after login
+        await get().fetchWishlist();
+      },
       
       logout: () =>
         set((state) => ({
@@ -285,15 +291,34 @@ export const useStore = create<AppState>()(
 
       // Wishlist state
       wishlist: [],
-      addToWishlist: (product: Product) =>
-        set((state) => {
-          if (state.wishlist.find((p) => p._id === product._id)) return {};
-          return { wishlist: [...state.wishlist, product] };
-        }),
-      removeFromWishlist: (productId: string) =>
-        set((state) => ({
-          wishlist: state.wishlist.filter((p) => p._id !== productId),
-        })),
+      fetchWishlist: async () => {
+        const { auth } = get();
+        if (!auth.isAuthenticated || !auth.token) {
+          console.log('Not authenticated, skipping wishlist fetch');
+          set({ wishlist: [] });
+          return;
+        }
+        try {
+          const data = await usersAPI.getWishlist();
+          console.log('Fetched wishlist from backend:', data.wishlist);
+          set({ wishlist: data.wishlist || [] });
+        } catch (e) {
+          console.error('Error fetching wishlist:', e);
+          set({ wishlist: [] });
+        }
+      },
+      addToWishlist: async (product: Product) => {
+        try {
+          const data = await usersAPI.addToWishlist(product._id);
+          set({ wishlist: data.wishlist || [] });
+        } catch (e) {}
+      },
+      removeFromWishlist: async (productId: string) => {
+        try {
+          const data = await usersAPI.removeFromWishlist(productId);
+          set({ wishlist: data.wishlist || [] });
+        } catch (e) {}
+      },
       clearWishlist: () => set({ wishlist: [] }),
     }),
     {

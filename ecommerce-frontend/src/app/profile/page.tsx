@@ -12,7 +12,7 @@ import { Dialog } from '@headlessui/react';
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { auth, hydrated, setHydrated, wishlist, removeFromWishlist, addToCart } = useStore();
+  const { auth, hydrated, setHydrated, wishlist, removeFromWishlist, addToCart, fetchWishlist } = useStore();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
   // Modal and form state
@@ -73,6 +73,14 @@ export default function ProfilePage() {
 
     fetchProfile();
   }, [auth.isAuthenticated, hydrated, router]);
+
+  useEffect(() => {
+    if (hydrated && auth.isAuthenticated) {
+      fetchWishlist().then(() => {
+        console.log('Wishlist after fetch:', wishlist);
+      });
+    }
+  }, [hydrated, auth.isAuthenticated, fetchWishlist]);
 
   if (!hydrated) return null; // Don't render until hydrated
   if (!auth.isAuthenticated) {
@@ -383,40 +391,18 @@ export default function ProfilePage() {
           </div>
         </Dialog>
         {/* Bottom Section: Wishlist */}
-        <div className="bg-white/80 backdrop-blur border-gray-200 rounded-xl shadow-lg animate-fadein px-6 py-8 md:p-12 w-full">
-          <h2 className="text-2xl font-playfair font-bold text-[#d4af37] mb-4 flex items-center gap-2"><Heart className="h-6 w-6" /> My Wishlist</h2>
+        <section className="mt-10 w-full max-w-5xl mx-auto">
+          <h2 className="text-2xl font-bold mb-4 flex items-center gap-2"><Heart className="h-6 w-6" /> Your Wishlist</h2>
           {wishlist.length === 0 ? (
-            <div className="text-gray-400 text-center py-8">Your wishlist is empty.</div>
+            <p className="text-gray-500">No items in wishlist.</p>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-              {wishlist.map((product) => (
-                <div key={product._id} className="relative group">
-                  <ProductCard product={product} />
-                  <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
-                    <button
-                      onClick={() => {
-                        addToCart(product, 1);
-                        toast.success('Added to cart!');
-                      }}
-                      className="bg-[#d4af37] text-black px-3 py-1 rounded-lg font-bold shadow hover:bg-[#e6c385] transition-colors"
-                    >
-                      <ShoppingCart className="h-4 w-4 inline mr-1" /> Add to Cart
-                    </button>
-                    <button
-                      onClick={() => {
-                        removeFromWishlist(product._id);
-                        toast.success('Removed from wishlist');
-                      }}
-                      className="bg-black/60 border border-[#d4af37] text-[#d4af37] px-3 py-1 rounded-lg font-bold shadow hover:bg-[#d4af37] hover:text-black transition-colors"
-                    >
-                      <Heart className="h-4 w-4 inline mr-1" /> Remove
-                    </button>
-                  </div>
-                </div>
+            <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 animate-fadein">
+              {wishlist.map(product => (
+                <ProductCard key={product._id} product={product} />
               ))}
             </div>
           )}
-        </div>
+        </section>
       </div>
     </div>
   );

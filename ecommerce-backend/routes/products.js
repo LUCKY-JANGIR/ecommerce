@@ -48,9 +48,7 @@ router.get('/', [
 
     // Build filter object
     let filter = {};
-    if (!req.user || req.user.role !== 'admin') {
-        filter.isActive = true;
-    }
+    // Remove isActive filter so all products are visible to all users
 
     let products = [];
     let total = 0;

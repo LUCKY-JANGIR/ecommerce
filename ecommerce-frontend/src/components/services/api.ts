@@ -19,6 +19,7 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    console.log('Axios Auth Header:', config.headers.Authorization); // Debug log
     return config;
   },
   (error) => {
@@ -542,6 +543,19 @@ export const usersAPI = {
     } catch (error) {
       handleApiError(error);
     }
+  },
+
+  getWishlist: async () => {
+    const response = await api.get('/users/wishlist');
+    return response.data;
+  },
+  addToWishlist: async (productId: string) => {
+    const response = await api.post('/users/wishlist', { productId });
+    return response.data;
+  },
+  removeFromWishlist: async (productId: string) => {
+    const response = await api.delete(`/users/wishlist/${productId}`);
+    return response.data;
   },
 };
 
