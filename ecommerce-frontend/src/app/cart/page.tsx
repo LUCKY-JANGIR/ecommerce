@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
 import { useStore } from '@/store/useStore';
 import { Trash2, Plus, Minus, ArrowLeft, ShoppingBag } from 'lucide-react';
 import toast from 'react-hot-toast';
-
+//test comment
 export default function CartPage() {
   const router = useRouter();
   const { cart, removeFromCart, updateCartItemQuantity, clearCart } = useStore();
