@@ -36,6 +36,7 @@ const orderRoutes = require('./routes/orders');
 const userRoutes = require('./routes/users');
 const categoryRoutes = require('./routes/categories');
 const uploadRoutes = require('./routes/upload');
+const platformReviewsRoute = require('./routes/platformReviews');
 
 console.log('MONGODB_URI:', process.env.MONGODB_URI ? 'SET' : 'NOT SET');
 console.log('JWT_SECRET:', process.env.JWT_SECRET ? 'SET' : 'NOT SET');
@@ -117,6 +118,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/reviews', platformReviewsRoute);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -140,4 +142,4 @@ process.on('uncaughtException', (err) => {
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
-});
+}); 

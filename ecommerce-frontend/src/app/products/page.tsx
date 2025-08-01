@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { FiUser } from "react-icons/fi";
 import { useDebounce } from '@/hooks/useDebounce';
+import { motion } from 'framer-motion';
 
 export default function ProductsPageWrapper() {
   return (
@@ -298,23 +299,30 @@ function ProductsPage() {
 
           {/* Product Grid */}
           <div className="flex-1">
-            <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 animate-fadein">
+            <div className="grid gap-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {loading ? (
                 [...Array(8)].map((_, index) => (
-                  <div key={index} className="bg-secondary border border-primary rounded-xl h-52 animate-pulse" />
+                  <div key={index} className="bg-card border border-accent rounded-2xl h-52 animate-pulse" />
                 ))
               ) : products.length > 0 ? (
                 products.map((product, index) => (
-                  <div key={product._id} ref={index === products.length - 1 ? lastProductElementRef : null}>
+                  <motion.div
+                    key={product._id}
+                    ref={index === products.length - 1 ? lastProductElementRef : null}
+                    initial={{ opacity: 0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.2 }}
+                    transition={{ duration: 0.6, delay: index * 0.05 }}
+                  >
                     <ProductCard product={product} />
-                  </div>
+                  </motion.div>
                 ))
               ) : (
                 <div className="text-center py-12">
                   <p className="text-primary text-lg">No products found matching your criteria.</p>
                   <button
                     onClick={clearFilters}
-                    className="mt-4 border-2 border-blue-600 text-blue-600 bg-white font-bold px-4 py-2 rounded-lg transition-colors hover:bg-blue-600 hover:text-white hover:bg-blue-600"
+                    className="mt-4 border-2 border-accent text-accent bg-white font-bold px-4 py-2 rounded-lg transition-colors hover:bg-accent hover:text-white"
                   >
                     Clear filters
                   </button>

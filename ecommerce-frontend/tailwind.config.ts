@@ -9,6 +9,16 @@ const config: Config = {
   ],
   theme: {
   	extend: {
+  		colors: {
+  			primary: '#1e3a8a', // deep blue
+  			accent: '#DAA520', // gold
+  			background: {
+  				light: '#f8f8f8',
+  				dark: '#18181b',
+  			},
+  			card: '#fff',
+  			muted: '#6b7280',
+  		},
   		animation: {
   			'fade-in': 'fadeIn 0.5s ease-in-out',
   			'slide-up': 'slideUp 0.3s ease-out',

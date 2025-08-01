@@ -391,13 +391,23 @@ router.put('/:id/toggle-status', protect, admin, async (req, res, next) => {
     }
 });
 
-// @desc    Get current user's wishlist
+// @desc    Get user wishlist
 // @route   GET /api/users/wishlist
 // @access  Private
 router.get('/wishlist', protect, async (req, res, next) => {
     try {
-        const user = await User.findById(req.user._id).populate('wishlist');
-        res.json({ wishlist: user.wishlist });
+        const user = await User.findById(req.user.id).populate({
+            path: 'wishlist.product',
+            select: 'name description price image category'
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json({
+            wishlist: user.wishlist || []
+        });
     } catch (error) {
         next(error);
     }
@@ -406,19 +416,62 @@ router.get('/wishlist', protect, async (req, res, next) => {
 // @desc    Add product to wishlist
 // @route   POST /api/users/wishlist
 // @access  Private
-router.post('/wishlist', protect, async (req, res, next) => {
+router.post('/wishlist', protect, [
+    body('productId')
+        .notEmpty()
+        .withMessage('Product ID is required')
+        .isMongoId()
+        .withMessage('Invalid product ID')
+], async (req, res, next) => {
     try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({
+                message: 'Validation failed',
+                errors: errors.array()
+            });
+        }
+
         const { productId } = req.body;
-        if (!productId) {
-            return res.status(400).json({ message: 'Product ID is required' });
+
+        // Check if product exists
+        const product = await require('../models/Product').findById(productId);
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
         }
-        const user = await User.findById(req.user._id);
-        if (!user.wishlist.includes(productId)) {
-            user.wishlist.push(productId);
-            await user.save();
+
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
         }
-        const updatedUser = await User.findById(req.user._id).populate('wishlist');
-        res.json({ wishlist: updatedUser.wishlist });
+
+        // Check if product is already in wishlist
+        const existingItem = user.wishlist.find(item =>
+            item.product.toString() === productId
+        );
+
+        if (existingItem) {
+            return res.status(400).json({ message: 'Product already in wishlist' });
+        }
+
+        // Add to wishlist
+        user.wishlist.push({
+            product: productId,
+            addedAt: new Date()
+        });
+
+        await user.save();
+
+        // Populate the newly added item
+        const populatedUser = await User.findById(req.user.id).populate({
+            path: 'wishlist.product',
+            select: 'name description price image category'
+        });
+
+        res.json({
+            message: 'Product added to wishlist',
+            wishlist: populatedUser.wishlist
+        });
     } catch (error) {
         next(error);
     }
@@ -430,13 +483,54 @@ router.post('/wishlist', protect, async (req, res, next) => {
 router.delete('/wishlist/:productId', protect, async (req, res, next) => {
     try {
         const { productId } = req.params;
-        const user = await User.findById(req.user._id);
-        user.wishlist = user.wishlist.filter(
-            (id) => id.toString() !== productId
+
+        if (!productId || !require('mongoose').Types.ObjectId.isValid(productId)) {
+            return res.status(400).json({ message: 'Invalid product ID' });
+        }
+
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Remove from wishlist
+        const initialLength = user.wishlist.length;
+        user.wishlist = user.wishlist.filter(item =>
+            item.product.toString() !== productId
         );
+
+        if (user.wishlist.length === initialLength) {
+            return res.status(404).json({ message: 'Product not found in wishlist' });
+        }
+
         await user.save();
-        const updatedUser = await User.findById(req.user._id).populate('wishlist');
-        res.json({ wishlist: updatedUser.wishlist });
+
+        res.json({
+            message: 'Product removed from wishlist',
+            wishlist: user.wishlist
+        });
+    } catch (error) {
+        next(error);
+    }
+});
+
+// @desc    Clear entire wishlist
+// @route   DELETE /api/users/wishlist
+// @access  Private
+router.delete('/wishlist', protect, async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        user.wishlist = [];
+        await user.save();
+
+        res.json({
+            message: 'Wishlist cleared',
+            wishlist: []
+        });
     } catch (error) {
         next(error);
     }

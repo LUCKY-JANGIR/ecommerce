@@ -54,7 +54,17 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
+    wishlist: [{
+        product: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'Product',
+            required: true
+        },
+        addedAt: {
+            type: Date,
+            default: Date.now
+        }
+    }],
 }, {
     timestamps: true
 });

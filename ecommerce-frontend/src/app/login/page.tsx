@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { motion } from 'framer-motion';
 import { useStore } from '@/store/useStore';
 import { authAPI } from '@/components/services/api';
 import { Eye, EyeOff, Mail, Lock, ArrowLeft } from 'lucide-react';
@@ -47,76 +48,88 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center">
-     
-      
+    <div className="min-h-screen bg-background-light flex items-center justify-center">
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-md mx-auto">
+        <motion.div 
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="max-w-md mx-auto"
+        >
           {/* Back to home */}
           <Link
             href="/"
-            className="inline-flex items-center text-gray-600 hover:text-blue-600 mb-6"
+            className="inline-flex items-center text-muted hover:text-primary mb-8 transition-colors"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Home
           </Link>
 
           {/* Login Form */}
-          <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md border border-gray-200">
-            <h1 className="text-3xl font-display font-bold text-gray-900 mb-6">Login</h1>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="bg-card border border-accent rounded-2xl shadow-lg p-8 w-full max-w-md"
+          >
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-serif font-bold text-primary mb-2">Welcome Back</h1>
+              <p className="text-muted">Sign in to your account</p>
+            </div>
+            
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               {/* Email */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="email" className="block text-sm font-medium text-muted mb-2">
                   Email Address
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted" />
                   <input
                     {...register('email')}
                     type="email"
                     id="email"
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-12 pr-4 py-4 border border-accent rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
                     placeholder="Enter your email"
                   />
                 </div>
                 {errors.email && (
-                  <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+                  <p className="mt-2 text-sm text-red-600">{errors.email.message}</p>
                 )}
               </div>
 
               {/* Password */}
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="password" className="block text-sm font-medium text-muted mb-2">
                   Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted" />
                   <input
                     {...register('password')}
                     type={showPassword ? 'text' : 'password'}
                     id="password"
-                    className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-12 pr-12 py-4 border border-accent rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
                     placeholder="Enter your password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-muted hover:text-primary transition-colors"
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+                  <p className="mt-2 text-sm text-red-600">{errors.password.message}</p>
                 )}
               </div>
 
               {/* Forgot Password */}
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-end">
                 <Link
                   href="/forgot-password"
-                  className="text-sm text-blue-600 hover:text-blue-700"
+                  className="text-sm text-primary hover:text-accent transition-colors"
                 >
                   Forgot your password?
                 </Link>
@@ -126,11 +139,11 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="bg-blue-600 text-white hover:bg-blue-700 font-semibold rounded-lg px-4 py-3 transition-colors w-full mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-primary text-white hover:bg-accent font-semibold rounded-xl px-6 py-4 transition-colors w-full mt-6 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
               >
                 {isLoading ? (
                   <div className="flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
                     Signing In...
                   </div>
                 ) : (
@@ -140,23 +153,23 @@ export default function LoginPage() {
             </form>
 
             {/* Divider */}
-            <div className="my-6 flex items-center">
-              <div className="flex-1 border-t border-gray-300"></div>
-              <span className="px-4 text-sm text-gray-500">or</span>
-              <div className="flex-1 border-t border-gray-300"></div>
+            <div className="my-8 flex items-center">
+              <div className="flex-1 border-t border-accent"></div>
+              <span className="px-4 text-sm text-muted">or</span>
+              <div className="flex-1 border-t border-accent"></div>
             </div>
 
             {/* Register Link */}
-            <div className="mt-8 text-center">
-              <p className="text-gray-600">
+            <div className="text-center">
+              <p className="text-muted">
                 Don't have an account?{' '}
-                <Link href="/register" className="text-blue-600 hover:text-blue-700 font-semibold">
+                <Link href="/register" className="text-primary hover:text-accent font-semibold transition-colors">
                   Sign up
                 </Link>
               </p>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
     </div>
   );

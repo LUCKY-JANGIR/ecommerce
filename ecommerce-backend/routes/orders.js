@@ -43,7 +43,7 @@ router.post('/', protect, [
         .isMobilePhone()
         .withMessage('Please enter a valid phone number'),
     body('paymentMethod')
-        .isIn(['PayPal', 'Stripe', 'Credit Card', 'Cash on Delivery'])
+        .isIn(['PayPal', 'Stripe', 'Credit Card', 'Cash on Delivery', 'Negotiable'])
         .withMessage('Invalid payment method')
 ], async (req, res, next) => {
     try {
@@ -63,49 +63,40 @@ router.post('/', protect, [
         }
 
         // Validate and process order items
-        const processedOrderItems = [];
-
-        for (const item of orderItems) {
-            const product = await Product.findById(item.product);
-
-            if (!product) {
-                return res.status(404).json({
-                    message: `Product not found: ${item.product}`
-                });
-            }
-
-            if (!product.isActive) {
-                return res.status(400).json({
-                    message: `Product is not available: ${product.name}`
-                });
-            }
-
-            if (product.stock < item.quantity) {
-                return res.status(400).json({
-                    message: `Insufficient stock for ${product.name}. Available: ${product.stock}`
-                });
-            }
-
-            processedOrderItems.push({
-                product: product._id,
-                name: product.name,
-                image: product.images[0]?.url || '',
-                price: product.price,
-                quantity: item.quantity
-            });
-        }
+        const processedOrderItems = orderItems.map(item => ({
+            product: item.product,
+            name: item.name || 'Product',
+            image: item.image || '',
+            price: 0, // Negotiable
+            quantity: item.quantity
+        }));
 
         // Create order
         const order = await Order.create({
             user: req.user._id,
             orderItems: processedOrderItems,
             shippingAddress,
-            paymentMethod
+            paymentMethod: 'Negotiable',
+            itemsPrice: 0,
+            taxPrice: 0,
+            shippingPrice: 0,
+            totalPrice: 0,
+            negotiationNotes: '',
         });
 
         // Reduce product stock
         for (const item of processedOrderItems) {
             const product = await Product.findById(item.product);
+            if (!product) {
+                return res.status(400).json({ message: `Product ${item.name} not found` });
+            }
+
+            if (product.stock < item.quantity) {
+                return res.status(400).json({
+                    message: `Insufficient stock for ${item.name}. Available: ${product.stock}, Requested: ${item.quantity}`
+                });
+            }
+
             product.reduceStock(item.quantity);
             await product.save();
         }
@@ -346,6 +337,14 @@ router.put('/:id/status', protect, admin, [
 
         const { status, trackingNumber, estimatedDelivery } = req.body;
 
+        // Ensure order items have required fields
+        if (order.orderItems && order.orderItems.length > 0) {
+            for (let item of order.orderItems) {
+                if (!item.name) item.name = 'Product';
+                if (!item.image) item.image = '';
+            }
+        }
+
         // Update order status
         order.orderStatus = status;
 
@@ -360,6 +359,72 @@ router.put('/:id/status', protect, admin, [
 
         res.json({
             message: 'Order status updated successfully',
+            order
+        });
+    } catch (error) {
+        console.error('Order status update error:', error);
+        next(error);
+    }
+});
+
+// @desc    Update negotiation notes (Admin)
+// @route   PUT /api/orders/:id/negotiation
+// @access  Private/Admin
+router.put('/:id/negotiation', protect, admin, async (req, res, next) => {
+    try {
+        const order = await Order.findById(req.params.id);
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+        order.negotiationNotes = req.body.negotiationNotes || order.negotiationNotes;
+        await order.save();
+        res.json({ message: 'Negotiation notes updated', order });
+    } catch (error) {
+        next(error);
+    }
+});
+
+// @desc    Update payment status (Admin)
+// @route   PUT /api/orders/:id/payment-status
+// @access  Private/Admin
+router.put('/:id/payment-status', protect, admin, [
+    body('isPaid')
+        .isBoolean()
+        .withMessage('isPaid must be a boolean value')
+], async (req, res, next) => {
+    try {
+        // Check for validation errors
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({
+                message: 'Validation failed',
+                errors: errors.array()
+            });
+        }
+
+        const order = await Order.findById(req.params.id);
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        const { isPaid } = req.body;
+
+        // Update payment status
+        order.isPaid = isPaid;
+        if (isPaid) {
+            order.paidAt = new Date();
+            // If order is being marked as paid, also update status to Processing
+            if (order.orderStatus === 'Pending') {
+                order.orderStatus = 'Processing';
+            }
+        } else {
+            order.paidAt = null;
+        }
+
+        await order.save();
+
+        res.json({
+            message: 'Payment status updated successfully',
             order
         });
     } catch (error) {

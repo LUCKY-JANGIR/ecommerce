@@ -8,11 +8,11 @@ export default function HydrationProvider() {
   const auth = useStore((state) => state.auth);
 
   useEffect(() => {
-    // Validate token on app startup
+    // Validate token on app startup only if user appears to be authenticated
     const validateToken = () => {
       const token = auth.token;
       
-      if (token) {
+      if (token && auth.isAuthenticated && auth.user) {
         try {
           // Basic JWT format validation (without secret verification)
           const parts = token.split('.');
@@ -31,17 +31,26 @@ export default function HydrationProvider() {
             logout();
             return;
           }
+          
+          console.log('Token validation passed');
         } catch (error) {
           console.log('Token validation failed, logging out:', error);
           logout();
           return;
         }
+      } else {
+        console.log('No token or user not authenticated, skipping validation');
       }
     };
 
-    validateToken();
-    setHydrated(true);
-  }, [setHydrated, logout, auth.token]);
+    // Small delay to ensure store is properly hydrated
+    const timer = setTimeout(() => {
+      validateToken();
+      setHydrated(true);
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [setHydrated, logout, auth.token, auth.isAuthenticated, auth.user]);
 
   return null;
 } 

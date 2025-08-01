@@ -8,15 +8,18 @@ const orderItemSchema = new mongoose.Schema({
     },
     name: {
         type: String,
-        required: true
+        required: false,
+        default: ''
     },
     image: {
         type: String,
-        required: true
+        required: false,
+        default: ''
     },
     price: {
         type: Number,
-        required: true
+        required: false,
+        default: 0
     },
     quantity: {
         type: Number,
@@ -69,33 +72,33 @@ const orderSchema = new mongoose.Schema({
     shippingAddress: shippingAddressSchema,
     paymentMethod: {
         type: String,
-        required: true,
-        enum: ['PayPal', 'Stripe', 'Credit Card', 'Cash on Delivery']
+        required: false,
+        default: 'Negotiable'
     },
     paymentResult: paymentResultSchema,
     itemsPrice: {
         type: Number,
-        required: true,
+        required: false,
         default: 0.0
     },
     taxPrice: {
         type: Number,
-        required: true,
+        required: false,
         default: 0.0
     },
     shippingPrice: {
         type: Number,
-        required: true,
+        required: false,
         default: 0.0
     },
     totalPrice: {
         type: Number,
-        required: true,
+        required: false,
         default: 0.0
     },
     isPaid: {
         type: Boolean,
-        required: true,
+        required: false,
         default: false
     },
     paidAt: {
@@ -132,6 +135,10 @@ const orderSchema = new mongoose.Schema({
     },
     estimatedDelivery: {
         type: Date
+    },
+    negotiationNotes: {
+        type: String,
+        default: ''
     }
 }, {
     timestamps: true

@@ -32,11 +32,22 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      console.log('Auth error detected, logging out user');
-      useStore.getState().logout();
-      // Redirect to login page if not already there
-      if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
-        window.location.href = '/login';
+      console.log('Auth error detected, checking if user should be logged out');
+      
+      // Only logout if the user is currently authenticated
+      const currentAuth = useStore.getState().auth;
+      if (currentAuth.isAuthenticated && currentAuth.token) {
+        console.log('User is authenticated but got 401, logging out');
+        useStore.getState().logout();
+        
+        // Only redirect to login if not already on login page and not on public pages
+        const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+        const publicPages = ['/', '/login', '/register', '/products', '/categories'];
+        const isPublicPage = publicPages.some(page => currentPath.startsWith(page));
+        
+        if (!isPublicPage && !currentPath.includes('/login')) {
+          window.location.href = '/login';
+        }
       }
     }
     return Promise.reject(error);
@@ -450,7 +461,25 @@ export const ordersAPI = {
 
   updateStatus: async (id: string, orderStatus: string) => {
     try {
-      const response = await api.put(`/orders/${id}/status`, { orderStatus });
+      const response = await api.put(`/orders/${id}/status`, { status: orderStatus });
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
+  },
+
+  updateNegotiationNotes: async (id: string, negotiationNotes: string) => {
+    try {
+      const response = await api.put(`/orders/${id}/negotiation`, { negotiationNotes });
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
+  },
+
+  updatePaymentStatus: async (id: string, isPaid: boolean) => {
+    try {
+      const response = await api.put(`/orders/${id}/payment-status`, { isPaid });
       return response.data;
     } catch (error) {
       handleApiError(error);

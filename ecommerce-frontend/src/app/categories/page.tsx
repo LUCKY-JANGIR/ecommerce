@@ -85,7 +85,8 @@ export default function CategoriesPage() {
         </div>
 
         {/* Categories Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+        {/* Modernize category cards with new color palette, border, and scroll-based reveal animations */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-16">
           {categories.map((category, index) => (
             <Link
               key={category._id}
@@ -93,14 +94,15 @@ export default function CategoriesPage() {
               className="group"
             >
               <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1, duration: 0.5 }}
-                className="relative rounded-xl overflow-hidden border border-neutral-200 hover:border-primary/50 transition-all duration-300 min-h-[220px] flex items-end bg-white cursor-pointer"
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.6, delay: index * 0.05 }}
+                className="relative rounded-2xl overflow-hidden border border-accent hover:border-primary transition-all duration-300 min-h-[220px] flex items-end bg-card cursor-pointer shadow-lg group-hover:shadow-2xl"
                 style={category.image ? { backgroundImage: `url(${category.image})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
               >
                 {category.image && (
-                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all" />
+                  <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-all" />
                 )}
                 <div className="relative w-full p-6 z-10">
                   <div className="text-center mb-4">
@@ -111,11 +113,11 @@ export default function CategoriesPage() {
                         </span>
                       </div>
                     )}
-                    <h3 className="text-xl font-bold text-white mb-2 drop-shadow-lg">{category.name}</h3>
+                    <h3 className="text-2xl font-serif font-bold text-primary mb-2 drop-shadow-lg">{category.name}</h3>
                     {category.description && (
-                      <p className="text-gray-200 text-sm mb-4 drop-shadow-lg">{category.description}</p>
+                      <p className="text-muted text-sm mb-4 drop-shadow-lg">{category.description}</p>
                     )}
-                    <p className="text-primary font-semibold drop-shadow-lg">
+                    <p className="text-accent font-semibold drop-shadow-lg">
                       {category.products.length} {category.products.length === 1 ? 'product' : 'products'}
                     </p>
                   </div>

@@ -1,13 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { motion } from 'framer-motion';
 import { useStore } from '@/store/useStore';
-import { ArrowLeft, CreditCard, Truck, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Truck, CheckCircle, Handshake, User, Mail, Phone, MapPin } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const checkoutSchema = z.object({
@@ -25,33 +26,53 @@ type CheckoutFormData = z.infer<typeof checkoutSchema>;
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { cart, auth } = useStore();
+  const { cart, auth, clearCart } = useStore();
   const [isLoading, setIsLoading] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'paypal'>('card');
+  const [profileDataLoaded, setProfileDataLoaded] = useState(false);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
+    watch,
   } = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutSchema),
-    defaultValues: {
-      fullName: auth.user?.name || '',
-      email: auth.user?.email || '',
-    },
   });
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(price);
+  // Watch form values to determine which fields are auto-filled
+  const formValues = watch();
+
+  // Check if a field is auto-filled from profile
+  const isAutoFilled = (fieldName: keyof CheckoutFormData) => {
+    const profileValue = auth.user?.[fieldName as keyof typeof auth.user] || 
+                        auth.user?.address?.[fieldName as keyof typeof auth.user.address];
+    return profileValue && formValues[fieldName] === profileValue;
   };
 
-  const calculateSubtotal = () => cart.totalPrice;
-  const calculateShipping = () => cart.totalPrice >= 50 ? 0 : 5.99;
-  const calculateTax = () => cart.totalPrice * 0.08;
-  const calculateTotal = () => calculateSubtotal() + calculateShipping() + calculateTax();
+  // Auto-populate form with user profile data
+  useEffect(() => {
+    if (auth.isAuthenticated && auth.user && !profileDataLoaded) {
+      const user = auth.user;
+      
+      // Set values from profile if they exist
+      if (user.name) setValue('fullName', user.name);
+      if (user.email) setValue('email', user.email);
+      if (user.phone) setValue('phone', user.phone);
+      if (user.address?.street) setValue('address', user.address.street);
+      if (user.address?.city) setValue('city', user.address.city);
+      if (user.address?.state) setValue('state', user.address.state);
+      if (user.address?.zipCode) setValue('postalCode', user.address.zipCode);
+      if (user.address?.country) setValue('country', user.address.country);
+      
+      setProfileDataLoaded(true);
+    }
+  }, [auth.user, auth.isAuthenticated, setValue, profileDataLoaded]);
+
+  // Remove price display and replace with 'Negotiable' label
+  const renderNegotiable = () => (
+    <span className="font-serif font-bold text-accent">Negotiable</span>
+  );
 
   const onSubmit = async (data: CheckoutFormData) => {
     if (!auth.isAuthenticated) {
@@ -59,18 +80,49 @@ export default function CheckoutPage() {
       router.push('/login');
       return;
     }
-
     if (cart.items.length === 0) {
       toast.error('Your cart is empty');
       return;
     }
-
     setIsLoading(true);
     try {
-      // TODO: Implement order creation and payment processing
-      toast.success('Order placed successfully!');
-      router.push('/orders');
+      // Prepare order data
+      const orderData = {
+        orderItems: cart.items.map(item => ({
+          product: item.product._id,
+          name: item.product.name,
+          image: item.product.images?.[0]?.url || '',
+          quantity: item.quantity
+        })),
+        shippingAddress: {
+          fullName: data.fullName,
+          address: data.address,
+          city: data.city,
+          state: data.state,
+          postalCode: data.postalCode,
+          country: data.country,
+          phone: data.phone
+        },
+        paymentMethod: 'Negotiable'
+      };
+
+      // Import the ordersAPI
+      const { ordersAPI } = await import('@/components/services/api');
+      
+      // Create the order
+      const response = await ordersAPI.create(orderData);
+      
+      if (response && response.order) {
+        // Clear the cart after successful order
+        clearCart();
+        
+        toast.success('Order placed successfully! Price is negotiable. Our team will contact you soon to finalize the price and payment. You can track your order status in your account.');
+        router.push('/orders');
+      } else {
+        throw new Error('Failed to create order');
+      }
     } catch (error: any) {
+      console.error('Order creation error:', error);
       toast.error(error.message || 'Failed to place order');
     } finally {
       setIsLoading(false);
@@ -79,292 +131,378 @@ export default function CheckoutPage() {
 
   if (cart.items.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Your Cart is Empty</h1>
-          <p className="text-gray-600 mb-6">Please add items to your cart before checkout.</p>
+      <div className="min-h-screen bg-background-light flex items-center justify-center">
+        <motion.div 
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center"
+        >
+          <h1 className="text-3xl font-serif font-bold text-primary mb-4">Your Cart is Empty</h1>
+          <p className="text-muted text-lg mb-6">Please add items to your cart before checkout.</p>
           <Link
             href="/products"
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            className="bg-primary text-white px-8 py-3 rounded-xl hover:bg-accent transition-colors font-semibold"
           >
             Continue Shopping
           </Link>
-        </div>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background-light">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex items-center mb-8">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center mb-8"
+        >
           <Link
             href="/cart"
-            className="text-gray-600 hover:text-blue-600 mr-4"
+            className="text-muted hover:text-primary mr-4 transition-colors"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">Checkout</h1>
-        </div>
+          <h1 className="text-4xl font-serif font-bold text-primary">Checkout</h1>
+        </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-8">
+        <div className="grid lg:grid-cols-2 gap-10">
           {/* Checkout Form */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">Shipping Information</h2>
+          <motion.div 
+            initial={{ opacity: 0, x: -40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
+            className="lg:col-span-1"
+          >
+            <div className="bg-card border border-accent rounded-2xl shadow-lg p-8">
+              <h2 className="text-2xl font-serif font-bold text-primary mb-8">Shipping Information</h2>
+              
+              {/* Profile Data Notice */}
+              {auth.isAuthenticated && auth.user && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-6 p-4 bg-primary/5 border border-primary/20 rounded-xl"
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <User className="h-5 w-5 text-primary" />
+                    <span className="text-sm font-semibold text-primary">Profile Data</span>
+                  </div>
+                  <p className="text-sm text-muted">
+                    Your profile information has been automatically filled in. You can edit any field as needed.
+                  </p>
+                </motion.div>
+              )}
               
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 {/* Personal Information */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="fullName" className="block text-sm font-medium text-muted mb-2">
                       Full Name *
                     </label>
-                    <input
-                      {...register('fullName')}
-                      type="text"
-                      id="fullName"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Enter your full name"
-                    />
+                    <div className="relative">
+                      <User className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted" />
+                      <input
+                        {...register('fullName')}
+                        type="text"
+                        id="fullName"
+                        className={`w-full pl-12 pr-4 py-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted ${
+                          isAutoFilled('fullName') ? 'border-primary/30 bg-primary/5' : 'border-accent'
+                        }`}
+                        placeholder="Enter your full name"
+                      />
+                      {isAutoFilled('fullName') && (
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                          <span className="text-xs bg-primary text-white px-2 py-1 rounded-full">Auto-filled</span>
+                        </div>
+                      )}
+                    </div>
                     {errors.fullName && (
-                      <p className="mt-1 text-sm text-red-600">{errors.fullName.message}</p>
+                      <p className="mt-2 text-sm text-red-600">{errors.fullName.message}</p>
                     )}
                   </div>
 
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="email" className="block text-sm font-medium text-muted mb-2">
                       Email Address *
                     </label>
-                    <input
-                      {...register('email')}
-                      type="email"
-                      id="email"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Enter your email"
-                    />
+                    <div className="relative">
+                      <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted" />
+                      <input
+                        {...register('email')}
+                        type="email"
+                        id="email"
+                        className={`w-full pl-12 pr-4 py-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted ${
+                          isAutoFilled('email') ? 'border-primary/30 bg-primary/5' : 'border-accent'
+                        }`}
+                        placeholder="Enter your email"
+                      />
+                      {isAutoFilled('email') && (
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                          <span className="text-xs bg-primary text-white px-2 py-1 rounded-full">Auto-filled</span>
+                        </div>
+                      )}
+                    </div>
                     {errors.email && (
-                      <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+                      <p className="mt-2 text-sm text-red-600">{errors.email.message}</p>
                     )}
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="phone" className="block text-sm font-medium text-muted mb-2">
                     Phone Number *
                   </label>
-                  <input
-                    {...register('phone')}
-                    type="tel"
-                    id="phone"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter your phone number"
-                  />
+                  <div className="relative">
+                    <Phone className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted" />
+                    <input
+                      {...register('phone')}
+                      type="tel"
+                      id="phone"
+                      className={`w-full pl-12 pr-4 py-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted ${
+                        isAutoFilled('phone') ? 'border-primary/30 bg-primary/5' : 'border-accent'
+                      }`}
+                      placeholder="Enter your phone number"
+                    />
+                    {isAutoFilled('phone') && (
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                        <span className="text-xs bg-primary text-white px-2 py-1 rounded-full">Auto-filled</span>
+                      </div>
+                    )}
+                  </div>
                   {errors.phone && (
-                    <p className="mt-1 text-sm text-red-600">{errors.phone.message}</p>
+                    <p className="mt-2 text-sm text-red-600">{errors.phone.message}</p>
                   )}
                 </div>
 
                 {/* Address */}
                 <div>
-                  <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="address" className="block text-sm font-medium text-muted mb-2">
                     Street Address *
                   </label>
-                  <input
-                    {...register('address')}
-                    type="text"
-                    id="address"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter your street address"
-                  />
+                  <div className="relative">
+                    <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted" />
+                    <input
+                      {...register('address')}
+                      type="text"
+                      id="address"
+                      className={`w-full pl-12 pr-4 py-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted ${
+                        isAutoFilled('address') ? 'border-primary/30 bg-primary/5' : 'border-accent'
+                      }`}
+                      placeholder="Enter your street address"
+                    />
+                    {isAutoFilled('address') && (
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                        <span className="text-xs bg-primary text-white px-2 py-1 rounded-full">Auto-filled</span>
+                      </div>
+                    )}
+                  </div>
                   {errors.address && (
-                    <p className="mt-1 text-sm text-red-600">{errors.address.message}</p>
+                    <p className="mt-2 text-sm text-red-600">{errors.address.message}</p>
                   )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
-                    <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="city" className="block text-sm font-medium text-muted mb-2">
                       City *
                     </label>
                     <input
                       {...register('city')}
                       type="text"
                       id="city"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className={`w-full px-4 py-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted ${
+                        isAutoFilled('city') ? 'border-primary/30 bg-primary/5' : 'border-accent'
+                      }`}
                       placeholder="City"
                     />
+                    {isAutoFilled('city') && (
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                        <span className="text-xs bg-primary text-white px-2 py-1 rounded-full">Auto-filled</span>
+                      </div>
+                    )}
                     {errors.city && (
-                      <p className="mt-1 text-sm text-red-600">{errors.city.message}</p>
+                      <p className="mt-2 text-sm text-red-600">{errors.city.message}</p>
                     )}
                   </div>
 
                   <div>
-                    <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="state" className="block text-sm font-medium text-muted mb-2">
                       State *
                     </label>
                     <input
                       {...register('state')}
                       type="text"
                       id="state"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className={`w-full px-4 py-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted ${
+                        isAutoFilled('state') ? 'border-primary/30 bg-primary/5' : 'border-accent'
+                      }`}
                       placeholder="State"
                     />
+                    {isAutoFilled('state') && (
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                        <span className="text-xs bg-primary text-white px-2 py-1 rounded-full">Auto-filled</span>
+                      </div>
+                    )}
                     {errors.state && (
-                      <p className="mt-1 text-sm text-red-600">{errors.state.message}</p>
+                      <p className="mt-2 text-sm text-red-600">{errors.state.message}</p>
                     )}
                   </div>
 
                   <div>
-                    <label htmlFor="postalCode" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="postalCode" className="block text-sm font-medium text-muted mb-2">
                       Postal Code *
                     </label>
                     <input
                       {...register('postalCode')}
                       type="text"
                       id="postalCode"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className={`w-full px-4 py-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted ${
+                        isAutoFilled('postalCode') ? 'border-primary/30 bg-primary/5' : 'border-accent'
+                      }`}
                       placeholder="Postal Code"
                     />
+                    {isAutoFilled('postalCode') && (
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                        <span className="text-xs bg-primary text-white px-2 py-1 rounded-full">Auto-filled</span>
+                      </div>
+                    )}
                     {errors.postalCode && (
-                      <p className="mt-1 text-sm text-red-600">{errors.postalCode.message}</p>
+                      <p className="mt-2 text-sm text-red-600">{errors.postalCode.message}</p>
                     )}
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="country" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="country" className="block text-sm font-medium text-muted mb-2">
                     Country *
                   </label>
                   <input
                     {...register('country')}
                     type="text"
                     id="country"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className={`w-full px-4 py-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted ${
+                      isAutoFilled('country') ? 'border-primary/30 bg-primary/5' : 'border-accent'
+                    }`}
                     placeholder="Country"
                   />
+                  {isAutoFilled('country') && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      <span className="text-xs bg-primary text-white px-2 py-1 rounded-full">Auto-filled</span>
+                    </div>
+                  )}
                   {errors.country && (
-                    <p className="mt-1 text-sm text-red-600">{errors.country.message}</p>
+                    <p className="mt-2 text-sm text-red-600">{errors.country.message}</p>
                   )}
                 </div>
 
-                {/* Payment Method */}
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Payment Method</h3>
-                  <div className="space-y-3">
-                    <label className="flex items-center space-x-3 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value="card"
-                        checked={paymentMethod === 'card'}
-                        onChange={(e) => setPaymentMethod(e.target.value as 'card' | 'paypal')}
-                        className="text-blue-600 focus:ring-blue-500"
-                      />
-                      <CreditCard className="h-5 w-5 text-gray-400" />
-                      <span className="text-gray-700">Credit/Debit Card</span>
-                    </label>
-                    <label className="flex items-center space-x-3 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value="paypal"
-                        checked={paymentMethod === 'paypal'}
-                        onChange={(e) => setPaymentMethod(e.target.value as 'card' | 'paypal')}
-                        className="text-blue-600 focus:ring-blue-500"
-                      />
-                      <div className="h-5 w-5 bg-blue-500 rounded flex items-center justify-center">
-                        <span className="text-white text-xs font-bold">P</span>
-                      </div>
-                      <span className="text-gray-700">PayPal</span>
-                    </label>
+                {/* Negotiation Notice */}
+                <div className="p-6 bg-accent/10 border border-accent rounded-xl">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <Handshake className="h-6 w-6 text-accent" />
+                    <h3 className="text-lg font-serif font-bold text-primary">Price Negotiation</h3>
                   </div>
+                  <p className="text-muted text-sm leading-relaxed">
+                    All prices are negotiable. After placing your order, our team will contact you within 24 hours to discuss pricing and finalize payment arrangements.
+                  </p>
                 </div>
 
                 {/* Place Order Button */}
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                  className="w-full bg-primary text-white py-4 px-8 rounded-xl font-semibold hover:bg-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg"
                 >
                   {isLoading ? (
                     <div className="flex items-center">
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
                       Processing...
                     </div>
                   ) : (
-                    `Place Order - ${formatPrice(calculateTotal())}`
+                    'Place Order - Price Negotiable'
                   )}
                 </button>
               </form>
             </div>
-          </div>
+          </motion.div>
 
           {/* Order Summary */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">Order Summary</h2>
+          <motion.div 
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="lg:col-span-1"
+          >
+            <div className="bg-card border border-accent rounded-2xl shadow-lg p-8 sticky top-24">
+              <h2 className="text-2xl font-serif font-bold text-primary mb-8">Order Summary</h2>
               
               {/* Order Items */}
-              <div className="space-y-4 mb-6">
-                {cart.items.map((item) => (
-                  <div key={item.product._id} className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
-                        <span className="text-xs text-gray-600">{item.quantity}</span>
+              <div className="space-y-6 mb-8">
+                {cart.items.map((item, index) => (
+                  <motion.div 
+                    key={item.product._id} 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    className="flex items-center justify-between"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                        <span className="text-sm font-bold text-primary">{item.quantity}</span>
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900">{item.product.name}</p>
-                        <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                        <p className="font-serif font-bold text-primary">{item.product.name}</p>
+                        <p className="text-sm text-muted">Qty: {item.quantity}</p>
                       </div>
                     </div>
-                    <p className="font-semibold text-gray-900">
-                      {formatPrice(item.product.price * item.quantity)}
+                    <p className="font-serif font-bold text-accent">
+                      {renderNegotiable()}
                     </p>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
 
               {/* Price Breakdown */}
-              <div className="space-y-3 border-t border-gray-200 pt-4">
+              <div className="space-y-4 border-t border-accent pt-6">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Subtotal ({cart.totalItems} items)</span>
-                  <span className="font-semibold">{formatPrice(calculateSubtotal())}</span>
+                  <span className="text-muted font-medium">Subtotal ({cart.totalItems} items)</span>
+                  <span className="font-serif font-bold text-accent">{renderNegotiable()}</span>
                 </div>
                 
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Shipping</span>
-                  <span className="font-semibold text-green-600">
-                    {calculateShipping() === 0 ? 'Free' : formatPrice(calculateShipping())}
-                  </span>
+                  <span className="text-muted font-medium">Shipping</span>
+                  <span className="font-serif font-bold text-green-600">Free</span>
                 </div>
                 
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Tax</span>
-                  <span className="font-semibold">{formatPrice(calculateTax())}</span>
+                  <span className="text-muted font-medium">Tax</span>
+                  <span className="font-serif font-bold text-accent">{renderNegotiable()}</span>
                 </div>
                 
-                <hr className="border-gray-200" />
+                <hr className="border-accent" />
                 
-                <div className="flex justify-between text-lg font-bold">
-                  <span>Total</span>
-                  <span>{formatPrice(calculateTotal())}</span>
+                <div className="flex justify-between text-xl font-serif font-bold">
+                  <span className="text-primary">Total</span>
+                  <span className="text-accent">{renderNegotiable()}</span>
                 </div>
               </div>
 
               {/* Shipping Info */}
-              <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                <div className="flex items-center space-x-2">
-                  <Truck className="h-5 w-5 text-blue-600" />
-                  <span className="text-sm font-medium text-blue-900">Free Shipping</span>
+              <div className="mt-8 p-6 bg-primary/5 border border-primary/20 rounded-xl">
+                <div className="flex items-center space-x-3">
+                  <Truck className="h-6 w-6 text-primary" />
+                  <span className="text-lg font-serif font-bold text-primary">Free Shipping</span>
                 </div>
-                <p className="text-sm text-blue-700 mt-1">
-                  Orders over $50 qualify for free shipping
+                <p className="text-muted mt-2 leading-relaxed">
+                  All orders include free shipping. Delivery typically takes 3-5 business days.
                 </p>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>

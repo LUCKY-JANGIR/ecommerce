@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { motion } from 'framer-motion';
 import { useStore } from '@/store/useStore';
 import { authAPI } from '@/components/services/api';
 import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowLeft } from 'lucide-react';
@@ -107,8 +108,6 @@ export default function RegisterPage() {
       login(response.user, response.token);
       toast.success('Registration successful!');
       setTimeout(() => setShowProfileReminder(true), 1000); // Show reminder after 1s
-      // Remove the automatic redirect to home
-      // setTimeout(() => router.push('/'), 3500); // (Remove this line)
     } catch (error: any) {
       const backendError = error.response?.data?.errors?.[0]?.msg || error.response?.data?.message || 'Registration failed';
       toast.error(backendError);
@@ -118,71 +117,93 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center">
+    <div className="min-h-screen bg-background-light flex items-center justify-center">
       {/* Profile Setup Reminder Modal */}
       {showProfileReminder && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
-          <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full text-center">
-            <h2 className="text-xl font-bold mb-4">Welcome!</h2>
-            <p className="mb-6">Registration successful. Don’t forget to set up your profile for a better experience!</p>
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40"
+        >
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-card border border-accent rounded-2xl shadow-xl p-8 max-w-md w-full text-center"
+          >
+            <h2 className="text-2xl font-serif font-bold text-primary mb-4">Welcome!</h2>
+            <p className="text-muted mb-6">Registration successful. Don't forget to set up your profile for a better experience!</p>
             <button
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition"
+              className="bg-primary text-white px-8 py-3 rounded-xl font-semibold hover:bg-accent transition-colors shadow-lg"
               onClick={() => { setShowProfileReminder(false); router.push('/products'); }}
             >
               Go to Products
             </button>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
       
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto">
+        <motion.div 
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="max-w-2xl mx-auto"
+        >
           {/* Back to home */}
           <Link
             href="/"
-            className="inline-flex items-center text-gray-600 hover:text-blue-600 mb-6"
+            className="inline-flex items-center text-muted hover:text-primary mb-8 transition-colors"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Home
           </Link>
 
           {/* Register Form */}
-          <div className="bg-white rounded-lg shadow-lg p-10 w-full max-w-2xl border border-gray-200">
-            <h1 className="text-3xl font-display font-bold text-gray-900 mb-8">Register</h1>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="bg-card border border-accent rounded-2xl shadow-lg p-10 w-full max-w-2xl"
+          >
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-serif font-bold text-primary mb-2">Create Account</h1>
+              <p className="text-muted">Join our community today</p>
+            </div>
+            
             <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Name */}
               <div className="col-span-1">
-                <label htmlFor="name" className="block text-sm font-medium text-gray-900 mb-2">
+                <label htmlFor="name" className="block text-sm font-medium text-muted mb-2">
                   Full Name
                 </label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <User className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted" />
                   <input
                     {...register('name')}
                     type="text"
                     id="name"
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-12 pr-4 py-4 border border-accent rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
                     placeholder="Enter your full name"
                   />
                 </div>
                 {errors.name && (
-                  <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+                  <p className="mt-2 text-sm text-red-600">{errors.name.message}</p>
                 )}
               </div>
 
               {/* Email */}
               <div className="col-span-1 md:col-span-2">
-                <label htmlFor="email" className="block text-sm font-medium text-gray-900 mb-2">
+                <label htmlFor="email" className="block text-sm font-medium text-muted mb-2">
                   Email Address
                 </label>
-                <div className="flex gap-2 items-center">
+                <div className="flex gap-3 items-center">
                   <div className="relative flex-1">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted" />
                     <input
                       {...register('email')}
                       type="email"
                       id="email"
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full pl-12 pr-4 py-4 border border-accent rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
                       placeholder="Enter your email"
                       disabled={otpSent || otpVerified}
                     />
@@ -190,23 +211,23 @@ export default function RegisterPage() {
                   <button
                     type="button"
                     onClick={() => sendOtp((document.getElementById('email') as HTMLInputElement)?.value)}
-                    className="bg-blue-600 text-white font-semibold rounded-lg px-4 py-2 transition-colors disabled:opacity-50"
+                    className="bg-primary text-white font-semibold rounded-xl px-6 py-4 transition-colors disabled:opacity-50 shadow-lg hover:bg-accent"
                     disabled={otpLoading || otpSent || otpVerified}
                   >
                     {otpLoading ? 'Sending...' : otpSent ? 'OTP Sent' : 'Send OTP'}
                   </button>
                 </div>
-                {otpError && <p className="mt-1 text-sm text-red-600">{otpError}</p>}
-                {otpSuccess && <p className="mt-1 text-sm text-green-600">{otpSuccess}</p>}
+                {otpError && <p className="mt-2 text-sm text-red-600">{otpError}</p>}
+                {otpSuccess && <p className="mt-2 text-sm text-green-600">{otpSuccess}</p>}
                 {errors.email && (
-                  <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+                  <p className="mt-2 text-sm text-red-600">{errors.email.message}</p>
                 )}
               </div>
 
               {/* OTP Field */}
-              <div className="col-span-1 md:col-span-2 flex gap-2 items-end">
+              <div className="col-span-1 md:col-span-2 flex gap-3 items-end">
                 <div className="flex-1">
-                  <label htmlFor="otp" className="block text-sm font-medium text-gray-900 mb-2">
+                  <label htmlFor="otp" className="block text-sm font-medium text-muted mb-2">
                     Enter OTP
                   </label>
                   <input
@@ -214,7 +235,7 @@ export default function RegisterPage() {
                     id="otp"
                     value={otp}
                     onChange={e => setOtp(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-4 border border-accent rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
                     placeholder="Enter the OTP sent to your email"
                     maxLength={6}
                     disabled={!otpSent || otpVerified}
@@ -223,7 +244,7 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => verifyOtp((document.getElementById('email') as HTMLInputElement)?.value, otp)}
-                  className="bg-green-600 text-white font-semibold rounded-lg px-4 py-2 mb-1 transition-colors disabled:opacity-50"
+                  className="bg-green-600 text-white font-semibold rounded-xl px-6 py-4 mb-1 transition-colors disabled:opacity-50 shadow-lg hover:bg-green-700"
                   disabled={otpLoading || !otpSent || otpVerified || otp.length !== 6}
                 >
                   {otpLoading ? 'Verifying...' : otpVerified ? 'Verified' : 'Verify OTP'}
@@ -232,55 +253,55 @@ export default function RegisterPage() {
 
               {/* Password */}
               <div className="col-span-1">
-                <label htmlFor="password" className="block text-sm font-medium text-gray-900 mb-2">
+                <label htmlFor="password" className="block text-sm font-medium text-muted mb-2">
                   Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted" />
                   <input
                     {...register('password')}
                     type={showPassword ? 'text' : 'password'}
                     id="password"
-                    className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-12 pr-12 py-4 border border-accent rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
                     placeholder="Create a password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-muted hover:text-primary transition-colors"
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+                  <p className="mt-2 text-sm text-red-600">{errors.password.message}</p>
                 )}
               </div>
 
               {/* Confirm Password */}
               <div className="col-span-1">
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-900 mb-2">
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-muted mb-2">
                   Confirm Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted" />
                   <input
                     {...register('confirmPassword')}
                     type={showConfirmPassword ? 'text' : 'password'}
                     id="confirmPassword"
-                    className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-12 pr-12 py-4 border border-accent rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
                     placeholder="Confirm your password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-muted hover:text-primary transition-colors"
                   >
                     {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
                 {errors.confirmPassword && (
-                  <p className="mt-1 text-sm text-red-600">{errors.confirmPassword.message}</p>
+                  <p className="mt-2 text-sm text-red-600">{errors.confirmPassword.message}</p>
                 )}
               </div>
 
@@ -289,16 +310,16 @@ export default function RegisterPage() {
                 <input
                   type="checkbox"
                   id="terms"
-                  className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="mt-1 h-4 w-4 text-primary focus:ring-accent border-accent rounded"
                   required
                 />
-                <label htmlFor="terms" className="ml-2 text-sm text-gray-600">
+                <label htmlFor="terms" className="ml-3 text-sm text-muted">
                   I agree to the{' '}
-                  <Link href="/terms" className="text-blue-600 hover:text-blue-700">
+                  <Link href="/terms" className="text-primary hover:text-accent transition-colors">
                     Terms of Service
                   </Link>{' '}
                   and{' '}
-                  <Link href="/privacy" className="text-blue-600 hover:text-blue-700">
+                  <Link href="/privacy" className="text-primary hover:text-accent transition-colors">
                     Privacy Policy
                   </Link>
                 </label>
@@ -309,7 +330,7 @@ export default function RegisterPage() {
                 <button
                   type="submit"
                   disabled={isLoading || !otpVerified}
-                  className="bg-accent text-gold hover:bg-gold hover:text-accent font-semibold rounded-lg px-4 py-2 transition-colors w-full mt-4 disabled:opacity-50"
+                  className="bg-accent text-white hover:bg-primary font-semibold rounded-xl px-6 py-4 transition-colors w-full mt-6 disabled:opacity-50 shadow-lg"
                 >
                   {isLoading ? (
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mx-auto"></div>
@@ -321,28 +342,28 @@ export default function RegisterPage() {
             </form>
 
             {/* Disclaimer for contact info update */}
-            <div className="mt-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 rounded">
-              <strong>Important:</strong> After creating your account, please update your contact information (address and mobile number) in your profile. This is required for order delivery and communication.
+            <div className="mt-8 p-6 bg-accent/10 border border-accent rounded-xl">
+              <strong className="text-primary">Important:</strong> After creating your account, please update your contact information (address and mobile number) in your profile. This is required for order delivery and communication.
             </div>
 
             {/* Divider */}
-            <div className="my-6 flex items-center">
-              <div className="flex-1 border-t border-gray-300"></div>
-              <span className="px-4 text-sm text-gray-500">or</span>
-              <div className="flex-1 border-t border-gray-300"></div>
+            <div className="my-8 flex items-center">
+              <div className="flex-1 border-t border-accent"></div>
+              <span className="px-4 text-sm text-muted">or</span>
+              <div className="flex-1 border-t border-accent"></div>
             </div>
 
             {/* Login Link */}
-            <div className="mt-8 text-center">
-              <p className="text-gray-600">
+            <div className="text-center">
+              <p className="text-muted">
                 Already have an account?{' '}
-                <Link href="/login" className="text-blue-600 hover:text-blue-700 font-semibold">
+                <Link href="/login" className="text-primary hover:text-accent font-semibold transition-colors">
                   Sign in
                 </Link>
               </p>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
     </div>
   );

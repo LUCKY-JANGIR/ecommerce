@@ -5,6 +5,18 @@ import { FiUser } from "react-icons/fi";
 import { useStore } from '@/store/useStore';
 import '@fontsource/playfair-display/700.css';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import Footer from './components/Footer';
+import HeroSectionComponent from './components/HeroSection';
+import FeaturedCategoriesComponent from './components/FeaturedCategories';
+
+// Add Review type
+interface Review {
+  _id: string;
+  user?: { name?: string };
+  comment: string;
+  createdAt: string;
+}
 
 // --- Design System ---
 const navLinks = [
@@ -50,84 +62,258 @@ const testimonials = [
 
 const heroBg = "https://img.freepik.com/premium-photo/luxury-indian-traditional-jewelry-set-display-black-mannequin-background_1162066-386.jpg";
 
-function HeroSection() {
+function Values() {
+  const values = [
+    { title: 'Quality', icon: '🌟', desc: 'Handpicked products crafted with care and precision.' },
+    { title: 'Authenticity', icon: '🛡️', desc: 'Every item is genuine and sourced from trusted artisans.' },
+    { title: 'Valuable', icon: '💎', desc: 'Unique finds that add lasting value to your life.' },
+    { title: 'Trust', icon: '🤝', desc: 'Transparent service and a commitment to your satisfaction.' },
+  ];
   return (
-    <section className="relative w-full min-h-screen flex items-center justify-center overflow-hidden bg-background">
-      {/* Static full-screen background image with dark overlay and grain */}
-      <img
-        src={heroBg}
-        alt="Luxury Indian Jewelry"
-        className="absolute inset-0 w-full h-full object-cover object-center z-0"
-      />
-      <div className="absolute inset-0 bg-background/70 z-10" />
-      <div className="absolute inset-0 z-20 pointer-events-none" style={{ background: 'url(\"https://www.transparenttextures.com/patterns/asfalt-light.png\")', opacity: 0.15 }} />
-
-      {/* Floating phrases */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.1, duration: 1 }}
-        className="absolute left-8 bottom-8 md:left-16 md:bottom-12 z-30 text-primary text-sm md:text-base font-display italic font-semibold drop-shadow-lg"
-        style={{ textShadow: '0 2px 12px #000a' }}
-      >
-        Handcrafted in Rajasthan
-      </motion.div>
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.3, duration: 1 }}
-        className="absolute right-8 bottom-8 md:right-16 md:bottom-12 z-30 text-primary text-sm md:text-base font-display italic font-semibold drop-shadow-lg text-right"
-        style={{ textShadow: '0 2px 12px #000a' }}
-      >
-        Timeless Luxury
-      </motion.div>
-
-      {/* Main content moved to left side, vertically centered, with side padding */}
-      <motion.div
-        initial={{ opacity: 0, x: -40 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.5, duration: 1 }}
-        className="relative z-40 flex flex-col items-start justify-center text-left px-8 md:px-12 lg:px-16 pt-24 pb-16 max-w-2xl"
-      >
-        <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold mb-4 text-primary drop-shadow-xl font-display" style={{ textShadow: '0 2px 12px #000a' }}>
-          ShopEase
-        </h1>
-        <h2 className="text-xl md:text-3xl text-primary mb-3 font-display font-semibold" style={{ textShadow: '0 2px 12px #000a' }}>
-          Timeless Luxury, Handcrafted for You
-        </h2>
-        <p className="text-base md:text-lg text-secondary mb-8 font-body max-w-xl" style={{ textShadow: '0 2px 12px #000a' }}>
-          Experience the artistry of finest heritage products and textiles.
-        </p>
-        <Link href="/products">
-          <motion.button
-          whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.98 }}
-            className="inline-block px-8 py-3 text-lg font-bold rounded-lg shadow-lg bg-primary text-white hover:bg-primary-dark transition"
-        >
-          Shop Now
-          </motion.button>
-        </Link>
-      </motion.div>
+    <section className="max-w-6xl mx-auto py-28 px-4 flex flex-col items-center bg-gradient-to-b from-white via-background-light to-white rounded-3xl shadow-sm">
+      <h2 className="text-5xl md:text-6xl font-serif font-extrabold uppercase text-primary mb-3 text-center tracking-tight">
+        Our Core Values
+      </h2>
+      <div className="w-16 h-1 bg-accent rounded-full mb-14" />
+      <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12">
+        {values.map((v, i) => (
+          <div
+            key={v.title}
+            className="flex flex-col items-center text-center p-10 bg-card rounded-2xl border border-accent shadow-lg transition-transform duration-300 hover:-translate-y-1 hover:shadow-2xl animate-fadeIn"
+            style={{ animationDelay: `${i * 0.1 + 0.1}s` }}
+          >
+            <div className="w-20 h-20 flex items-center justify-center rounded-full bg-accent/10 mb-7 shadow-inner text-5xl text-accent">
+              {v.icon}
+            </div>
+            <h3 className="text-2xl font-serif font-extrabold text-primary mb-3 uppercase tracking-wide">
+              {v.title}
+            </h3>
+            <p className="text-muted text-lg font-medium leading-relaxed">{v.desc}</p>
+          </div>
+        ))}
+      </div>
     </section>
   );
 }
 
-export default function Home() {
-  const { auth } = useStore();
+function BrandStory() {
+  return (
+    <section className="max-w-3xl mx-auto py-24 px-4 flex flex-col items-center bg-card border border-accent rounded-3xl shadow-md">
+      <h2 className="text-4xl md:text-5xl font-serif font-extrabold text-primary mb-6 text-center tracking-tight">Our Story</h2>
+      <div className="w-14 h-1 bg-accent rounded mb-10" />
+      <p className="text-lg md:text-xl text-muted font-serif text-center leading-relaxed font-medium">
+        Rooted in tradition, inspired by the future. Our brand was born from a passion for authentic craftsmanship and a vision to bring timeless beauty to the modern world. We partner with skilled artisans, honor heritage, and curate collections that celebrate quality, trust, and individuality. Every piece tells a story—yours and ours, woven together.
+      </p>
+    </section>
+  );
+}
 
-  // --- Testimonial Carousel State ---
-  const [current, setCurrent] = React.useState(0);
-  React.useEffect(() => {
-    const timer = setInterval(() => setCurrent((c) => (c + 1) % testimonials.length), 5000);
-    return () => clearInterval(timer);
-  }, []);
+function PlatformReviews() {
+  const { auth } = useStore();
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [comment, setComment] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState('');
+  const [showModal, setShowModal] = useState(false);
+
+  useEffect(() => {
+    fetch('http://localhost:5001/api/reviews')
+      .then(res => res.json())
+      .then(data => {
+        setReviews(data.reviews || []);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError('Failed to load reviews.');
+        setLoading(false);
+      });
+  }, [success]);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setError('');
+    setSuccess('');
+    try {
+      const res = await fetch('http://localhost:5001/api/reviews', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${auth.token}`,
+        },
+        body: JSON.stringify({ comment }),
+      });
+      const data = await res.json();
+      if (!data.success) {
+        setError(data.errors?.[0]?.msg || data.message || 'Failed to submit review.');
+      } else {
+        setSuccess('Review submitted!');
+        setComment('');
+        setShowModal(false);
+      }
+    } catch {
+      setError('Failed to submit review.');
+    }
+    setSubmitting(false);
+  };
 
   return (
-    <main className="bg-background text-primary min-h-screen font-body">
-      {/* Hero Section */}
-      <HeroSection />
+    <section className="max-w-3xl mx-auto py-24 px-4 flex flex-col items-center bg-gradient-to-b from-white via-background-light to-white rounded-3xl shadow-sm border border-accent">
+      <h2 className="text-4xl md:text-5xl font-serif font-extrabold text-primary mb-6 text-center tracking-tight">
+        What Our Customers Say
+      </h2>
+      <div className="flex items-center gap-2 mb-10">
+        <div className="w-10 h-1 bg-accent rounded" />
+        <svg className="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 20l9-5-9-5-9 5 9 5z" />
+        </svg>
+        <div className="w-10 h-1 bg-accent rounded" />
+      </div>
+      {auth.isAuthenticated && (
+        <button
+          onClick={() => setShowModal(true)}
+          className="mb-8 bg-primary text-white px-6 py-3 rounded font-bold hover:bg-accent transition shadow-md"
+        >
+          Add Review
+        </button>
+      )}
+      {loading ? (
+        <p className="text-muted">Loading reviews...</p>
+      ) : (
+        <div className="w-full flex flex-col gap-8 mb-12 max-h-[400px] overflow-y-auto pr-2">
+          {reviews.length === 0 ? (
+            <p className="text-muted text-center">No reviews yet.</p>
+          ) : (
+            reviews.map((r) => (
+              <div
+                key={r._id}
+                className="bg-card border border-accent rounded-2xl p-7 shadow-lg flex flex-col gap-2 transition-transform duration-300 hover:-translate-y-1 hover:shadow-2xl animate-fadeIn"
+              >
+                <div className="flex items-center gap-3 mb-1">
+                  <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-lg font-bold text-accent">
+                    {r.user?.name?.[0] || 'A'}
+                  </div>
+                  <span className="font-bold text-primary text-lg font-serif">{r.user?.name || 'Anonymous'}</span>
+                  <span className="text-xs text-muted ml-auto">{new Date(r.createdAt).toLocaleDateString()}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <svg className="w-5 h-5 text-accent/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2a4 4 0 014-4h3m4 0a4 4 0 00-4-4H7a4 4 0 00-4 4v2a4 4 0 004 4h3" />
+                  </svg>
+                  <p className="text-gray-800 text-base italic">“{r.comment}”</p>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+      {/* Modal for adding review */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-card border border-accent rounded-2xl shadow-2xl p-8 w-full max-w-md relative animate-fadeIn">
+            <button
+              onClick={() => setShowModal(false)}
+              className="absolute top-3 right-3 text-accent hover:text-primary text-2xl font-bold"
+              aria-label="Close"
+            >
+              ×
+            </button>
+            <h3 className="text-xl font-bold mb-2 text-primary font-serif text-center">Share Your Thoughts</h3>
+            {error && <p className="text-red-600 text-sm animate-pulse text-center">{error}</p>}
+            {success && <p className="text-green-600 text-sm animate-pulse text-center">{success}</p>}
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-4">
+              <div className="relative">
+                <textarea
+                  value={comment}
+                  onChange={e => setComment(e.target.value)}
+                  minLength={10}
+                  maxLength={500}
+                  required
+                  className="p-4 border rounded h-24 w-full focus:ring-2 focus:ring-accent transition peer"
+                  placeholder=" "
+                />
+                <label className="absolute left-4 top-2 text-accent pointer-events-none transition-all duration-200 peer-focus:-top-4 peer-focus:text-xs peer-focus:text-primary bg-white px-1">
+                  Your Review
+                </label>
+              </div>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="bg-primary text-white px-6 py-3 rounded font-bold hover:bg-accent transition"
+              >
+                {submitting ? 'Submitting...' : 'Submit Review'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+      {!auth.isAuthenticated && (
+        <div className="text-center text-muted py-8">
+          <span className="font-semibold">Please log in to add your review.</span>
+        </div>
+      )}
+    </section>
+  );
+}
 
-      {/* Features Grid */}
+// Featured Categories Section
+function FeaturedCategories() {
+  const categories = [
+    { name: 'Jewelry', image: '/placeholder-product.svg', href: '/categories/Jewelry' },
+    { name: 'Textiles', image: '/placeholder-product.svg', href: '/categories/Textiles' },
+    { name: 'Decor', image: '/placeholder-product.svg', href: '/categories/Decor' },
+  ];
+  return (
+    <section className="max-w-6xl mx-auto py-20 px-4">
+      <h2 className="text-4xl md:text-5xl font-serif font-extrabold text-primary mb-8 text-center tracking-tight">Featured Categories</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
+        {categories.map((cat) => (
+          <a
+            key={cat.name}
+            href={cat.href}
+            className="group bg-card border border-accent rounded-2xl shadow-lg p-8 flex flex-col items-center text-center transition-transform duration-300 hover:-translate-y-1 hover:shadow-2xl"
+          >
+            <img src={cat.image} alt={cat.name} className="w-24 h-24 mb-6 rounded-full object-contain border-2 border-accent group-hover:scale-105 transition-transform" />
+            <h3 className="text-2xl font-serif font-bold text-primary mb-2">{cat.name}</h3>
+            <span className="text-muted text-sm">Explore {cat.name}</span>
+          </a>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// Featured Products Section
+function FeaturedProducts() {
+  const products = [
+    { name: 'Handcrafted Necklace', image: '/placeholder-product.svg', href: '/products/1' },
+    { name: 'Silk Scarf', image: '/placeholder-product.svg', href: '/products/2' },
+    { name: 'Artisan Vase', image: '/placeholder-product.svg', href: '/products/3' },
+  ];
+  return (
+    <section className="max-w-6xl mx-auto py-20 px-4">
+      <h2 className="text-4xl md:text-5xl font-serif font-extrabold text-primary mb-8 text-center tracking-tight">Featured Products</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
+        {products.map((prod) => (
+          <a
+            key={prod.name}
+            href={prod.href}
+            className="group bg-card border border-accent rounded-2xl shadow-lg p-8 flex flex-col items-center text-center transition-transform duration-300 hover:-translate-y-1 hover:shadow-2xl"
+          >
+            <img src={prod.image} alt={prod.name} className="w-28 h-28 mb-6 rounded-xl object-contain border-2 border-accent group-hover:scale-105 transition-transform" />
+            <h3 className="text-xl font-serif font-bold text-primary mb-2">{prod.name}</h3>
+            <span className="text-muted text-sm">View Details</span>
+          </a>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function Features() {
+  return (
       <section id="features" className="max-w-5xl mx-auto py-20 px-4 grid md:grid-cols-3 gap-10">
         {features.map((f, i) => (
           <motion.div
@@ -144,8 +330,11 @@ export default function Home() {
           </motion.div>
         ))}
       </section>
+  );
+}
 
-      {/* Value Proposition Section */}
+function ValueProposition() {
+  return (
       <section className="max-w-4xl mx-auto py-20 px-4 text-center">
         <motion.h2
           initial={{ opacity: 0, y: 30 }}
@@ -166,8 +355,17 @@ export default function Home() {
           We combine cutting-edge technology, beautiful design, and a relentless focus on user experience to deliver a shopping platform you can trust and love.
         </motion.p>
       </section>
+  );
+}
 
-      {/* Testimonial Carousel */}
+function Testimonials() {
+  const [current, setCurrent] = React.useState(0);
+  React.useEffect(() => {
+    const timer = setInterval(() => setCurrent((c) => (c + 1) % testimonials.length), 5000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
       <section id="testimonials" className="bg-background-light py-20 px-4">
         <div className="max-w-3xl mx-auto text-center">
           <motion.h3
@@ -193,8 +391,11 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
+  );
+}
 
-      {/* Newsletter Signup */}
+function Newsletter() {
+  return (
       <section id="newsletter" className="max-w-2xl mx-auto py-20 px-4 text-center">
         <motion.h4
           initial={{ opacity: 0, y: 30 }}
@@ -229,21 +430,86 @@ export default function Home() {
           </button>
         </form>
       </section>
+  );
+}
 
-      {/* Footer */}
-      <footer className="bg-background-dark border-t border-primary py-8 px-4 mt-12">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="text-lg font-bold tracking-tight text-primary">
-            ShopEase
-          </div>
-          <div className="flex gap-6 text-text-muted text-sm">
-            <a href="#features" className="hover:text-primary transition">Features</a>
-            <a href="#testimonials" className="hover:text-primary transition">Testimonials</a>
-            <a href="#newsletter" className="hover:text-primary transition">Newsletter</a>
-          </div>
-          <div className="text-text-muted text-xs">© {new Date().getFullYear()} ShopEase. All rights reserved.</div>
-        </div>
-      </footer>
+// Footer is now imported from components directory
+
+export default function Home() {
+  return (
+    <main className="min-h-screen">
+      <motion.section
+        initial={{ opacity: 0, y: 40, scale: 0.98 }}
+        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ duration: 0.7, ease: 'easeOut' }}
+      >
+        <HeroSectionComponent />
+      </motion.section>
+      <motion.section
+        initial={{ opacity: 0, y: 40, scale: 0.98 }}
+        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ duration: 0.7, delay: 0.1, ease: 'easeOut' }}
+      >
+        <Values />
+      </motion.section>
+      <motion.section
+        initial={{ opacity: 0, y: 40, scale: 0.98 }}
+        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ duration: 0.7, delay: 0.2, ease: 'easeOut' }}
+      >
+        <BrandStory />
+      </motion.section>
+      <motion.section
+        initial={{ opacity: 0, y: 40, scale: 0.98 }}
+        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ duration: 0.7, delay: 0.25, ease: 'easeOut' }}
+      >
+        <FeaturedCategoriesComponent />
+      </motion.section>
+      <motion.section
+        initial={{ opacity: 0, y: 40, scale: 0.98 }}
+        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ duration: 0.7, delay: 0.3, ease: 'easeOut' }}
+      >
+        <FeaturedProducts />
+      </motion.section>
+      <motion.section
+        initial={{ opacity: 0, y: 40, scale: 0.98 }}
+        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ duration: 0.7, delay: 0.35, ease: 'easeOut' }}
+      >
+        <PlatformReviews />
+      </motion.section>
+      <motion.section
+        initial={{ opacity: 0, y: 40, scale: 0.98 }}
+        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ duration: 0.7, delay: 0.4, ease: 'easeOut' }}
+      >
+        <Testimonials />
+      </motion.section>
+      <motion.section
+        initial={{ opacity: 0, y: 40, scale: 0.98 }}
+        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ duration: 0.7, delay: 0.45, ease: 'easeOut' }}
+      >
+        <Newsletter />
+      </motion.section>
+      <motion.section
+        initial={{ opacity: 0, y: 40, scale: 0.98 }}
+        whileInView={{ opacity: 1, y: 0, scale: 1 }}
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ duration: 0.7, delay: 0.5, ease: 'easeOut' }}
+      >
+        <Footer />
+      </motion.section>
     </main>
   );
 }

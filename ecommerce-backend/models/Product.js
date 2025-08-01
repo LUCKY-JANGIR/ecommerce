@@ -92,6 +92,15 @@ productSchema.methods.calculateAverageRating = function () {
     }
 };
 
+// Reduce stock when order is placed
+productSchema.methods.reduceStock = function (quantity) {
+    if (this.stock >= quantity) {
+        this.stock -= quantity;
+        return true;
+    }
+    return false;
+};
+
 // Static method to get products by category
 productSchema.statics.getByCategory = function (categoryId) {
     return this.find({ category: categoryId })

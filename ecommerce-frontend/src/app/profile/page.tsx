@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { useStore } from '@/store/useStore';
 import { authAPI } from '@/components/services/api';
 import { ArrowLeft, User, Mail, Phone, MapPin, Heart, ShoppingCart } from 'lucide-react';
@@ -88,99 +89,134 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-start">
+    <div className="min-h-screen bg-background-light">
       <div className="container w-full px-4 pt-24 pb-8">
         {/* Top Section: Profile Info and Actions */}
-        <div className="bg-white/80 backdrop-blur border-gray-200 rounded-xl shadow-lg animate-fadein px-6 py-8 md:p-12 w-full mb-10">
+        <motion.div 
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="bg-card border border-accent rounded-2xl shadow-lg p-8 md:p-12 w-full mb-10"
+        >
           {/* User Avatar */}
-          <div className="text-center mb-8">
-            <div className="w-24 h-24 bg-[#d4af37] rounded-full flex items-center justify-center text-white text-4xl font-bold mb-4 mx-auto">
+          <div className="text-center mb-10">
+            <div className="w-24 h-24 bg-accent rounded-full flex items-center justify-center text-white text-4xl font-bold mb-6 mx-auto shadow-lg">
               {profile?.name ? profile.name.split(' ').map((n: string) => n[0]).join('').toUpperCase() : 'U'}
             </div>
-            <h1 className="text-4xl font-cinzel font-bold text-gray-900 mb-2">My Profile</h1>
-            <p className="text-gray-600">Manage your account information</p>
+            <h1 className="text-4xl font-serif font-bold text-primary mb-3">My Profile</h1>
+            <p className="text-muted text-lg">Manage your account information</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Basic Info */}
-            <div className="bg-white/30 border border-gray-200 rounded-lg p-6 shadow-md">
-              <h2 className="text-2xl font-playfair font-bold text-[#d4af37] mb-4 flex items-center gap-2"><User className="h-6 w-6" /> Basic Information</h2>
-              <div className="space-y-3">
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+              className="bg-background-light border border-accent rounded-xl p-6 shadow-md"
+            >
+              <h2 className="text-2xl font-serif font-bold text-primary mb-6 flex items-center gap-3">
+                <User className="h-6 w-6" /> Basic Information
+              </h2>
+              <div className="space-y-4">
                 <div className="flex items-center">
-                  <User className="h-5 w-5 text-gray-400 mr-3" />
-                  <span className="text-gray-600">Name:</span>
-                  <span className="ml-2 font-medium">{profile?.name}</span>
+                  <User className="h-5 w-5 text-muted mr-3" />
+                  <span className="text-muted">Name:</span>
+                  <span className="ml-2 font-semibold text-primary">{profile?.name}</span>
                 </div>
                 <div className="flex items-center">
-                  <Mail className="h-5 w-5 text-gray-400 mr-3" />
-                  <span className="text-gray-600">Email:</span>
-                  <span className="ml-2 font-medium">{profile?.email}</span>
+                  <Mail className="h-5 w-5 text-muted mr-3" />
+                  <span className="text-muted">Email:</span>
+                  <span className="ml-2 font-semibold text-primary">{profile?.email}</span>
                 </div>
                 {profile?.phone && (
                   <div className="flex items-center">
-                    <Phone className="h-5 w-5 text-gray-400 mr-3" />
-                    <span className="text-gray-600">Phone:</span>
-                    <span className="ml-2 font-medium">{profile.phone}</span>
+                    <Phone className="h-5 w-5 text-muted mr-3" />
+                    <span className="text-muted">Phone:</span>
+                    <span className="ml-2 font-semibold text-primary">{profile.phone}</span>
                   </div>
                 )}
               </div>
-            </div>
+            </motion.div>
+            
             {/* Address */}
             {profile?.address && (
-              <div className="bg-white/30 border border-gray-200 rounded-lg p-6 shadow-md">
-                <h2 className="text-2xl font-playfair font-bold text-[#d4af37] mb-4 flex items-center gap-2"><MapPin className="h-6 w-6" /> Address</h2>
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="bg-background-light border border-accent rounded-xl p-6 shadow-md"
+              >
+                <h2 className="text-2xl font-serif font-bold text-primary mb-6 flex items-center gap-3">
+                  <MapPin className="h-6 w-6" /> Address
+                </h2>
                 <div className="flex items-start">
-                  <MapPin className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
-                  <div>
-                    {profile.address.street && <p>{profile.address.street}</p>}
-                    <p>{profile.address.city}, {profile.address.state} {profile.address.zipCode}</p>
+                  <MapPin className="h-5 w-5 text-muted mr-3 mt-1" />
+                  <div className="text-muted">
+                    {profile.address.street && <p className="mb-1">{profile.address.street}</p>}
+                    <p className="mb-1">{profile.address.city}, {profile.address.state} {profile.address.zipCode}</p>
                     <p>{profile.address.country}</p>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             )}
+            
             {/* Account Info */}
-            <div className="bg-white/30 border border-gray-200 rounded-lg p-6 shadow-md">
-              <h2 className="text-2xl font-playfair font-bold text-[#d4af37] mb-4 flex items-center gap-2"><User className="h-6 w-6" /> Account Information</h2>
-              <div className="space-y-3">
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+              className="bg-background-light border border-accent rounded-xl p-6 shadow-md"
+            >
+              <h2 className="text-2xl font-serif font-bold text-primary mb-6 flex items-center gap-3">
+                <User className="h-6 w-6" /> Account Information
+              </h2>
+              <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Account Type:</span>
-                  <span className="font-medium capitalize">{profile?.role}</span>
+                  <span className="text-muted">Account Type:</span>
+                  <span className="font-semibold text-primary capitalize">{profile?.role}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Member Since:</span>
-                  <span className="font-medium">
+                  <span className="text-muted">Member Since:</span>
+                  <span className="font-semibold text-primary">
                     {profile?.createdAt && !isNaN(new Date(profile.createdAt).getTime())
                       ? new Date(profile.createdAt).toLocaleDateString()
                       : 'N/A'}
                   </span>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </div>
+          
           {/* Action Buttons */}
-          <div className="flex flex-col md:flex-row gap-4 mt-8">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="flex flex-col md:flex-row gap-4 mt-10"
+          >
             {auth.user?.role === 'admin' && (
               <Link
                 href="/admin"
-                className="block bg-primary text-gold hover:bg-gold hover:text-primary font-semibold rounded-lg px-4 py-2 transition-colors w-full md:w-auto text-center"
+                className="block bg-primary text-white hover:bg-accent font-semibold rounded-xl px-6 py-3 transition-colors w-full md:w-auto text-center shadow-lg"
               >
                 Go to Admin Panel
               </Link>
             )}
             <button
-              className="bg-accent text-gold hover:bg-gold hover:text-accent font-semibold rounded-lg px-4 py-2 transition-colors w-full md:w-auto"
+              className="bg-accent text-white hover:bg-primary font-semibold rounded-xl px-6 py-3 transition-colors w-full md:w-auto shadow-lg"
               onClick={() => setIsModalOpen(true)}
             >
               Update Profile
             </button>
             <button
-              className="bg-blue-600 text-white hover:bg-blue-700 font-semibold rounded-lg px-4 py-2 transition-colors w-full md:w-auto"
+              className="bg-primary text-white hover:bg-accent font-semibold rounded-xl px-6 py-3 transition-colors w-full md:w-auto shadow-lg"
               onClick={() => setIsChangePasswordOpen(true)}
             >
               Change Password
             </button>
             <button
-              className="bg-red-600 text-white hover:bg-red-700 font-semibold rounded-lg px-4 py-2 transition-colors w-full md:w-auto"
+              className="bg-red-600 text-white hover:bg-red-700 font-semibold rounded-xl px-6 py-3 transition-colors w-full md:w-auto shadow-lg"
               onClick={() => {
                 useStore.getState().logout();
                 toast.success('Logged out successfully');
@@ -189,14 +225,15 @@ export default function ProfilePage() {
             >
               Logout
             </button>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
+        
         {/* Profile Update Modal */}
         <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} className="fixed z-50 inset-0 overflow-y-auto">
           <div className="fixed inset-0 bg-black/40" aria-hidden="true" />
           <div className="flex items-center justify-center min-h-screen px-4">
-            <Dialog.Panel className="relative bg-white rounded-xl shadow-xl w-full max-w-lg mx-auto p-8 z-50">
-              <Dialog.Title className="text-2xl font-bold mb-4 text-center">Update Profile</Dialog.Title>
+            <Dialog.Panel className="relative bg-card border border-accent rounded-2xl shadow-xl w-full max-w-lg mx-auto p-8 z-50">
+              <Dialog.Title className="text-2xl font-serif font-bold text-primary mb-6 text-center">Update Profile</Dialog.Title>
               <form
                 onSubmit={async (e) => {
                   e.preventDefault();
@@ -219,80 +256,80 @@ export default function ProfilePage() {
                     setSaving(false);
                   }
                 }}
-                className="space-y-4"
+                className="space-y-6"
               >
                 <div>
-                  <label className="block text-sm font-medium mb-1">Name</label>
+                  <label className="block text-sm font-medium text-muted mb-2">Name</label>
                   <input
                     type="text"
                     value={form.name}
                     onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full border border-accent rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Phone</label>
+                  <label className="block text-sm font-medium text-muted mb-2">Phone</label>
                   <input
                     type="text"
                     value={form.phone}
                     onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full border border-accent rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Street</label>
+                  <label className="block text-sm font-medium text-muted mb-2">Street</label>
                   <input
                     type="text"
                     value={form.address.street}
                     onChange={e => setForm(f => ({ ...f, address: { ...f.address, street: e.target.value } }))}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full border border-accent rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">City</label>
+                    <label className="block text-sm font-medium text-muted mb-2">City</label>
                     <input
                       type="text"
                       value={form.address.city}
                       onChange={e => setForm(f => ({ ...f, address: { ...f.address, city: e.target.value } }))}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full border border-accent rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">State</label>
+                    <label className="block text-sm font-medium text-muted mb-2">State</label>
                     <input
                       type="text"
                       value={form.address.state}
                       onChange={e => setForm(f => ({ ...f, address: { ...f.address, state: e.target.value } }))}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full border border-accent rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">Zip Code</label>
+                    <label className="block text-sm font-medium text-muted mb-2">Zip Code</label>
                     <input
                       type="text"
                       value={form.address.zipCode}
                       onChange={e => setForm(f => ({ ...f, address: { ...f.address, zipCode: e.target.value } }))}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full border border-accent rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">Country</label>
+                    <label className="block text-sm font-medium text-muted mb-2">Country</label>
                     <input
                       type="text"
                       value={form.address.country}
                       onChange={e => setForm(f => ({ ...f, address: { ...f.address, country: e.target.value } }))}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full border border-accent rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
                     />
                   </div>
                 </div>
-                <div className="flex justify-end gap-2 mt-6">
+                <div className="flex justify-end gap-4 mt-8">
                   <button
                     type="button"
-                    className="px-4 py-2 rounded-lg border border-gray-300 bg-gray-100 hover:bg-gray-200 font-semibold"
+                    className="px-6 py-3 rounded-xl border border-accent bg-card hover:bg-background-light font-semibold transition-colors"
                     onClick={() => setIsModalOpen(false)}
                     disabled={saving}
                   >
@@ -300,7 +337,7 @@ export default function ProfilePage() {
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-2 rounded-lg bg-primary text-gold font-bold hover:bg-gold hover:text-primary transition-colors disabled:opacity-60"
+                    className="px-8 py-3 rounded-xl bg-primary text-white font-bold hover:bg-accent transition-colors disabled:opacity-60 shadow-lg"
                     disabled={saving}
                   >
                     {saving ? 'Saving...' : 'Save Changes'}
@@ -310,12 +347,13 @@ export default function ProfilePage() {
             </Dialog.Panel>
           </div>
         </Dialog>
+        
         {/* Change Password Modal */}
         <Dialog open={isChangePasswordOpen} onClose={() => setIsChangePasswordOpen(false)} className="fixed z-50 inset-0 overflow-y-auto">
           <div className="fixed inset-0 bg-black/40" aria-hidden="true" />
           <div className="flex items-center justify-center min-h-screen px-4">
-            <Dialog.Panel className="relative bg-white rounded-xl shadow-xl w-full max-w-lg mx-auto p-8 z-50">
-              <Dialog.Title className="text-2xl font-bold mb-4 text-center">Change Password</Dialog.Title>
+            <Dialog.Panel className="relative bg-card border border-accent rounded-2xl shadow-xl w-full max-w-lg mx-auto p-8 z-50">
+              <Dialog.Title className="text-2xl font-serif font-bold text-primary mb-6 text-center">Change Password</Dialog.Title>
               <form
                 onSubmit={async (e) => {
                   e.preventDefault();
@@ -344,65 +382,85 @@ export default function ProfilePage() {
                 className="space-y-6"
               >
                 <div>
-                  <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700">Current Password</label>
+                  <label htmlFor="currentPassword" className="block text-sm font-medium text-muted mb-2">Current Password</label>
                   <input
                     id="currentPassword"
                     type="password"
                     required
                     value={currentPassword}
                     onChange={e => setCurrentPassword(e.target.value)}
-                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                    className="w-full border border-accent rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
                   />
                 </div>
                 <div>
-                  <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700">New Password</label>
+                  <label htmlFor="newPassword" className="block text-sm font-medium text-muted mb-2">New Password</label>
                   <input
                     id="newPassword"
                     type="password"
                     required
                     value={newPassword}
                     onChange={e => setNewPassword(e.target.value)}
-                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                    className="w-full border border-accent rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
                   />
                 </div>
                 <div>
-                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Confirm New Password</label>
+                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-muted mb-2">Confirm New Password</label>
                   <input
                     id="confirmPassword"
                     type="password"
                     required
                     value={confirmPassword}
                     onChange={e => setConfirmPassword(e.target.value)}
-                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                    className="w-full border border-accent rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={changing}
-                  className="w-full py-2 px-4 bg-primary text-white font-bold rounded hover:bg-primary-dark transition disabled:opacity-60"
+                  className="w-full py-3 px-6 bg-primary text-white font-bold rounded-xl hover:bg-accent transition-colors disabled:opacity-60 shadow-lg"
                 >
                   {changing ? 'Changing...' : 'Change Password'}
                 </button>
                 <div className="text-center mt-4">
-                  <Link href="/forgot-password" className="text-blue-600 hover:underline text-sm">Forgot Password?</Link>
+                  <Link href="/forgot-password" className="text-primary hover:text-accent underline text-sm">Forgot Password?</Link>
                 </div>
               </form>
             </Dialog.Panel>
           </div>
         </Dialog>
+        
         {/* Bottom Section: Wishlist */}
-        <section className="mt-10 w-full max-w-5xl mx-auto">
-          <h2 className="text-2xl font-bold mb-4 flex items-center gap-2"><Heart className="h-6 w-6" /> Your Wishlist</h2>
+        <motion.section 
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="mt-10 w-full max-w-5xl mx-auto"
+        >
+          <h2 className="text-3xl font-serif font-bold text-primary mb-8 flex items-center gap-3">
+            <Heart className="h-8 w-8" /> Your Wishlist
+          </h2>
           {wishlist.length === 0 ? (
-            <p className="text-gray-500">No items in wishlist.</p>
+            <div className="text-center py-16">
+              <div className="w-24 h-24 bg-muted/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Heart className="h-12 w-12 text-muted" />
+              </div>
+              <p className="text-muted text-lg">No items in wishlist.</p>
+            </div>
           ) : (
-            <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 animate-fadein">
-              {wishlist.map(product => (
-                <ProductCard key={product._id} product={product} />
+            <div className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+              {wishlist.map((product, index) => (
+                <motion.div
+                  key={product._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <ProductCard product={product} />
+                </motion.div>
               ))}
             </div>
           )}
-        </section>
+        </motion.section>
       </div>
     </div>
   );

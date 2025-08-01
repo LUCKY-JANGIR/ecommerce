@@ -22,15 +22,13 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Only show Header if not on the home page
-  const isHomePage = typeof window !== 'undefined' && window.location.pathname === '/';
   return (
     <html lang="en">
       <body className="bg-white min-h-screen" style={{ fontFamily: 'Playfair Display, Inter, sans-serif' }}>
         <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="colored" aria-label="Notifications" />
         <ErrorBoundary>
         <HydrationProvider />
-        {!isHomePage && <Header />}
+        <Header />
         {children}
         </ErrorBoundary>
       </body>
