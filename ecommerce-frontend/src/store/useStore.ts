@@ -327,7 +327,7 @@ export const useStore = create<AppState>()(
           // Extract products from the nested structure
           const products = data.wishlist?.map((item: any) => item.product) || [];
           set({ wishlist: products });
-        } catch (e) {
+        } catch (e: any) {
           console.error('Error adding to wishlist:', e);
           // Show user-friendly error message
           if (e?.response?.status === 400) {
@@ -350,7 +350,7 @@ export const useStore = create<AppState>()(
           // Extract products from the nested structure
           const products = data.wishlist?.map((item: any) => item.product) || [];
           set({ wishlist: products });
-        } catch (e) {
+        } catch (e: any) {
           console.error('Error removing from wishlist:', e);
           // Show user-friendly error message
           if (e?.response?.status === 400) {

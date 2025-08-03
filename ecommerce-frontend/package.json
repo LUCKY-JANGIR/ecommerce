@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "type-check": "tsc --noEmit",
+    "security-check": "npm audit",
+    "production": "NODE_ENV=production next start",
+    "analyze": "ANALYZE=true next build"
   },
   "dependencies": {
     "@fontsource/caveat": "^5.2.6",
@@ -50,5 +54,9 @@
     "postcss": "^8.4.24",
     "tailwindcss": "^3.3.2",
     "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
   }
 }

@@ -28,6 +28,13 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { errorHandler, notFound } = require('./middleware/errorHandler');
+const { 
+    performanceMonitor, 
+    errorTracker, 
+    requestLogger, 
+    securityMonitor,
+    systemHealth 
+} = require('./middleware/monitoring');
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -67,6 +74,11 @@ app.use((req, res, next) => {
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     next();
 });
+
+// Monitoring middleware
+app.use(performanceMonitor);
+app.use(requestLogger);
+app.use(securityMonitor);
 
 // Rate limiting
 const limiter = rateLimit({
@@ -122,11 +134,23 @@ app.use('/api/reviews', platformReviewsRoute);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'OK', message: 'Server is running' });
+    res.json({ 
+        status: 'OK', 
+        message: 'Server is running',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        environment: process.env.NODE_ENV || 'development'
+    });
+});
+
+// System health endpoint
+app.get('/api/system-health', (req, res) => {
+    res.json(systemHealth());
 });
 
 // Error handling middleware (must be after routes)
 app.use(notFound);
+app.use(errorTracker); // Add error tracking before main error handler
 app.use(errorHandler);
 
 // Process-level error handlers
