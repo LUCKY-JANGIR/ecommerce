@@ -43,7 +43,7 @@ export default function ExplorePage() {
                 ) : (
                   <div className="w-24 h-24 rounded-full bg-sand flex items-center justify-center text-3xl text-gold font-bold mb-4 border-2 border-gold">{cat.name[0]}</div>
                 )}
-                <h2 className="text-xl font-bold text-primary mb-2 font-display group-hover:text-gold transition-colors">{cat.name}</h2>
+                <h2 className="text-xl font-bold text-primary-700 mb-2 font-serif group-hover:text-accent-600 transition-colors">{cat.name}</h2>
                 <p className="text-gray-600 text-center">{cat.description}</p>
               </Link>
             ))}

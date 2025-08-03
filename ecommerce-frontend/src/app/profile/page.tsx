@@ -5,15 +5,14 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useStore } from '@/store/useStore';
 import { authAPI } from '@/components/services/api';
-import { ArrowLeft, User, Mail, Phone, MapPin, Heart, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, User, Mail, Phone, MapPin, ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import ProductCard from '@/components/ProductCard';
 import { Dialog } from '@headlessui/react';
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { auth, hydrated, setHydrated, wishlist, removeFromWishlist, addToCart, fetchWishlist } = useStore();
+  const { auth, hydrated, setHydrated } = useStore();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
   // Modal and form state
@@ -77,11 +76,9 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (hydrated && auth.isAuthenticated) {
-      fetchWishlist().then(() => {
-        console.log('Wishlist after fetch:', wishlist);
-      });
+      // Removed wishlist fetch as wishlist is removed
     }
-  }, [hydrated, auth.isAuthenticated, fetchWishlist]);
+  }, [hydrated, auth.isAuthenticated]);
 
   if (!hydrated) return null; // Don't render until hydrated
   if (!auth.isAuthenticated) {
@@ -428,39 +425,6 @@ export default function ProfilePage() {
             </Dialog.Panel>
           </div>
         </Dialog>
-        
-        {/* Bottom Section: Wishlist */}
-        <motion.section 
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="mt-10 w-full max-w-5xl mx-auto"
-        >
-          <h2 className="text-3xl font-serif font-bold text-primary mb-8 flex items-center gap-3">
-            <Heart className="h-8 w-8" /> Your Wishlist
-          </h2>
-          {wishlist.length === 0 ? (
-            <div className="text-center py-16">
-              <div className="w-24 h-24 bg-muted/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Heart className="h-12 w-12 text-muted" />
-              </div>
-              <p className="text-muted text-lg">No items in wishlist.</p>
-            </div>
-          ) : (
-            <div className="grid gap-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-              {wishlist.map((product, index) => (
-                <motion.div
-                  key={product._id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                >
-                  <ProductCard product={product} />
-                </motion.div>
-              ))}
-            </div>
-          )}
-        </motion.section>
       </div>
     </div>
   );

@@ -24,13 +24,22 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-      addToCart(product, 1);
+    addToCart(product, 1);
     toast.success('Added to cart');
   };
 
   const handleWishlistToggle = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    const { auth } = useStore.getState();
+    if (!auth.isAuthenticated || !auth.token) {
+      toast.error('Please log in to add items to your wishlist');
+      // Optionally redirect to login
+      // router.push('/login');
+      return;
+    }
+    
     if (isInWishlist) {
       removeFromWishlist(product._id);
       toast.success('Removed from wishlist');
@@ -40,9 +49,8 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
     }
   };
 
-  // Remove price display and replace with 'Negotiable' label
   const renderNegotiable = () => (
-    <span className="text-lg font-bold text-blue-600">Negotiable</span>
+    <span className="text-lg font-serif font-bold text-accent-600">Negotiable</span>
   );
 
   const renderStars = (rating: number) => {
@@ -50,16 +58,16 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
       <Star
         key={i}
         className={`h-3 w-3 ${
-          i < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
+          i < rating ? 'text-accent-500 fill-current' : 'text-heritage-300'
         }`}
       />
     ));
   };
 
   if (viewMode === 'list') {
-  return (
+    return (
       <Link href={`/products/${product._id}`} className="block">
-        <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-200">
+        <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-heritage-200 group">
           <div className="flex">
             {/* Product Image */}
             <div className="relative w-32 h-32 flex-shrink-0">
@@ -71,54 +79,54 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
                 }
                 alt={product.name}
                 fill
-                className="object-cover rounded-l-lg"
+                className="object-cover rounded-l-2xl group-hover:scale-105 transition-transform duration-300"
               />
             </div>
 
             {/* Product Info */}
-            <div className="flex-1 p-4">
+            <div className="flex-1 p-6">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2 hover:text-blue-600 transition-colors">
+                  <h3 className="text-lg font-serif font-semibold text-primary-700 mb-2 group-hover:text-accent-600 transition-colors">
                     {product.name}
                   </h3>
-                  <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                  <p className="text-sm text-text-secondary mb-3 line-clamp-2">
                     {product.description}
                   </p>
-                  <div className="flex items-center mb-2">
+                  <div className="flex items-center mb-3">
                     {renderStars(product.averageRating || 0)}
-                    <span className="ml-1 text-sm text-gray-500">
+                    <span className="ml-2 text-sm text-text-muted">
                       ({product.averageRating ? product.averageRating.toFixed(1) : '0.0'})
                     </span>
                     {product.numReviews > 0 && (
-                      <span className="ml-2 text-xs text-gray-400">
+                      <span className="ml-3 text-xs text-text-muted">
                         ({product.numReviews} {product.numReviews === 1 ? 'review' : 'reviews'})
                       </span>
                     )}
                   </div>
                   <div className="flex items-center justify-between">
                     {renderNegotiable()}
-                    <span className={`text-sm ${
+                    <span className={`text-sm font-medium ${
                       product.stock > 0 ? 'text-green-600' : 'text-red-600'
                     }`}>
                       {product.stock > 0 ? 'In Stock' : 'Out of Stock'}
                     </span>
                   </div>
-      </div>
+                </div>
 
                 {/* Action Buttons */}
-                <div className="flex flex-col space-y-2 ml-4">
+                <div className="flex flex-col space-y-3 ml-6">
                   {cartQuantity === 0 ? (
-          <button
-            onClick={handleAddToCart}
+                    <button
+                      onClick={handleAddToCart}
                       disabled={product.stock === 0}
-                      className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="p-3 bg-accent-500 text-white rounded-xl hover:bg-accent-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
                       title="Add to Cart"
-          >
-              <ShoppingCart className="h-4 w-4" />
-          </button>
-        ) : (
-                    <div className="flex items-center space-x-1">
+                    >
+                      <ShoppingCart className="h-4 w-4" />
+                    </button>
+                  ) : (
+                    <div className="flex items-center space-x-2 bg-heritage-100 rounded-xl p-2">
                       <button
                         onClick={(e) => {
                           e.preventDefault();
@@ -126,18 +134,18 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
                           if (cartQuantity > 1) updateCartItemQuantity(product._id, cartQuantity - 1);
                           else removeFromCart(product._id);
                         }}
-                        className="p-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                        className="p-2 bg-white text-primary-700 rounded-lg hover:bg-heritage-200 transition-colors"
                       >
                         {cartQuantity === 1 ? <Trash2 className="h-3 w-3" /> : <Minus className="h-3 w-3" />}
                       </button>
-                      <span className="px-2 text-sm font-semibold text-gray-900">{cartQuantity}</span>
-            <button
+                      <span className="px-3 text-sm font-semibold text-primary-700">{cartQuantity}</span>
+                      <button
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
                           if (cartQuantity < product.stock) updateCartItemQuantity(product._id, cartQuantity + 1);
                         }}
-                        className="p-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                        className="p-2 bg-white text-primary-700 rounded-lg hover:bg-heritage-200 transition-colors"
                         disabled={cartQuantity >= product.stock}
                       >
                         <Plus className="h-3 w-3" />
@@ -146,15 +154,15 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
                   )}
                   <button
                     onClick={handleWishlistToggle}
-                    className={`p-2 rounded-lg border-2 transition-colors ${
+                    className={`p-3 rounded-xl border-2 transition-colors ${
                       isInWishlist
                         ? 'border-red-500 text-red-500 hover:bg-red-50'
-                        : 'border-gray-300 text-gray-600 hover:border-gray-400'
+                        : 'border-heritage-300 text-heritage-600 hover:border-accent-500 hover:text-accent-600'
                     }`}
                     title={isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
                   >
                     <Heart className={`h-4 w-4 ${isInWishlist ? 'fill-current' : ''}`} />
-            </button>
+                  </button>
                 </div>
               </div>
             </div>
@@ -178,8 +186,7 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
       }
     },
     hover: {
-      y: -5,
-      boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+      y: -8,
       transition: { 
         type: "spring" as const,
         stiffness: 500,
@@ -213,7 +220,7 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
   return (
     <Link href={`/products/${product._id}`} className="block">
       <motion.div 
-        className="bg-white rounded-lg border border-gray-200 overflow-hidden group glass-light dark:glass-dark"
+        className="bg-white rounded-2xl border border-heritage-200 overflow-hidden group shadow-lg hover:shadow-2xl transition-all duration-300"
         initial="hidden"
         animate="visible"
         whileHover="hover"
@@ -238,13 +245,13 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
           
           {/* Quick Action Buttons */}
           <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-            <div className="flex space-x-2">
+            <div className="flex space-x-3">
               <motion.button
                 onClick={handleWishlistToggle}
                 className={`p-3 rounded-full shadow-lg transition-colors ${
                   isInWishlist
                     ? 'bg-red-500 text-white hover:bg-red-600'
-                    : 'bg-white text-gray-700 hover:bg-gray-100'
+                    : 'bg-white text-primary-700 hover:bg-heritage-100'
                 }`}
                 title={isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
                 variants={buttonVariants}
@@ -263,7 +270,7 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
                   }
                 }}
                 disabled={product.stock === 0}
-                className="p-3 bg-primary text-white rounded-full shadow-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-3 bg-accent-500 text-white rounded-full shadow-lg hover:bg-accent-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Quick Add to Cart"
                 variants={buttonVariants}
                 whileTap="tap"
@@ -272,7 +279,7 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
               </motion.button>
               
               <motion.div
-                className="p-3 bg-white text-gray-700 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
+                className="p-3 bg-white text-primary-700 rounded-full shadow-lg hover:bg-heritage-100 transition-colors"
                 title="Quick View"
                 variants={buttonVariants}
                 whileTap="tap"
@@ -285,7 +292,7 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
           {/* Stock Badge */}
           {product.stock === 0 && (
             <motion.div 
-              className="absolute top-2 left-2 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-medium"
+              className="absolute top-3 left-3 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-medium"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
@@ -297,7 +304,7 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
           {/* New Badge - for products less than 30 days old */}
           {new Date(product.createdAt).getTime() > Date.now() - 30 * 24 * 60 * 60 * 1000 && (
             <motion.div 
-              className="absolute top-2 right-2 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-medium"
+              className="absolute top-3 right-3 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-medium"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
@@ -308,11 +315,11 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
         </div>
 
         {/* Product Info */}
-        <div className="p-5">
-          <div className="flex items-center justify-between mb-2">
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-3">
             <div className="flex items-center">
               {renderStars(product.averageRating || 0)}
-              <span className="ml-1 text-xs text-gray-500">
+              <span className="ml-2 text-xs text-text-muted">
                 ({product.averageRating ? product.averageRating.toFixed(1) : '0.0'})
               </span>
             </div>
@@ -328,16 +335,16 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
             </span>
           </div>
           
-          <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-primary transition-colors duration-300">
+          <h3 className="text-lg font-serif font-semibold text-primary-700 mb-3 line-clamp-2 group-hover:text-accent-600 transition-colors duration-300">
             {product.name}
           </h3>
           
-          <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+          <p className="text-sm text-text-secondary mb-4 line-clamp-2">
             {product.description}
           </p>
           
           <div className="flex items-center justify-between">
-            <div className="text-lg font-bold text-primary">
+            <div className="text-lg font-serif font-bold text-accent-600">
               {renderNegotiable()}
             </div>
             
@@ -345,16 +352,16 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
               <motion.button
                 onClick={handleAddToCart}
                 disabled={product.stock === 0}
-                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                className="px-4 py-2 bg-accent-500 text-white rounded-xl hover:bg-accent-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 shadow-lg"
                 title="Add to Cart"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
                 <ShoppingCart className="h-4 w-4" />
-                <span>Add</span>
+                <span className="text-sm font-medium">Add</span>
               </motion.button>
             ) : (
-              <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
+              <div className="flex items-center space-x-2 bg-heritage-100 rounded-xl p-2">
                 <motion.button
                   onClick={(e) => {
                     e.preventDefault();
@@ -362,19 +369,19 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
                     if (cartQuantity > 1) updateCartItemQuantity(product._id, cartQuantity - 1);
                     else removeFromCart(product._id);
                   }}
-                  className="p-1 bg-white text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+                  className="p-2 bg-white text-primary-700 rounded-lg hover:bg-heritage-200 transition-colors"
                   whileTap={{ scale: 0.9 }}
                 >
                   {cartQuantity === 1 ? <Trash2 className="h-4 w-4" /> : <Minus className="h-4 w-4" />}
                 </motion.button>
-                <span className="px-3 text-sm font-semibold text-gray-900">{cartQuantity}</span>
+                <span className="px-3 text-sm font-semibold text-primary-700">{cartQuantity}</span>
                 <motion.button
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     if (cartQuantity < product.stock) updateCartItemQuantity(product._id, cartQuantity + 1);
                   }}
-                  className="p-1 bg-white text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+                  className="p-2 bg-white text-primary-700 rounded-lg hover:bg-heritage-200 transition-colors"
                   disabled={cartQuantity >= product.stock}
                   whileTap={{ scale: 0.9 }}
                 >

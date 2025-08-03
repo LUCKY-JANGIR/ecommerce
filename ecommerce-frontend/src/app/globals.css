@@ -3,15 +3,18 @@
 @tailwind utilities;
 
 :root {
-  --primary: #1e3a8a;
-  --primary-light: #3b5bdb;
-  --primary-dark: #1e3a8a;
-  --accent: #DAA520;
-  --accent-light: #f0c14b;
-  --accent-dark: #b8860b;
-  --foreground-rgb: 51, 51, 51;
+  --primary: #dc2626;
+  --primary-light: #ef4444;
+  --primary-dark: #b91c1c;
+  --accent: #d97706;
+  --accent-light: #f59e0b;
+  --accent-dark: #b45309;
+  --heritage: #bfa094;
+  --heritage-light: #d2bab0;
+  --heritage-dark: #a18072;
+  --foreground-rgb: 31, 41, 55;
   --background-start-rgb: 255, 255, 255;
-  --background-end-rgb: 248, 248, 248;
+  --background-end-rgb: 254, 252, 248;
   --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   --transition-ease: cubic-bezier(0.4, 0, 0.2, 1);
@@ -20,15 +23,18 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --primary: #1e3a8a;
-    --primary-light: #3b5bdb;
-    --primary-dark: #1e3a8a;
-    --accent: #DAA520;
-    --accent-light: #f0c14b;
-    --accent-dark: #b8860b;
-    --foreground-rgb: 51, 51, 51;
+    --primary: #dc2626;
+    --primary-light: #ef4444;
+    --primary-dark: #b91c1c;
+    --accent: #d97706;
+    --accent-light: #f59e0b;
+    --accent-dark: #b45309;
+    --heritage: #bfa094;
+    --heritage-light: #d2bab0;
+    --heritage-dark: #a18072;
+    --foreground-rgb: 31, 41, 55;
     --background-start-rgb: 255, 255, 255;
-    --background-end-rgb: 248, 248, 248;
+    --background-end-rgb: 254, 252, 248;
   }
 }
 
@@ -157,27 +163,27 @@ body::-webkit-scrollbar, *::-webkit-scrollbar {
 
 @layer base {
   * {
-    @apply border-gray-200;
+    @apply border-heritage-200;
   }
   body {
-    @apply bg-white text-gray-900 font-body;
+    @apply bg-background-cream text-text-primary font-body;
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display text-gray-900;
+    @apply font-serif text-primary-700;
   }
   a {
-    @apply text-primary hover:text-accent transition-colors;
+    @apply text-primary-700 hover:text-accent-600 transition-colors;
   }
   button, .btn, [type="button"], [type="submit"] {
-    @apply bg-primary text-white rounded-lg px-4 py-2 font-medium shadow-sm hover:bg-accent transition-colors;
+    @apply bg-accent-500 text-white rounded-xl px-6 py-3 font-medium shadow-lg hover:bg-accent-600 transition-colors;
   }
   input, select, textarea {
-    @apply border-gray-200 focus:ring-accent focus:border-accent bg-white text-gray-900 placeholder-gray-400 rounded-lg;
+    @apply border-heritage-200 focus:ring-accent-500 focus:border-accent-500 bg-white text-text-primary placeholder-text-muted rounded-xl;
   }
   .card, .bg-card {
-    @apply bg-white border border-gray-200 shadow-sm rounded-lg;
+    @apply bg-white border border-heritage-200 shadow-lg rounded-2xl;
   }
   .muted {
-    @apply text-gray-400;
+    @apply text-text-muted;
   }
 }

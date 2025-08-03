@@ -1,4 +1,4 @@
-import { toast } from 'react-toastify';
+import toast from 'react-hot-toast';
 // Error types
 export interface ApiError {
   message: string;
@@ -191,11 +191,11 @@ export const showSuccessToast = (message: string) => {
 };
 
 export const showInfoToast = (message: string) => {
-  toast.info(message);
+  toast(message);
 };
 
 export const showWarnToast = (message: string) => {
-  toast.warn(message);
+  toast(message);
 };
 
 // Error boundary helper

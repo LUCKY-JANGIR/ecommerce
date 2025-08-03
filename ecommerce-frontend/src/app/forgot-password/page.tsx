@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import { authAPI } from "@/components/services/api";
 
 export default function ForgotPasswordPage() {

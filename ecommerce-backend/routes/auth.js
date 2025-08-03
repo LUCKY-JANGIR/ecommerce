@@ -8,7 +8,6 @@ const rateLimit = require('express-rate-limit');
 const crypto = require('crypto');
 
 const EMAILJS_SERVICE_ID = process.env.EMAILJS_SERVICE_ID;
-const EMAILJS_TEMPLATE_ID = process.env.EMAILJS_TEMPLATE_ID;
 const EMAILJS_PUBLIC_KEY = process.env.EMAILJS_PUBLIC_KEY;
 const EMAILJS_PRIVATE_KEY = process.env.EMAILJS_PRIVATE_KEY;
 const EMAILJS_OTP_TEMPLATE_ID = process.env.EMAILJS_OTP_TEMPLATE_ID;
@@ -64,7 +63,6 @@ setInterval(() => {
 const router = express.Router();
 
 console.log('EMAILJS_SERVICE_ID:', EMAILJS_SERVICE_ID);
-console.log('EMAILJS_TEMPLATE_ID:', EMAILJS_TEMPLATE_ID);
 console.log('EMAILJS_PUBLIC_KEY:', EMAILJS_PUBLIC_KEY);
 console.log('EMAILJS_PRIVATE_KEY:', EMAILJS_PRIVATE_KEY);
 

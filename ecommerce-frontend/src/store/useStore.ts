@@ -301,7 +301,9 @@ export const useStore = create<AppState>()(
         try {
           const data = await usersAPI.getWishlist();
           console.log('Fetched wishlist from backend:', data.wishlist);
-          set({ wishlist: data.wishlist || [] });
+          // Extract products from the nested structure
+          const products = data.wishlist?.map((item: any) => item.product) || [];
+          set({ wishlist: products });
         } catch (e) {
           console.error('Error fetching wishlist:', e);
           set({ wishlist: [] });
@@ -309,15 +311,52 @@ export const useStore = create<AppState>()(
       },
       addToWishlist: async (product: Product) => {
         try {
+          const { auth } = get();
+          if (!auth.isAuthenticated || !auth.token) {
+            console.log('User not authenticated, cannot add to wishlist');
+            // You could redirect to login here or show a toast
+            return;
+          }
+          
+          console.log('Adding to wishlist:', product._id);
+          console.log('Auth state:', { isAuthenticated: auth.isAuthenticated, hasToken: !!auth.token });
+          
           const data = await usersAPI.addToWishlist(product._id);
-          set({ wishlist: data.wishlist || [] });
-        } catch (e) {}
+          console.log('Wishlist response:', data);
+          
+          // Extract products from the nested structure
+          const products = data.wishlist?.map((item: any) => item.product) || [];
+          set({ wishlist: products });
+        } catch (e) {
+          console.error('Error adding to wishlist:', e);
+          // Show user-friendly error message
+          if (e?.response?.status === 400) {
+            console.error('400 Error details:', e.response.data);
+          }
+        }
       },
       removeFromWishlist: async (productId: string) => {
         try {
+          const { auth } = get();
+          if (!auth.isAuthenticated || !auth.token) {
+            console.log('User not authenticated, cannot remove from wishlist');
+            return;
+          }
+          
+          console.log('Removing from wishlist:', productId);
           const data = await usersAPI.removeFromWishlist(productId);
-          set({ wishlist: data.wishlist || [] });
-        } catch (e) {}
+          console.log('Remove wishlist response:', data);
+          
+          // Extract products from the nested structure
+          const products = data.wishlist?.map((item: any) => item.product) || [];
+          set({ wishlist: products });
+        } catch (e) {
+          console.error('Error removing from wishlist:', e);
+          // Show user-friendly error message
+          if (e?.response?.status === 400) {
+            console.error('400 Error details:', e.response.data);
+          }
+        }
       },
       clearWishlist: () => set({ wishlist: [] }),
     }),

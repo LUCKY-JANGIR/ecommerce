@@ -85,6 +85,12 @@ export default function ProductDetailsPage() {
   const handleWishlistToggle = () => {
     if (!product) return;
     
+    const { auth } = useStore.getState();
+    if (!auth.isAuthenticated || !auth.token) {
+      toast.error('Please log in to add items to your wishlist');
+      return;
+    }
+    
     if (isInWishlist) {
       removeFromWishlist(product._id);
       toast.success("Removed from wishlist");
@@ -122,9 +128,8 @@ export default function ProductDetailsPage() {
     }
   };
 
-  // Remove price display and replace with 'Negotiable' label
   const renderNegotiable = () => (
-    <span className="text-3xl font-serif font-bold text-accent mb-6">Negotiable</span>
+    <span className="text-3xl font-serif font-bold text-accent-600 mb-6">Negotiable</span>
   );
 
   const renderStars = (rating: number) => {
@@ -132,7 +137,7 @@ export default function ProductDetailsPage() {
       <StarIcon
         key={i}
         className={`h-5 w-5 ${
-          i < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
+          i < rating ? 'text-accent-500 fill-current' : 'text-heritage-300'
         }`}
       />
     ));
@@ -140,20 +145,20 @@ export default function ProductDetailsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background-light flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-background-cream flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-accent-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   if (error || !product) {
     return (
-      <div className="min-h-screen bg-background-light flex items-center justify-center">
+      <div className="min-h-screen bg-background-cream flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-serif font-bold text-primary mb-4">{error || "Product not found"}</h1>
+          <h1 className="text-2xl font-serif font-bold text-primary-700 mb-4">{error || "Product not found"}</h1>
           <Link
             href="/products"
-            className="bg-primary text-white px-6 py-3 rounded-xl hover:bg-accent transition-colors font-semibold"
+            className="bg-accent-500 text-white px-6 py-3 rounded-2xl hover:bg-accent-600 transition-colors font-semibold shadow-lg"
           >
             Back to Products
           </Link>
@@ -168,23 +173,23 @@ export default function ProductDetailsPage() {
     : images[selectedImage]?.url || '/placeholder-product.svg';
 
   return (
-    <div className="min-h-screen bg-background-light">
+    <div className="min-h-screen bg-background-cream">
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumb */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center mb-8"
+          className="flex items-center mb-12"
         >
           <Link
             href="/products"
-            className="flex items-center text-muted hover:text-primary mr-4 transition-colors"
+            className="flex items-center text-text-muted hover:text-primary-700 mr-4 transition-colors"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Products
           </Link>
-          <span className="text-muted">/</span>
-          <span className="ml-4 text-primary font-medium">{product.name}</span>
+          <span className="text-text-muted">/</span>
+          <span className="ml-4 text-primary-700 font-medium">{product.name}</span>
         </motion.div>
 
         <div className="grid lg:grid-cols-2 gap-16">
@@ -193,10 +198,10 @@ export default function ProductDetailsPage() {
             initial={{ opacity: 0, x: -40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
-            className="space-y-6"
+            className="space-y-8"
           >
             {/* Main Image */}
-            <div className="relative aspect-square bg-card border border-accent rounded-2xl shadow-lg overflow-hidden">
+            <div className="relative aspect-square bg-white border border-heritage-200 rounded-3xl shadow-lg overflow-hidden">
               <Image
                 src={mainImage}
                 alt={product.name}
@@ -214,8 +219,8 @@ export default function ProductDetailsPage() {
                     <button
                       key={index}
                       onClick={() => setSelectedImage(index)}
-                      className={`relative aspect-square bg-card rounded-xl overflow-hidden border-2 transition-all ${
-                        selectedImage === index ? 'border-accent shadow-lg' : 'border-gray-200 hover:border-accent'
+                      className={`relative aspect-square bg-white rounded-2xl overflow-hidden border-2 transition-all shadow-lg ${
+                        selectedImage === index ? 'border-accent-500 shadow-xl' : 'border-heritage-200 hover:border-accent-300'
                       }`}
                     >
                       <Image
@@ -239,41 +244,41 @@ export default function ProductDetailsPage() {
             className="space-y-8"
           >
             <div>
-              <h1 className="text-4xl font-serif font-bold text-primary mb-4">{product.name}</h1>
-              <div className="flex items-center mb-6">
-                <div className="flex items-center mr-6">
+              <h1 className="text-4xl md:text-5xl font-serif font-bold text-primary-700 mb-6">{product.name}</h1>
+              <div className="flex items-center mb-8">
+                <div className="flex items-center mr-8">
                   {renderStars(product.averageRating || 0)}
-                  <span className="ml-3 text-muted font-medium">
+                  <span className="ml-4 text-text-secondary font-medium">
                     ({product.averageRating ? product.averageRating.toFixed(1) : '0.0'})
                   </span>
                 </div>
-                <span className="text-muted font-medium">
+                <span className="text-text-secondary font-medium">
                   {product.numReviews || 0} {(product.numReviews || 0) === 1 ? 'review' : 'reviews'}
                 </span>
               </div>
               {renderNegotiable()}
             </div>
 
-            <div className="space-y-6">
-              <p className="text-muted leading-relaxed text-lg">{product.description}</p>
+            <div className="space-y-8">
+              <p className="text-text-secondary leading-relaxed text-lg">{product.description}</p>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center space-x-3">
-                  <span className="text-muted font-medium">SKU:</span>
-                  <span className="text-primary font-semibold">{product.sku}</span>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex items-center space-x-4">
+                  <span className="text-text-secondary font-medium">SKU:</span>
+                  <span className="text-primary-700 font-semibold">{product.sku}</span>
                 </div>
                 
-                <div className="flex items-center space-x-3">
-                  <span className="text-muted font-medium">Category:</span>
-                  <span className="text-primary font-semibold">
+                <div className="flex items-center space-x-4">
+                  <span className="text-text-secondary font-medium">Category:</span>
+                  <span className="text-primary-700 font-semibold">
                     {typeof product.category === 'object' && product.category !== null
                       ? product.category.name
                       : product.category}
                   </span>
                 </div>
                 
-                <div className="flex items-center space-x-3">
-                  <span className="text-muted font-medium">Stock:</span>
+                <div className="flex items-center space-x-4">
+                  <span className="text-text-secondary font-medium">Stock:</span>
                   <span className={`font-semibold ${
                     product.stock > 0 ? 'text-green-600' : 'text-red-600'
                   }`}>
@@ -284,33 +289,33 @@ export default function ProductDetailsPage() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex space-x-4">
+            <div className="flex space-x-6">
               {cartQuantity === 0 ? (
                 <button
                   onClick={handleAddToCart}
                   disabled={product.stock === 0}
-                  className="flex-1 bg-primary text-white py-4 px-8 rounded-xl font-semibold hover:bg-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg"
+                  className="flex-1 bg-accent-500 text-white py-4 px-8 rounded-2xl font-semibold hover:bg-accent-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg"
                 >
                   <ShoppingCart className="h-5 w-5 mr-3" />
                   Add to Cart
                 </button>
               ) : (
-                <div className="flex items-center space-x-2 flex-1">
+                <div className="flex items-center space-x-4 flex-1">
                   <button
                     onClick={() => {
                       if (cartQuantity > 1) updateCartItemQuantity(product._id, cartQuantity - 1);
                       else removeFromCart(product._id);
                     }}
-                    className="p-4 bg-card border border-accent text-primary rounded-xl hover:bg-accent hover:text-white transition-colors"
+                    className="p-4 bg-heritage-100 border border-heritage-200 text-primary-700 rounded-2xl hover:bg-accent-500 hover:text-white hover:border-accent-500 transition-colors shadow-lg"
                   >
                     {cartQuantity === 1 ? <Trash2 className="h-5 w-5" /> : <Minus className="h-5 w-5" />}
                   </button>
-                  <span className="px-6 font-semibold text-primary text-lg">{cartQuantity}</span>
+                  <span className="px-8 font-semibold text-primary-700 text-xl">{cartQuantity}</span>
                   <button
                     onClick={() => {
                       if (cartQuantity < product.stock) updateCartItemQuantity(product._id, cartQuantity + 1);
                     }}
-                    className="p-4 bg-card border border-accent text-primary rounded-xl hover:bg-accent hover:text-white transition-colors"
+                    className="p-4 bg-heritage-100 border border-heritage-200 text-primary-700 rounded-2xl hover:bg-accent-500 hover:text-white hover:border-accent-500 transition-colors shadow-lg"
                     disabled={cartQuantity >= product.stock}
                   >
                     <Plus className="h-5 w-5" />
@@ -319,10 +324,10 @@ export default function ProductDetailsPage() {
               )}
               <button
                 onClick={handleWishlistToggle}
-                className={`p-4 rounded-xl border-2 transition-colors ${
+                className={`p-4 rounded-2xl border-2 transition-colors shadow-lg ${
                   isInWishlist
                     ? 'border-red-500 text-red-500 hover:bg-red-50'
-                    : 'border-accent text-accent hover:bg-accent hover:text-white'
+                    : 'border-heritage-300 text-heritage-600 hover:border-accent-500 hover:text-accent-600'
                 }`}
               >
                 <Heart className={`h-5 w-5 ${isInWishlist ? 'fill-current' : ''}`} />
@@ -336,11 +341,11 @@ export default function ProductDetailsPage() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="mt-20"
+          className="mt-24"
         >
-          <div className="flex items-center justify-between mb-10">
-            <h2 className="text-3xl font-serif font-bold text-primary flex items-center">
-              <MessageCircle className="h-7 w-7 mr-3" />
+          <div className="flex items-center justify-between mb-12">
+            <h2 className="text-3xl font-serif font-bold text-primary-700 flex items-center">
+              <MessageCircle className="h-8 w-8 mr-4" />
               Customer Reviews
             </h2>
             {auth.isAuthenticated && (
@@ -349,7 +354,7 @@ export default function ProductDetailsPage() {
                   setEditingReview(null);
                   setIsReviewModalOpen(true);
                 }}
-                className="bg-primary text-white px-6 py-3 rounded-xl hover:bg-accent transition-colors font-semibold"
+                className="bg-accent-500 text-white px-8 py-4 rounded-2xl hover:bg-accent-600 transition-colors font-semibold shadow-lg"
               >
                 Write a Review
               </button>
@@ -357,45 +362,45 @@ export default function ProductDetailsPage() {
           </div>
 
           {reviews.length > 0 ? (
-            <div className="space-y-6">
+            <div className="space-y-8">
               {reviews.map((review, index) => (
                 <motion.div 
                   key={review._id} 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="bg-card border border-accent rounded-2xl shadow-lg p-8"
+                  className="bg-white border border-heritage-200 rounded-2xl shadow-lg p-8"
                 >
-                  <div className="flex items-start justify-between mb-6">
+                  <div className="flex items-start justify-between mb-8">
                     <div className="flex items-center">
-                      <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mr-4">
-                        <User className="h-6 w-6 text-primary" />
+                      <div className="w-12 h-12 bg-heritage-100 rounded-full flex items-center justify-center mr-6">
+                        <User className="h-6 w-6 text-primary-700" />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-primary text-lg">{review.user.name}</h4>
-                        <div className="flex items-center mt-1">
+                        <h4 className="font-semibold text-primary-700 text-lg">{review.user.name}</h4>
+                        <div className="flex items-center mt-2">
                           {renderStars(review.rating)}
-                          <span className="ml-3 text-muted font-medium">{review.rating}/5</span>
+                          <span className="ml-4 text-text-secondary font-medium">{review.rating}/5</span>
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-3">
-                      <div className="flex items-center text-muted">
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center text-text-muted">
                         <Calendar className="h-4 w-4 mr-2" />
                         {new Date(review.createdAt).toLocaleDateString()}
                       </div>
                       {auth.isAuthenticated && auth.user?._id === review.user._id && (
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-3">
                           <button
                             onClick={() => handleEditReview(review)}
-                            className="p-2 text-muted hover:text-primary transition-colors"
+                            className="p-3 text-text-muted hover:text-primary-700 transition-colors rounded-xl hover:bg-heritage-100"
                             title="Edit review"
                           >
                             <Edit className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => handleDeleteReview(review._id)}
-                            className="p-2 text-muted hover:text-red-600 transition-colors"
+                            className="p-3 text-text-muted hover:text-red-600 transition-colors rounded-xl hover:bg-red-50"
                             title="Delete review"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -404,29 +409,31 @@ export default function ProductDetailsPage() {
                       )}
                     </div>
                   </div>
-                  <p className="text-muted text-lg leading-relaxed">{review.comment}</p>
+                  <p className="text-text-secondary text-lg leading-relaxed">{review.comment}</p>
                 </motion.div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-16 bg-card border border-accent rounded-2xl shadow-lg">
-              <MessageCircle className="h-16 w-16 text-muted mx-auto mb-6" />
-              <h3 className="text-2xl font-serif font-bold text-primary mb-4">No reviews yet</h3>
-              <p className="text-muted text-lg mb-8">Be the first to review this product!</p>
+            <div className="text-center py-20 bg-white border border-heritage-200 rounded-2xl shadow-lg">
+              <div className="w-24 h-24 bg-heritage-100 rounded-full flex items-center justify-center mx-auto mb-8">
+                <MessageCircle className="h-12 w-12 text-heritage-400" />
+              </div>
+              <h3 className="text-2xl font-serif font-bold text-primary-700 mb-6">No reviews yet</h3>
+              <p className="text-text-secondary text-lg mb-10 max-w-md mx-auto">Be the first to review this product and share your experience with our community!</p>
               {auth.isAuthenticated ? (
                 <button
                   onClick={() => {
                     setEditingReview(null);
                     setIsReviewModalOpen(true);
                   }}
-                  className="bg-primary text-white px-8 py-3 rounded-xl hover:bg-accent transition-colors font-semibold"
+                  className="bg-accent-500 text-white px-8 py-4 rounded-2xl hover:bg-accent-600 transition-colors font-semibold shadow-lg"
                 >
                   Write a Review
                 </button>
               ) : (
                 <Link
                   href="/login"
-                  className="bg-primary text-white px-8 py-3 rounded-xl hover:bg-accent transition-colors font-semibold"
+                  className="bg-accent-500 text-white px-8 py-4 rounded-2xl hover:bg-accent-600 transition-colors font-semibold shadow-lg"
                 >
                   Login to Review
                 </Link>

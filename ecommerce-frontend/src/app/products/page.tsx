@@ -3,7 +3,7 @@
 import { Suspense, useCallback, useRef } from 'react';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import ProductCard from '@/components/ProductCard';
+import dynamic from 'next/dynamic';
 import { productsAPI, categoriesAPI } from '@/components/services/api';
 import { Product } from '@/store/useStore';
 import { useStore } from '@/store/useStore';
@@ -15,13 +15,18 @@ import {
   Search,
   X
 } from 'lucide-react';
-import { FiUser } from "react-icons/fi";
 import { useDebounce } from '@/hooks/useDebounce';
 import { motion } from 'framer-motion';
 
+// Dynamic import for ProductCard to reduce initial bundle
+const ProductCard = dynamic(() => import('@/components/ProductCard'), {
+  loading: () => <div className="bg-white border border-heritage-200 rounded-2xl h-80 animate-pulse shadow-lg" />,
+  ssr: true
+});
+
 export default function ProductsPageWrapper() {
   return (
-    <Suspense>
+    <Suspense fallback={<div className="min-h-screen bg-background-cream animate-pulse" />}>
       <ProductsPage />
     </Suspense>
   );
@@ -192,46 +197,66 @@ function ProductsPage() {
 
   if (!hydrated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-background-cream">
+        <div className="w-12 h-12 border-4 border-accent-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background-cream">
       <div className="container mx-auto px-4 pt-24 pb-8">
         {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-display font-bold text-primary mb-2">All Products</h1>
-          <p className="text-secondary text-lg">{pagination.totalProducts} products found</p>
-        </div>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="mb-12"
+        >
+          <div className="text-center mb-8">
+            <div className="flex justify-center mb-6">
+              <div className="w-20 h-1 bg-accent-500 rounded-full" />
+            </div>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-primary-700 mb-4">
+              Discover Our Collection
+            </h1>
+            <p className="text-lg md:text-xl text-text-secondary max-w-3xl mx-auto">
+              Explore handcrafted treasures from India's finest artisans. Each piece tells a story of tradition, passion, and unparalleled craftsmanship.
+            </p>
+          </div>
+          <div className="text-center">
+            <p className="text-text-muted font-medium">{pagination.totalProducts} products found</p>
+          </div>
+        </motion.div>
 
         {/* Search and Filters */}
-        <div className="w-full mb-8 flex flex-col gap-6 md:flex-row md:items-center md:gap-8">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="w-full mb-12 flex flex-col gap-6 md:flex-row md:items-center md:gap-8"
+        >
           {/* Search Bar & Sort */}
           <div className="flex-1 flex flex-col md:flex-row gap-4">
             <form onSubmit={handleSearch} className="flex-1 relative">
-              <div className="flex items-center bg-secondary backdrop-blur border border-primary rounded-xl px-4 py-2 relative">
-                <Search className="mr-2 h-5 w-5 text-primary" />
+              <div className="flex items-center bg-white backdrop-blur border border-heritage-200 rounded-2xl px-6 py-4 relative shadow-lg">
+                <Search className="mr-3 h-5 w-5 text-primary-600" />
                 <input
                   type="text"
                   placeholder="Search products..."
                   value={searchInput}
                   onChange={e => setSearchInput(e.target.value)}
-                  className="flex-1 bg-transparent outline-none text-text-main placeholder-text-muted font-medium text-base px-2"
-                  // Removed onFocus and onBlur for suggestions
+                  className="flex-1 bg-transparent outline-none text-text-primary placeholder-text-muted font-medium text-base px-2"
                 />
-                {/* Suggestions dropdown removed */}
               </div>
             </form>
             <select
               value={filters.sortBy}
               onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-              className="bg-secondary backdrop-blur border border-primary rounded-xl px-4 py-2 text-text-main font-semibold outline-none focus:ring-2 focus:ring-primary"
+              className="bg-white backdrop-blur border border-heritage-200 rounded-2xl px-6 py-4 text-text-primary font-semibold outline-none focus:ring-2 focus:ring-accent-500 shadow-lg"
             >
               {sortOptions.map((option) => (
-                <option key={option.value} value={option.value} className="text-text-main bg-secondary">
+                <option key={option.value} value={option.value} className="text-text-primary bg-white">
                   {option.label}
                 </option>
               ))}
@@ -239,70 +264,110 @@ function ProductsPage() {
             <button
               onClick={() => setShowFilters(!showFilters)}
               type="button"
-              className="md:hidden bg-primary text-background px-4 py-2 rounded-xl font-bold shadow hover:bg-primary-light transition-colors"
+              className="md:hidden bg-accent-500 text-white px-6 py-4 rounded-2xl font-bold shadow-lg hover:bg-accent-600 transition-colors"
             >
-              <Filter className="h-5 w-5 mr-1" /> Filters
+              <Filter className="h-5 w-5 mr-2" /> Filters
             </button>
           </div>
-        </div>
+
+          {/* View Mode Toggle */}
+          <div className="flex items-center space-x-2 bg-white rounded-2xl p-2 shadow-lg border border-heritage-200">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`p-3 rounded-xl transition-colors ${
+                viewMode === 'grid' 
+                  ? 'bg-accent-500 text-white' 
+                  : 'text-text-secondary hover:text-primary-700'
+              }`}
+            >
+              <Grid className="h-5 w-5" />
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`p-3 rounded-xl transition-colors ${
+                viewMode === 'list' 
+                  ? 'bg-accent-500 text-white' 
+                  : 'text-text-secondary hover:text-primary-700'
+              }`}
+            >
+              <List className="h-5 w-5" />
+            </button>
+          </div>
+        </motion.div>
 
         {/* Filters and Product Grid */}
-        <div className="flex flex-col md:flex-row gap-6">
+        <div className="flex flex-col md:flex-row gap-8">
           {/* Filter Sidebar */}
-          <div className={`w-full md:w-64 flex-shrink-0 ${showFilters ? '' : 'hidden md:block'}`}>
-            <div className="bg-secondary backdrop-blur border border-primary rounded-xl p-6 mb-4 flex flex-col gap-6">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-lg font-display font-semibold text-text-main">Filters</h3>
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className={`w-full md:w-80 flex-shrink-0 ${showFilters ? '' : 'hidden md:block'}`}
+          >
+            <div className="bg-white border border-heritage-200 rounded-2xl p-8 mb-6 flex flex-col gap-8 shadow-lg">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-serif font-bold text-primary-700">Filters</h3>
                 <button
                   onClick={clearFilters}
-                  className="text-sm font-bold text-blue-600 border border-blue-600 bg-transparent px-3 py-1 rounded transition-colors hover:bg-blue-600 hover:text-white"
+                  className="text-sm font-bold text-accent-600 border border-accent-600 bg-transparent px-4 py-2 rounded-xl transition-colors hover:bg-accent-600 hover:text-white"
                 >
                   Clear All
                 </button>
               </div>
+              
               {/* Category Filter */}
               <div>
-                <label className="block text-sm font-medium text-text-main mb-1">Category</label>
+                <label className="block text-sm font-medium text-text-primary mb-3">Category</label>
                 <select
                   value={filters.category}
                   onChange={(e) => handleFilterChange('category', e.target.value)}
-                  className="w-full bg-background border border-primary rounded-lg px-3 py-2 text-text-main outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full bg-background-cream border border-heritage-200 rounded-xl px-4 py-3 text-text-primary outline-none focus:ring-2 focus:ring-accent-500 transition-colors"
                 >
                   <option value="">All Categories</option>
                   {categories.map((category) => (
-                    <option key={category} value={category} className="text-text-main bg-background">
+                    <option key={category} value={category} className="text-text-primary bg-background-cream">
                       {category}
                     </option>
                   ))}
                 </select>
               </div>
+              
               {/* Price Range */}
-              <div className="flex flex-col gap-2">
-                <label className="block text-sm font-medium text-text-main mb-1">Price Range</label>
+              <div className="flex flex-col gap-3">
+                <label className="block text-sm font-medium text-text-primary mb-3">Price Range</label>
                 <input
                   type="number"
                   placeholder="Min Price"
                   value={filters.minPrice}
                   onChange={(e) => handleFilterChange('minPrice', e.target.value)}
-                  className="bg-background border border-primary rounded-lg px-3 py-2 text-text-main outline-none focus:ring-2 focus:ring-primary placeholder-text-muted"
+                  className="bg-background-cream border border-heritage-200 rounded-xl px-4 py-3 text-text-primary outline-none focus:ring-2 focus:ring-accent-500 placeholder-text-muted transition-colors"
                 />
                 <input
                   type="number"
                   placeholder="Max Price"
                   value={filters.maxPrice}
                   onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
-                  className="bg-background border border-primary rounded-lg px-3 py-2 text-text-main outline-none focus:ring-2 focus:ring-primary placeholder-text-muted"
+                  className="bg-background-cream border border-heritage-200 rounded-xl px-4 py-3 text-text-primary outline-none focus:ring-2 focus:ring-accent-500 placeholder-text-muted transition-colors"
                 />
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Product Grid */}
-          <div className="flex-1">
-            <div className="grid gap-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="flex-1"
+          >
+            <div className={`grid gap-8 ${
+              viewMode === 'grid' 
+                ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' 
+                : 'grid-cols-1'
+            }`}>
               {loading ? (
                 [...Array(8)].map((_, index) => (
-                  <div key={index} className="bg-card border border-accent rounded-2xl h-52 animate-pulse" />
+                  <div key={index} className="bg-white border border-heritage-200 rounded-2xl h-80 animate-pulse shadow-lg" />
                 ))
               ) : products.length > 0 ? (
                 products.map((product, index) => (
@@ -314,29 +379,37 @@ function ProductsPage() {
                     viewport={{ once: true, amount: 0.2 }}
                     transition={{ duration: 0.6, delay: index * 0.05 }}
                   >
-                    <ProductCard product={product} />
+                    <ProductCard product={product} viewMode={viewMode} />
                   </motion.div>
                 ))
               ) : (
-                <div className="text-center py-12">
-                  <p className="text-primary text-lg">No products found matching your criteria.</p>
-                  <button
-                    onClick={clearFilters}
-                    className="mt-4 border-2 border-accent text-accent bg-white font-bold px-4 py-2 rounded-lg transition-colors hover:bg-accent hover:text-white"
-                  >
-                    Clear filters
-                  </button>
+                <div className="col-span-full text-center py-16">
+                  <div className="bg-white border border-heritage-200 rounded-2xl p-12 shadow-lg">
+                    <div className="w-24 h-24 bg-heritage-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <Search className="h-12 w-12 text-heritage-400" />
+                    </div>
+                    <h3 className="text-2xl font-serif font-bold text-primary-700 mb-4">No products found</h3>
+                    <p className="text-text-secondary mb-8 max-w-md mx-auto">
+                      We couldn't find any products matching your criteria. Try adjusting your filters or search terms.
+                    </p>
+                    <button
+                      onClick={clearFilters}
+                      className="bg-accent-500 text-white px-8 py-3 rounded-xl hover:bg-accent-600 transition-colors font-semibold shadow-lg"
+                    >
+                      Clear filters
+                    </button>
+                  </div>
                 </div>
               )}
               
               {/* Loading more indicator */}
               {loadingMore && (
-                <div className="col-span-full flex justify-center py-8">
-                  <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                <div className="col-span-full flex justify-center py-12">
+                  <div className="w-8 h-8 border-4 border-accent-500 border-t-transparent rounded-full animate-spin" />
                 </div>
               )}
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>

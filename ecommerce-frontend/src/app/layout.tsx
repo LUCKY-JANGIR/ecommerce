@@ -9,8 +9,7 @@ import HydrationProvider from "@/components/HydrationProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import "@/app/fonts.css";
 import Link from 'next/link';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { Toaster } from 'react-hot-toast';
 
 export const metadata: Metadata = {
   title: 'Indian Handloom - Your Online Shop',
@@ -25,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-white min-h-screen" style={{ fontFamily: 'Playfair Display, Inter, sans-serif' }}>
-        <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover theme="colored" aria-label="Notifications" />
+        <Toaster position="top-right" />
         <ErrorBoundary>
         <HydrationProvider />
         <Header />

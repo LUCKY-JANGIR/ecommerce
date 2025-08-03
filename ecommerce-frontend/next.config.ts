@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Image optimization
   images: {
     remotePatterns: [
       {
@@ -25,19 +26,67 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
+    formats: ['image/webp', 'image/avif'],
+    minimumCacheTTL: 60,
   },
+  
+  // Experimental features for performance
   experimental: {
-    optimizePackageImports: ['lucide-react'],
+    optimizePackageImports: [
+      'lucide-react',
+      'framer-motion',
+      'react-icons',
+      '@heroicons/react'
+    ],
   },
+  
+  // Turbopack configuration (stable in Next.js 15)
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.js',
+      },
+    },
+  },
+  
+  // Disable ESLint during builds for faster builds
   eslint: {
     ignoreDuringBuilds: true,
   },
+  
+  // Environment variables
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   },
-  webpack: (config, { isServer }) => {
+  
+  // Webpack optimizations
+  webpack: (config, { isServer, dev }) => {
+    // Optimize for production
+    if (!dev) {
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            vendor: {
+              test: /[\\/]node_modules[\\/]/,
+              name: 'vendors',
+              chunks: 'all',
+            },
+            common: {
+              name: 'common',
+              minChunks: 2,
+              chunks: 'all',
+              enforce: true,
+            },
+          },
+        },
+      };
+    }
+    
+    // Exclude heavy packages from client bundle
     if (!isServer) {
-      // Exclude cloudinary from client-side bundling
       config.resolve.fallback = {
         ...config.resolve.fallback,
         fs: false,
@@ -46,9 +95,21 @@ const nextConfig: NextConfig = {
         util: false,
         buffer: false,
         crypto: false,
+        os: false,
+        net: false,
+        tls: false,
       };
     }
+    
     return config;
+  },
+  
+  // Output configuration
+  output: 'standalone',
+  
+  // Compiler options
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
   },
 };
 

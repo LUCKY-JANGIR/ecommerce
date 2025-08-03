@@ -63,7 +63,7 @@ export default function CategoryProductsPage() {
                 ) : (
                   <div className="w-32 h-32 rounded bg-sand flex items-center justify-center text-3xl text-gold font-bold mb-4 border-2 border-gold">{prod.name[0]}</div>
                 )}
-                <h2 className="text-lg font-bold text-primary mb-2 font-display group-hover:text-gold transition-colors">{prod.name}</h2>
+                <h2 className="text-lg font-bold text-primary-700 mb-2 font-serif group-hover:text-accent-600 transition-colors">{prod.name}</h2>
                 <div className="text-xl font-bold text-gold mb-2">₹{prod.price}</div>
                 <p className="text-gray-600 text-center line-clamp-2">{prod.description}</p>
               </Link>
