@@ -6,32 +6,32 @@ import dynamic from 'next/dynamic';
 
 // Dynamic imports for better performance
 const HeroSection = dynamic(() => import('@/components/Home/HeroSection'), {
-  loading: () => <div className="h-screen bg-gray-100 animate-pulse" />,
+  loading: () => <div className="h-screen min-h-[500px] max-h-[100vh] bg-gray-100 animate-pulse" />,
   ssr: true
 });
 
 const BrandStory = dynamic(() => import('@/components/Home/BrandStory'), {
-  loading: () => <div className="py-20 bg-gray-100 animate-pulse" />,
+  loading: () => <div className="py-12 sm:py-16 md:py-20 bg-gray-100 animate-pulse" />,
   ssr: true
 });
 
 const FeaturedProducts = dynamic(() => import('@/components/Home/FeaturedProducts'), {
-  loading: () => <div className="py-20 bg-gray-100 animate-pulse" />,
+  loading: () => <div className="py-12 sm:py-16 md:py-20 bg-gray-100 animate-pulse" />,
   ssr: true
 });
 
 const CategoriesSection = dynamic(() => import('@/components/Home/CategoriesSection'), {
-  loading: () => <div className="py-20 bg-gray-100 animate-pulse" />,
+  loading: () => <div className="py-12 sm:py-16 md:py-20 bg-gray-100 animate-pulse" />,
   ssr: true
 });
 
 const Testimonials = dynamic(() => import('@/components/Home/Testimonials'), {
-  loading: () => <div className="py-20 bg-gray-100 animate-pulse" />,
+  loading: () => <div className="py-12 sm:py-16 md:py-20 bg-gray-100 animate-pulse" />,
   ssr: true
 });
 
 const NewsletterCTA = dynamic(() => import('@/components/Home/NewsletterCTA'), {
-  loading: () => <div className="py-20 bg-gray-100 animate-pulse" />,
+  loading: () => <div className="py-12 sm:py-16 md:py-20 bg-gray-100 animate-pulse" />,
   ssr: true
 });
 
@@ -42,73 +42,79 @@ const Footer = dynamic(() => import('@/components/Shared/Footer'), {
 
 export default function Home() {
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen w-full overflow-x-hidden">
       {/* Hero Section with Swiper Carousel */}
-      <Suspense fallback={<div className="h-screen bg-gray-100 animate-pulse" />}>
+      <Suspense fallback={<div className="h-screen min-h-[500px] max-h-[100vh] bg-gray-100 animate-pulse" />}>
         <motion.section
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
+          className="w-full overflow-hidden"
         >
           <HeroSection />
         </motion.section>
       </Suspense>
 
       {/* Brand Story Section */}
-      <Suspense fallback={<div className="py-20 bg-gray-100 animate-pulse" />}>
+      <Suspense fallback={<div className="py-12 sm:py-16 md:py-20 bg-gray-100 animate-pulse" />}>
         <motion.section
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.1 }}
+          className="w-full overflow-hidden"
         >
           <BrandStory />
         </motion.section>
       </Suspense>
 
       {/* Featured Products Section */}
-      <Suspense fallback={<div className="py-20 bg-gray-100 animate-pulse" />}>
+      <Suspense fallback={<div className="py-12 sm:py-16 md:py-20 bg-gray-100 animate-pulse" />}>
         <motion.section
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.2 }}
+          className="w-full overflow-hidden"
         >
           <FeaturedProducts />
         </motion.section>
       </Suspense>
 
       {/* Categories Section */}
-      <Suspense fallback={<div className="py-20 bg-gray-100 animate-pulse" />}>
+      <Suspense fallback={<div className="py-12 sm:py-16 md:py-20 bg-gray-100 animate-pulse" />}>
         <motion.section
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.3 }}
+          className="w-full overflow-hidden"
         >
           <CategoriesSection />
         </motion.section>
       </Suspense>
 
       {/* Testimonials Section */}
-      <Suspense fallback={<div className="py-20 bg-gray-100 animate-pulse" />}>
+      <Suspense fallback={<div className="py-12 sm:py-16 md:py-20 bg-gray-100 animate-pulse" />}>
         <motion.section
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.4 }}
+          className="w-full overflow-hidden"
         >
           <Testimonials />
         </motion.section>
       </Suspense>
 
       {/* Newsletter CTA Section */}
-      <Suspense fallback={<div className="py-20 bg-gray-100 animate-pulse" />}>
+      <Suspense fallback={<div className="py-12 sm:py-16 md:py-20 bg-gray-100 animate-pulse" />}>
         <motion.section
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.5 }}
+          className="w-full overflow-hidden"
         >
           <NewsletterCTA />
         </motion.section>
@@ -121,6 +127,7 @@ export default function Home() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.6 }}
+          className="w-full overflow-hidden"
         >
           <Footer />
         </motion.section>

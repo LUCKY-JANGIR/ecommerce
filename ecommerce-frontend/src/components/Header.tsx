@@ -63,24 +63,24 @@ export default function Header() {
           scrolled ? 'bg-white shadow-lg' : 'bg-white/80 backdrop-blur-md'
         }`} />
         
-        <div className="relative max-w-7xl mx-auto">
-          <nav className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+        <div className="relative w-full max-w-7xl mx-auto">
+          <nav className="flex items-center justify-between h-14 sm:h-16 px-3 sm:px-4 lg:px-8">
             {/* Logo */}
             <Link href="/" className="flex-shrink-0">
-              <h1 className="text-xl md:text-2xl font-serif font-bold text-primary-700">
+              <h1 className="text-lg sm:text-xl md:text-2xl font-serif font-bold text-primary-700">
                 Indian Handlooms
               </h1>
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-8">
-              <Link href="/" className="nav-link">Home</Link>
-              <Link href="/categories" className="nav-link">Categories</Link>
-              <Link href="/products" className="nav-link">Shop</Link>
+            <div className="hidden lg:flex items-center space-x-6 xl:space-x-8">
+              <Link href="/" className="nav-link text-sm xl:text-base">Home</Link>
+              <Link href="/categories" className="nav-link text-sm xl:text-base">Categories</Link>
+              <Link href="/products" className="nav-link text-sm xl:text-base">Shop</Link>
             </div>
 
             {/* Desktop Search */}
-            <div className="hidden lg:flex flex-1 max-w-md mx-8">
+            <div className="hidden lg:flex flex-1 max-w-md mx-4 xl:mx-8">
               <form onSubmit={handleSearch} className="w-full">
                 <div className="relative">
                   <input
@@ -88,24 +88,24 @@ export default function Header() {
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder="Search products..."
-                    className="w-full pl-4 pr-10 py-2 rounded-lg border border-heritage-200 focus:outline-none focus:ring-2 focus:ring-accent-500 bg-white/50"
+                    className="w-full pl-3 sm:pl-4 pr-10 py-2 text-sm rounded-lg border border-heritage-200 focus:outline-none focus:ring-2 focus:ring-accent-500 bg-white/50"
                   />
-                  <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2">
-                    <FiSearch className="w-5 h-5 text-text-muted hover:text-accent-600" />
+                  <button type="submit" className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2">
+                    <FiSearch className="w-4 h-4 sm:w-5 sm:h-5 text-text-muted hover:text-accent-600" />
                   </button>
                 </div>
               </form>
             </div>
 
             {/* Desktop Actions */}
-            <div className="hidden lg:flex items-center space-x-4">
-                              <Link href="/my-wishlist" className="p-2">
-                <FiHeart className="w-6 h-6 text-text-primary hover:text-accent-600" />
+            <div className="hidden lg:flex items-center space-x-2 xl:space-x-4">
+              <Link href="/my-wishlist" className="p-2">
+                <FiHeart className="w-5 h-5 xl:w-6 xl:h-6 text-text-primary hover:text-accent-600" />
               </Link>
               <Link href="/cart" className="p-2 relative">
-                <FiShoppingCart className="w-6 h-6 text-text-primary hover:text-accent-600" />
+                <FiShoppingCart className="w-5 h-5 xl:w-6 xl:h-6 text-text-primary hover:text-accent-600" />
                 {cart.totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-accent-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                  <span className="absolute -top-1 -right-1 bg-accent-500 text-white text-xs w-4 h-4 xl:w-5 xl:h-5 flex items-center justify-center rounded-full">
                     {cart.totalItems}
                   </span>
                 )}
@@ -117,8 +117,8 @@ export default function Header() {
                     onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                     className="flex items-center space-x-1 p-2"
                   >
-                    <FiUser className="w-6 h-6 text-text-primary hover:text-accent-600" />
-                    <FiChevronDown className={`w-4 h-4 transition-transform ${profileDropdownOpen ? 'rotate-180' : ''}`} />
+                    <FiUser className="w-5 h-5 xl:w-6 xl:h-6 text-text-primary hover:text-accent-600" />
+                    <FiChevronDown className={`w-3 h-3 xl:w-4 xl:h-4 transition-transform ${profileDropdownOpen ? 'rotate-180' : ''}`} />
                   </button>
 
                   <AnimatePresence>
@@ -127,16 +127,16 @@ export default function Header() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
-                        className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2"
+                        className="absolute right-0 mt-2 w-40 xl:w-48 bg-white rounded-lg shadow-lg py-2"
                       >
-                        <Link href="/profile" className="block px-4 py-2 hover:bg-heritage-50">
+                        <Link href="/profile" className="block px-3 xl:px-4 py-2 text-sm hover:bg-heritage-50">
                           Profile
                         </Link>
-                        <Link href="/orders" className="block px-4 py-2 hover:bg-heritage-50">
+                        <Link href="/orders" className="block px-3 xl:px-4 py-2 text-sm hover:bg-heritage-50">
                           Orders
                         </Link>
                         {auth.user?.role === 'admin' && (
-                          <Link href="/admin" className="block px-4 py-2 hover:bg-heritage-50">
+                          <Link href="/admin" className="block px-3 xl:px-4 py-2 text-sm hover:bg-heritage-50">
                             Admin Panel
                           </Link>
                         )}
@@ -146,7 +146,7 @@ export default function Header() {
                             setProfileDropdownOpen(false);
                             router.push('/');
                           }}
-                          className="block w-full text-left px-4 py-2 hover:bg-heritage-50"
+                          className="block w-full text-left px-3 xl:px-4 py-2 text-sm hover:bg-heritage-50"
                         >
                           Logout
                         </button>
@@ -155,44 +155,44 @@ export default function Header() {
                   </AnimatePresence>
                 </div>
               ) : (
-                <Link href="/login" className="flex items-center space-x-2 px-4 py-2">
-                  <FiLogIn className="w-5 h-5" />
+                <Link href="/login" className="flex items-center space-x-1 xl:space-x-2 px-3 xl:px-4 py-2 text-sm xl:text-base">
+                  <FiLogIn className="w-4 h-4 xl:w-5 xl:h-5" />
                   <span>Login</span>
                 </Link>
               )}
             </div>
 
             {/* Mobile Menu Button & Cart */}
-            <div className="flex lg:hidden items-center space-x-2">
-              <Link href="/cart" className="p-2 relative">
-                <FiShoppingCart className="w-6 h-6 text-text-primary" />
+            <div className="flex lg:hidden items-center space-x-1 sm:space-x-2">
+              <Link href="/cart" className="p-1 sm:p-2 relative">
+                <FiShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 text-text-primary" />
                 {cart.totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-accent-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                  <span className="absolute -top-1 -right-1 bg-accent-500 text-white text-xs w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center rounded-full">
                     {cart.totalItems}
                   </span>
                 )}
               </Link>
               <button
                 onClick={() => setMobileMenuOpen(true)}
-                className="p-2"
+                className="p-1 sm:p-2"
               >
-                <FiMenu className="w-6 h-6 text-text-primary" />
+                <FiMenu className="w-5 h-5 sm:w-6 sm:h-6 text-text-primary" />
               </button>
             </div>
           </nav>
 
           {/* Mobile Search */}
-          <div className="lg:hidden px-4 pb-3">
+          <div className="lg:hidden px-3 sm:px-4 pb-3">
             <form onSubmit={handleSearch} className="relative">
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search products..."
-                className="w-full pl-4 pr-10 py-2 rounded-lg border border-heritage-200 focus:outline-none focus:ring-2 focus:ring-accent-500 bg-white/50"
+                className="w-full pl-3 sm:pl-4 pr-10 py-2 text-sm rounded-lg border border-heritage-200 focus:outline-none focus:ring-2 focus:ring-accent-500 bg-white/50"
               />
-              <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2">
-                <FiSearch className="w-5 h-5 text-text-muted" />
+              <button type="submit" className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2">
+                <FiSearch className="w-4 h-4 sm:w-5 sm:h-5 text-text-muted" />
               </button>
             </form>
           </div>
@@ -216,67 +216,67 @@ export default function Header() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="fixed top-0 right-0 h-full w-[280px] bg-white z-50 overflow-y-auto"
+              className="fixed top-0 right-0 h-full w-[280px] sm:w-[320px] bg-white z-50 overflow-y-auto"
             >
               <div className="flex flex-col h-full">
-                <div className="flex items-center justify-between p-4 border-b border-heritage-200">
-                  <h2 className="text-xl font-serif font-bold text-primary-700">Menu</h2>
-                  <button onClick={() => setMobileMenuOpen(false)} className="p-2">
-                    <FiX className="w-6 h-6" />
+                <div className="flex items-center justify-between p-3 sm:p-4 border-b border-heritage-200">
+                  <h2 className="text-lg sm:text-xl font-serif font-bold text-primary-700">Menu</h2>
+                  <button onClick={() => setMobileMenuOpen(false)} className="p-1 sm:p-2">
+                    <FiX className="w-5 h-5 sm:w-6 sm:h-6" />
                   </button>
                 </div>
 
                 {auth.isAuthenticated && (
-                  <div className="p-4 bg-heritage-50">
-                    <p className="font-medium text-primary-700">{auth.user?.name}</p>
-                    <p className="text-sm text-text-muted">{auth.user?.email}</p>
+                  <div className="p-3 sm:p-4 bg-heritage-50">
+                    <p className="font-medium text-primary-700 text-sm sm:text-base">{auth.user?.name}</p>
+                    <p className="text-xs sm:text-sm text-text-muted">{auth.user?.email}</p>
                   </div>
                 )}
 
-                <nav className="flex-1 p-4 space-y-1">
+                <nav className="flex-1 p-3 sm:p-4 space-y-1">
                   <Link
                     href="/"
-                    className="block px-4 py-3 rounded-lg hover:bg-heritage-50"
+                    className="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-heritage-50 text-sm sm:text-base"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Home
                   </Link>
                   <Link
                     href="/categories"
-                    className="block px-4 py-3 rounded-lg hover:bg-heritage-50"
+                    className="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-heritage-50 text-sm sm:text-base"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Categories
                   </Link>
                   <Link
                     href="/products"
-                    className="block px-4 py-3 rounded-lg hover:bg-heritage-50"
+                    className="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-heritage-50 text-sm sm:text-base"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Shop
                   </Link>
                   <Link
                     href="/my-wishlist"
-                    className="block px-4 py-3 rounded-lg hover:bg-heritage-50"
+                    className="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-heritage-50 text-sm sm:text-base"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Wishlist
                   </Link>
                 </nav>
 
-                <div className="p-4 border-t border-heritage-200">
+                <div className="p-3 sm:p-4 border-t border-heritage-200">
                   {auth.isAuthenticated ? (
                     <div className="space-y-1">
                       <Link
                         href="/profile"
-                        className="block px-4 py-3 rounded-lg hover:bg-heritage-50"
+                        className="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-heritage-50 text-sm sm:text-base"
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         Profile
                       </Link>
                       <Link
                         href="/orders"
-                        className="block px-4 py-3 rounded-lg hover:bg-heritage-50"
+                        className="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-heritage-50 text-sm sm:text-base"
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         Orders
@@ -284,7 +284,7 @@ export default function Header() {
                       {auth.user?.role === 'admin' && (
                         <Link
                           href="/admin"
-                          className="block px-4 py-3 rounded-lg hover:bg-heritage-50"
+                          className="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-heritage-50 text-sm sm:text-base"
                           onClick={() => setMobileMenuOpen(false)}
                         >
                           Admin Panel
@@ -296,7 +296,7 @@ export default function Header() {
                           setMobileMenuOpen(false);
                           router.push('/');
                         }}
-                        className="block w-full text-left px-4 py-3 rounded-lg hover:bg-heritage-50"
+                        className="block w-full text-left px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-heritage-50 text-sm sm:text-base"
                       >
                         Logout
                       </button>
@@ -304,10 +304,10 @@ export default function Header() {
                   ) : (
                     <Link
                       href="/login"
-                      className="flex items-center justify-center w-full px-4 py-3 rounded-lg bg-accent-600 text-white"
+                      className="flex items-center justify-center w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg bg-accent-600 text-white text-sm sm:text-base"
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      <FiLogIn className="w-5 h-5 mr-2" />
+                      <FiLogIn className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                       Login
                     </Link>
                   )}
@@ -319,7 +319,7 @@ export default function Header() {
       </AnimatePresence>
 
       {/* Header Spacer */}
-      <div className="h-[4rem] md:h-[4.5rem] lg:h-[5rem]" />
+      <div className="h-[3.5rem] sm:h-[4rem] md:h-[4.5rem] lg:h-[5rem]" />
     </>
   );
 }

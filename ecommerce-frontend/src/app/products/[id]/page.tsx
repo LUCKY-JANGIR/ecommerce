@@ -21,11 +21,14 @@ import {
   Calendar,
   User,
   Edit,
-  Trash2
+  Trash2,
+  ZoomIn
 } from "lucide-react";
 import toast from "react-hot-toast";
 import Link from "next/link";
 import ReviewModal from "@/components/ReviewModal";
+import ImageModal from "@/components/ImageModal";
+import RecommendedProducts from "@/components/RecommendedProducts";
 
 // Import Swiper styles
 import 'swiper/css';
@@ -55,6 +58,7 @@ export default function ProductDetailsPage() {
   const [reviewLoading, setReviewLoading] = useState(false);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [editingReview, setEditingReview] = useState<Review | null>(null);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   
   const { addToCart, addToWishlist, removeFromWishlist, wishlist, auth } = useStore();
   const cartItem = useStore((state) => state.cart.items.find((item) => item.product._id === (product?._id || '')));
@@ -134,6 +138,10 @@ export default function ProductDetailsPage() {
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to delete review');
     }
+  };
+
+  const handleImageClick = () => {
+    setIsImageModalOpen(true);
   };
 
   const renderNegotiable = () => (
@@ -230,26 +238,38 @@ export default function ProductDetailsPage() {
                     const imageUrl = typeof image === 'string' ? image : image?.url || '/placeholder-product.svg';
                     return (
                       <SwiperSlide key={index}>
-                        <div className="relative aspect-square bg-white">
+                        <div className="relative aspect-square bg-white group cursor-pointer" onClick={handleImageClick}>
                           <Image
                             src={imageUrl}
                             alt={`${product.name} ${index + 1}`}
                             fill
                             className="object-cover"
                           />
+                          {/* Zoom overlay */}
+                          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 backdrop-blur-sm rounded-full p-3">
+                              <ZoomIn className="w-6 h-6 text-gray-800" />
+                            </div>
+                          </div>
                         </div>
                       </SwiperSlide>
                     );
                   })
                 ) : (
                   <SwiperSlide>
-                    <div className="relative aspect-square bg-white">
+                    <div className="relative aspect-square bg-white group cursor-pointer" onClick={handleImageClick}>
                       <Image
                         src="/placeholder-product.svg"
                         alt={product.name}
                         fill
                         className="object-cover"
                       />
+                      {/* Zoom overlay */}
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 backdrop-blur-sm rounded-full p-3">
+                          <ZoomIn className="w-6 h-6 text-gray-800" />
+                        </div>
+                      </div>
                     </div>
                   </SwiperSlide>
                 )}
@@ -281,7 +301,7 @@ export default function ProductDetailsPage() {
                     <button
                       key={index}
                       onClick={() => setSelectedImage(index)}
-                      className={`relative aspect-square bg-white rounded-2xl overflow-hidden border-2 transition-all shadow-lg ${
+                      className={`relative aspect-square bg-white rounded-2xl overflow-hidden border-2 transition-all shadow-lg group ${
                         selectedImage === index ? 'border-accent-500 shadow-xl' : 'border-heritage-200 hover:border-accent-300'
                       }`}
                     >
@@ -291,6 +311,12 @@ export default function ProductDetailsPage() {
                         fill
                         className="object-cover"
                       />
+                      {/* Zoom overlay for thumbnails */}
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 backdrop-blur-sm rounded-full p-2">
+                          <ZoomIn className="w-4 h-4 text-gray-800" />
+                        </div>
+                      </div>
                     </button>
                   );
                 })}
@@ -503,6 +529,12 @@ export default function ProductDetailsPage() {
             </div>
           )}
         </motion.div>
+
+        {/* Recommended Products */}
+        <RecommendedProducts
+          currentProductId={product._id}
+          currentProductName={product.name}
+        />
       </div>
 
       {/* Review Modal */}
@@ -520,6 +552,15 @@ export default function ProductDetailsPage() {
           comment: editingReview.comment
         } : undefined}
         onReviewSubmitted={handleReviewSubmitted}
+      />
+
+      {/* Image Modal */}
+      <ImageModal
+        isOpen={isImageModalOpen}
+        onClose={() => setIsImageModalOpen(false)}
+        images={images}
+        initialIndex={selectedImage}
+        productName={product.name}
       />
     </div>
   );

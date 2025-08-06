@@ -80,21 +80,21 @@ export default function CategoriesSection() {
 
   if (loading) {
     return (
-      <section className="py-20 bg-gray-50">
+      <section className="py-12 sm:py-16 md:py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Shop by Category</h2>
-            <p className="text-lg text-gray-600">Explore our diverse collection</p>
+          <div className="text-center mb-8 sm:mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 sm:mb-4">Shop by Category</h2>
+            <p className="text-sm sm:text-base md:text-lg text-gray-600">Explore our diverse collection</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
             {[...Array(3)].map((_, index) => (
-              <div key={index} className="bg-white rounded-2xl shadow-lg p-6 animate-pulse">
-                <div className="h-48 bg-gray-300 rounded-lg mb-4"></div>
-                <div className="h-6 bg-gray-300 rounded mb-2"></div>
-                <div className="h-4 bg-gray-300 rounded mb-4"></div>
+              <div key={index} className="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 animate-pulse">
+                <div className="h-40 sm:h-48 bg-gray-300 rounded-lg mb-3 sm:mb-4"></div>
+                <div className="h-5 sm:h-6 bg-gray-300 rounded mb-2"></div>
+                <div className="h-3 sm:h-4 bg-gray-300 rounded mb-3 sm:mb-4"></div>
                 <div className="grid grid-cols-2 gap-2">
                   {[...Array(4)].map((_, i) => (
-                    <div key={i} className="h-20 bg-gray-300 rounded"></div>
+                    <div key={i} className="h-16 sm:h-20 bg-gray-300 rounded"></div>
                   ))}
                 </div>
               </div>
@@ -106,21 +106,21 @@ export default function CategoriesSection() {
   }
 
   return (
-    <section className="section-responsive bg-gray-50">
-      <div className="container-responsive">
+    <section className="py-12 sm:py-16 md:py-20 bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div 
-          className="text-center mb-12"
+          className="text-center mb-8 sm:mb-12"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
         >
-          <h2 className="text-responsive-3xl font-bold text-gray-900 mb-4">Shop by Category</h2>
-          <p className="text-responsive-base text-gray-600">Explore our diverse collection of handloom products</p>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-2 sm:mb-4">Shop by Category</h2>
+          <p className="text-sm sm:text-base md:text-lg text-gray-600">Explore our diverse collection of handloom products</p>
         </motion.div>
 
         {categories.length > 0 ? (
-          <div className="grid-responsive-3 gap-responsive">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {categories.map((category, categoryIndex) => (
               <motion.div
                 key={category._id}
@@ -128,26 +128,26 @@ export default function CategoriesSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.8, delay: categoryIndex * 0.2 }}
-                className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300"
+                className="bg-white rounded-xl sm:rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300"
               >
                 {/* Category Header */}
-                <div className="p-6 border-b border-gray-100">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-2xl font-bold text-gray-900">{category.name}</h3>
+                <div className="p-4 sm:p-6 border-b border-gray-100">
+                  <div className="flex items-center justify-between mb-3 sm:mb-4">
+                    <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">{category.name}</h3>
                     <Link 
                       href={`/categories/${category._id}`}
-                      className="text-orange-600 hover:text-orange-700 font-semibold text-sm"
+                      className="text-orange-600 hover:text-orange-700 font-semibold text-xs sm:text-sm"
                     >
                       View All →
                     </Link>
                   </div>
-                  <p className="text-gray-600 text-sm">{category.description}</p>
+                  <p className="text-gray-600 text-xs sm:text-sm">{category.description}</p>
                 </div>
 
                 {/* Products Grid */}
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                   {category.products.length > 0 ? (
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4">
                       {category.products.map((product, productIndex) => (
                         <motion.div
                           key={product._id}
@@ -159,18 +159,18 @@ export default function CategoriesSection() {
                         >
                           <Link href={`/products/${product._id}`}>
                             <div className="bg-gray-50 rounded-lg overflow-hidden hover:bg-gray-100 transition-colors">
-                              <div className="relative h-32 overflow-hidden">
+                              <div className="relative h-24 sm:h-32 overflow-hidden">
                                 <img
                                   src={product.images?.[0]?.url ? getOptimizedImageUrl(product.images[0].url) : '/placeholder-product.svg'}
                                   alt={product.name}
                                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                                 />
                               </div>
-                              <div className="p-3">
-                                <h4 className="font-semibold text-gray-900 text-sm mb-1 truncate group-hover:text-orange-600 transition-colors">
+                              <div className="p-2 sm:p-3">
+                                <h4 className="font-semibold text-gray-900 text-xs sm:text-sm mb-1 truncate group-hover:text-orange-600 transition-colors">
                                   {product.name}
                                 </h4>
-                                <p className="text-orange-600 font-bold text-sm">
+                                <p className="text-orange-600 font-bold text-xs sm:text-sm">
                                   ${product.price}
                                 </p>
                               </div>
@@ -180,8 +180,8 @@ export default function CategoriesSection() {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-8">
-                      <p className="text-gray-500 text-sm">No products in this category yet.</p>
+                    <div className="text-center py-6 sm:py-8">
+                      <p className="text-gray-500 text-xs sm:text-sm">No products in this category yet.</p>
                     </div>
                   )}
                 </div>
@@ -190,16 +190,16 @@ export default function CategoriesSection() {
           </div>
         ) : (
           <motion.div 
-            className="text-center py-12"
+            className="text-center py-8 sm:py-12"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <p className="text-gray-500 text-lg mb-4">No categories available at the moment.</p>
+            <p className="text-gray-500 text-sm sm:text-base md:text-lg mb-3 sm:mb-4">No categories available at the moment.</p>
             <Link 
               href="/categories"
-              className="inline-block bg-orange-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-orange-700 transition-colors"
+              className="inline-block bg-orange-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-full font-semibold text-sm sm:text-base hover:bg-orange-700 transition-colors"
             >
               View All Categories
             </Link>
@@ -207,7 +207,7 @@ export default function CategoriesSection() {
         )}
 
         <motion.div 
-          className="text-center mt-12"
+          className="text-center mt-8 sm:mt-12"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -215,7 +215,7 @@ export default function CategoriesSection() {
         >
           <Link 
             href="/categories"
-            className="inline-block border-2 border-orange-600 text-orange-600 btn-responsive rounded-full font-semibold hover:bg-orange-600 hover:text-white transition-all duration-300"
+            className="inline-block border-2 border-orange-600 text-orange-600 px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 rounded-full font-semibold text-sm sm:text-base md:text-lg hover:bg-orange-600 hover:text-white transition-all duration-300"
           >
             View All Categories
           </Link>

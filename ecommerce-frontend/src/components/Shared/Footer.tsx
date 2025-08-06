@@ -76,7 +76,7 @@ export default function Footer() {
   };
 
   const renderSocialIcon = (icon: string) => {
-    const iconClasses = "w-5 h-5";
+    const iconClasses = "w-4 h-4 sm:w-5 sm:h-5";
     switch (icon) {
       case 'instagram':
         return (
@@ -117,8 +117,8 @@ export default function Footer() {
     <footer className="bg-primary-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main Footer Content */}
-        <div className="py-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
+        <div className="py-12 sm:py-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 sm:gap-8">
             {/* Brand Section */}
             <div className="lg:col-span-2">
               <motion.div
@@ -126,26 +126,26 @@ export default function Footer() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6 }}
-                className="space-y-6"
+                className="space-y-4 sm:space-y-6"
               >
                 <div className="flex items-center space-x-2">
-                  <div className="w-10 h-10 bg-accent-500 rounded-full flex items-center justify-center">
-                    <span className="text-primary-900 font-serif font-bold text-lg">IH</span>
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-accent-500 rounded-full flex items-center justify-center">
+                    <span className="text-primary-900 font-serif font-bold text-sm sm:text-lg">IH</span>
                   </div>
-                  <span className="text-2xl font-serif font-bold">Indian Handloom</span>
+                  <span className="text-xl sm:text-2xl font-serif font-bold">Indian Handloom</span>
                 </div>
                 
-                <p className="text-heritage-200 leading-relaxed max-w-md">
+                <p className="text-heritage-200 leading-relaxed max-w-md text-sm sm:text-base">
                   Preserving centuries of craftsmanship, one piece at a time. Discover authentic Indian handloom treasures that tell stories of tradition and beauty.
                 </p>
 
                 {/* Social Links */}
-                <div className="flex space-x-4">
+                <div className="flex space-x-3 sm:space-x-4">
                   {socialLinks.map((social) => (
                     <a
                       key={social.name}
                       href={social.href}
-                      className="w-10 h-10 bg-primary-800 rounded-full flex items-center justify-center hover:bg-accent-500 transition-colors duration-300"
+                      className="w-8 h-8 sm:w-10 sm:h-10 bg-primary-800 rounded-full flex items-center justify-center hover:bg-accent-500 transition-colors duration-300"
                       aria-label={social.name}
                     >
                       {renderSocialIcon(social.icon)}
@@ -163,15 +163,15 @@ export default function Footer() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="space-y-4"
+                className="space-y-3 sm:space-y-4"
               >
                 <button
                   onClick={() => toggleSection(section.title)}
                   className="flex items-center justify-between w-full md:justify-start md:cursor-default"
                 >
-                  <h3 className="text-lg font-semibold text-white">{section.title}</h3>
+                  <h3 className="text-base sm:text-lg font-semibold text-white">{section.title}</h3>
                   <svg
-                    className={`w-5 h-5 md:hidden transition-transform duration-200 ${
+                    className={`w-4 h-4 sm:w-5 sm:h-5 md:hidden transition-transform duration-200 ${
                       expandedSections.has(section.title) ? 'rotate-180' : ''
                     }`}
                     fill="none"
@@ -182,12 +182,12 @@ export default function Footer() {
                   </svg>
                 </button>
                 
-                <nav className={`space-y-3 ${expandedSections.has(section.title) ? 'block' : 'hidden md:block'}`}>
+                <nav className={`space-y-2 sm:space-y-3 ${expandedSections.has(section.title) ? 'block' : 'hidden md:block'}`}>
                   {section.links.map((link) => (
                     <Link
                       key={link.label}
                       href={link.href}
-                      className="block text-heritage-200 hover:text-accent-400 transition-colors duration-200"
+                      className="block text-heritage-200 hover:text-accent-400 transition-colors duration-200 text-sm sm:text-base"
                     >
                       {link.label}
                     </Link>
@@ -204,20 +204,20 @@ export default function Footer() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="border-t border-primary-800 py-8"
+          className="border-t border-primary-800 py-6 sm:py-8"
         >
-          <div className="max-w-md">
-            <h3 className="text-lg font-semibold mb-4">Stay Updated</h3>
-            <p className="text-heritage-200 mb-4">
+          <div className="max-w-sm sm:max-w-md">
+            <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Stay Updated</h3>
+            <p className="text-heritage-200 mb-3 sm:mb-4 text-sm sm:text-base">
               Get the latest updates on new collections and artisan stories.
             </p>
-            <div className="flex space-x-2">
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="flex-1 px-4 py-2 bg-primary-800 border border-primary-700 rounded-lg text-white placeholder-heritage-300 focus:outline-none focus:border-accent-500"
+                className="flex-1 px-3 sm:px-4 py-2 bg-primary-800 border border-primary-700 rounded-lg text-white placeholder-heritage-300 focus:outline-none focus:border-accent-500 text-sm sm:text-base"
               />
-              <Button size="sm" variant="accent">
+              <Button size="sm" variant="accent" className="text-sm sm:text-base">
                 Subscribe
               </Button>
             </div>
@@ -230,13 +230,13 @@ export default function Footer() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.6 }}
-          className="border-t border-primary-800 py-6"
+          className="border-t border-primary-800 py-4 sm:py-6"
         >
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <p className="text-heritage-300 text-sm">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-3 sm:space-y-4 md:space-y-0">
+            <p className="text-heritage-300 text-xs sm:text-sm text-center md:text-left">
               © 2024 Indian Handloom. All rights reserved.
             </p>
-            <div className="flex space-x-6 text-sm">
+            <div className="flex flex-wrap justify-center md:justify-end space-x-4 sm:space-x-6 text-xs sm:text-sm">
               <Link href="/privacy" className="text-heritage-300 hover:text-accent-400 transition-colors">
                 Privacy Policy
               </Link>

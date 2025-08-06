@@ -15,6 +15,7 @@ import { Toaster } from 'react-hot-toast';
 export const metadata: Metadata = {
   title: 'Indian Handloom - Your Online Shop',
   description: 'A modern ecommerce experience',
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
 };
 
 export default function RootLayout({
@@ -24,6 +25,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+      </head>
       <body className="bg-white min-h-screen" style={{ fontFamily: 'Playfair Display, Inter, sans-serif' }}>
         <Toaster position="top-right" />
         <ErrorBoundary>
