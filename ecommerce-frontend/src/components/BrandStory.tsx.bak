@@ -1,0 +1,55 @@
+"use client";
+import { motion } from 'framer-motion';
+import Image from 'next/image';
+
+export default function BrandStory() {
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        className="space-y-6"
+      >
+        <h2 className="text-3xl md:text-4xl font-serif">Our Heritage</h2>
+        <p className="text-lg text-gray-600">
+          For generations, we have been dedicated to preserving and promoting the rich heritage of Indian handloom textiles. Our journey began in the heart of India&apos;s textile traditions, where skilled artisans have passed down their craft through generations.
+        </p>
+        <p className="text-lg text-gray-600">
+          Each piece in our collection tells a story of craftsmanship, culture, and sustainable practices. We work directly with artisans across India, ensuring fair trade practices while bringing authentic handloom products to the global market.
+        </p>
+        <div className="flex gap-4">
+          <div className="text-center">
+            <div className="text-3xl font-bold text-heritage-600">1000+</div>
+            <div className="text-sm text-gray-600">Artisans</div>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl font-bold text-heritage-600">50+</div>
+            <div className="text-sm text-gray-600">Regions</div>
+          </div>
+          <div className="text-center">
+            <div className="text-3xl font-bold text-heritage-600">25+</div>
+            <div className="text-sm text-gray-600">Years</div>
+          </div>
+        </div>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, x: 20 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        className="relative h-[400px] lg:h-[600px]"
+      >
+        <Image
+          src="/IMG-20250805-WA0006.jpg"
+          alt="Artisan working on a traditional handloom"
+          fill
+          className="object-cover rounded-lg"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent rounded-lg" />
+      </motion.div>
+    </div>
+  );
+}

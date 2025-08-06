@@ -2,20 +2,30 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Users, ShoppingBag, BarChart3, Tag, Settings, Plus, Edit, Trash2, X } from 'lucide-react';
+import { ArrowLeft, Users, ShoppingBag, BarChart3, Tag, Settings, Plus, Edit, Trash2, X, Star } from 'lucide-react';
 import { FiPackage } from 'react-icons/fi';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { productsAPI, categoriesAPI, uploadAPI } from "@/components/services/api";
 import { getOptimizedImageUrl } from "@/lib/imageUtils";
 import { FiMenu, FiX } from 'react-icons/fi';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+import { motion } from 'framer-motion';
+
+// Import Swiper styles
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 
 interface Product {
   _id: string;
   name: string;
-  category: string;
+  description?: string;
+  category: string | { _id: string; name: string };
   price: number;
   stock: number;
+  isFeatured?: boolean;
   images?: Array<{ url: string; alt?: string }>;
   [key: string]: any;
 }
@@ -39,7 +49,7 @@ export default function AdminPage() {
   const [productDeleting, setProductDeleting] = useState<string | null>(null);
   const [productEditing, setProductEditing] = useState<Product | null>(null);
   const [productEditLoading, setProductEditLoading] = useState(false);
-  const [productEditForm, setProductEditForm] = useState({ name: '', category: '', price: '', stock: '' });
+  const [productEditForm, setProductEditForm] = useState({ name: '', description: '', category: '', price: '', stock: '' });
   const [productAdding, setProductAdding] = useState(false);
   const [productAddForm, setProductAddForm] = useState({ name: '', description: '', category: '', price: '', stock: '', sku: '' });
   const [productAddLoading, setProductAddLoading] = useState(false);
@@ -266,6 +276,16 @@ export default function AdminPage() {
     }
   };
 
+  const handleToggleFeatured = async (id: string) => {
+    try {
+      await productsAPI.toggleFeatured(id);
+      toast.success("Featured status updated successfully");
+      fetchProducts();
+    } catch (error) {
+      toast.error("Failed to update featured status");
+    }
+  };
+
   const openProductEdit = (product: Product) => {
     setProductEditing(product);
     let categoryId = product.category;
@@ -274,7 +294,8 @@ export default function AdminPage() {
     }
     setProductEditForm({
       name: product.name,
-      category: categoryId,
+      description: product.description || '',
+      category: categoryId as string,
       price: product.price.toString(),
       stock: product.stock.toString(),
     });
@@ -282,7 +303,7 @@ export default function AdminPage() {
     setEditSelectedImage(null);
   };
 
-  const handleProductEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleProductEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setProductEditForm({ ...productEditForm, [e.target.name]: e.target.value });
   };
 
@@ -292,6 +313,7 @@ export default function AdminPage() {
     try {
       const formData = new FormData();
       formData.append('name', productEditForm.name);
+      formData.append('description', productEditForm.description);
       formData.append('category', productEditForm.category);
       formData.append('price', productEditForm.price);
       formData.append('stock', productEditForm.stock);
@@ -475,27 +497,138 @@ export default function AdminPage() {
       case 'overview':
         return (
           <div className="space-y-6">
-            <div className="grid md:grid-cols-4 gap-4">
-              <div className="text-center p-4 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600">0</div>
-                <div className="text-sm text-gray-600">Total Users</div>
+            {/* Statistics Carousel */}
+            <div className="relative">
+              <Swiper
+                modules={[Navigation, Pagination, Autoplay]}
+                spaceBetween={16}
+                slidesPerView={1}
+                navigation={{
+                  nextEl: '.stats-swiper-next',
+                  prevEl: '.stats-swiper-prev',
+                }}
+                pagination={{
+                  clickable: true,
+                  dynamicBullets: true,
+                }}
+                autoplay={{
+                  delay: 3000,
+                  disableOnInteraction: false,
+                }}
+                breakpoints={{
+                  640: {
+                    slidesPerView: 2,
+                    spaceBetween: 16,
+                  },
+                  1024: {
+                    slidesPerView: 4,
+                    spaceBetween: 16,
+                  },
+                }}
+                className="stats-swiper"
+              >
+                <SwiperSlide>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5 }}
+                    className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-xl shadow-lg"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-3xl font-bold">{products.length}</div>
+                        <div className="text-sm opacity-90">Total Products</div>
+                      </div>
+                      <ShoppingBag className="h-8 w-8 opacity-80" />
+                    </div>
+                  </motion.div>
+                </SwiperSlide>
+                
+                <SwiperSlide>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: 0.1 }}
+                    className="bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-xl shadow-lg"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-3xl font-bold">{categories.length}</div>
+                        <div className="text-sm opacity-90">Categories</div>
+                      </div>
+                      <Tag className="h-8 w-8 opacity-80" />
+                    </div>
+                  </motion.div>
+                </SwiperSlide>
+                
+                <SwiperSlide>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                    className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-xl shadow-lg"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-3xl font-bold">{orders.length}</div>
+                        <div className="text-sm opacity-90">Total Orders</div>
+                      </div>
+                      <FiPackage className="h-8 w-8 opacity-80" />
+                    </div>
+                  </motion.div>
+                </SwiperSlide>
+                
+                <SwiperSlide>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: 0.3 }}
+                    className="bg-gradient-to-br from-orange-500 to-orange-600 text-white p-6 rounded-xl shadow-lg"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-3xl font-bold">$0</div>
+                        <div className="text-sm opacity-90">Total Revenue</div>
+                      </div>
+                      <BarChart3 className="h-8 w-8 opacity-80" />
+                    </div>
+                  </motion.div>
+                </SwiperSlide>
+              </Swiper>
+              
+              {/* Custom Navigation Buttons */}
+              <div className="stats-swiper-prev absolute left-2 top-1/2 transform -translate-y-1/2 z-10 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
+                <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
               </div>
-              <div className="text-center p-4 rounded-lg">
-                <div className="text-2xl font-bold text-green-600">{products.length}</div>
-                <div className="text-sm text-gray-600">Total Products</div>
-              </div>
-              <div className="text-center p-4 rounded-lg">
-                <div className="text-2xl font-bold text-purple-600">0</div>
-                <div className="text-sm text-gray-600">Total Orders</div>
-              </div>
-              <div className="text-center p-4 rounded-lg">
-                <div className="text-2xl font-bold text-orange-600">$0</div>
-                <div className="text-sm text-gray-600">Total Revenue</div>
+              <div className="stats-swiper-next absolute right-2 top-1/2 transform -translate-y-1/2 z-10 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
+                <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </div>
             </div>
-            <div className="bg-white rounded-lg p-6">
+
+            {/* Recent Activity */}
+            <div className="bg-white rounded-xl p-6 shadow-lg">
               <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
-              <p className="text-gray-600">No recent activity to display.</p>
+              <div className="space-y-4">
+                {products.length > 0 ? (
+                  <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">Products loaded successfully</p>
+                      <p className="text-xs text-gray-500">{products.length} products available</p>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-gray-600">No recent activity to display.</p>
+                )}
+              </div>
             </div>
           </div>
         );
@@ -760,6 +893,20 @@ export default function AdminPage() {
                       />
                     </div>
 
+                    <div className="space-y-3">
+                      <label className="block text-sm font-medium text-gray-700">
+                        Description
+                      </label>
+                      <textarea
+                        name="description"
+                        placeholder="Enter product description"
+                        value={productEditForm.description}
+                        onChange={handleProductEditChange}
+                        rows={3}
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none"
+                      />
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="space-y-3">
                         <label className="block text-sm font-medium text-gray-700">
@@ -858,13 +1005,14 @@ export default function AdminPage() {
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Featured</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {products.length === 0 ? (
                         <tr>
-                          <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                          <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
                             No products found. Add your first product!
                           </td>
                         </tr>
@@ -886,10 +1034,25 @@ export default function AdminPage() {
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {categories.find(cat => cat._id === product.category)?.name || 'Unknown'}
+                              {typeof product.category === 'object' && product.category !== null 
+                                ? (product.category as any).name 
+                                : categories.find(cat => cat._id === product.category)?.name || 'Unknown'}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${product.price}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{product.stock}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                              <button
+                                onClick={() => handleToggleFeatured(product._id)}
+                                className={`p-1 rounded transition-colors ${
+                                  product.isFeatured 
+                                    ? 'text-yellow-500 hover:text-yellow-600' 
+                                    : 'text-gray-400 hover:text-yellow-500'
+                                }`}
+                                title={product.isFeatured ? 'Remove from featured' : 'Add to featured'}
+                              >
+                                <Star className={`h-5 w-5 ${product.isFeatured ? 'fill-current' : ''}`} />
+                              </button>
+                            </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                               <div className="flex gap-2">
                                 <button
@@ -930,7 +1093,11 @@ export default function AdminPage() {
                       <img src={product.images?.[0]?.url ? getOptimizedImageUrl(product.images[0].url) : '/placeholder.png'} alt={product.name} className="w-16 h-16 object-cover rounded" />
                       <div>
                         <div className="font-semibold text-gray-900">{product.name}</div>
-                        <div className="text-xs text-gray-500">{categories.find(cat => cat._id === product.category)?.name || 'Unknown'}</div>
+                        <div className="text-xs text-gray-500">
+                          {typeof product.category === 'object' && product.category !== null 
+                            ? (product.category as any).name 
+                            : categories.find(cat => cat._id === product.category)?.name || 'Unknown'}
+                        </div>
                       </div>
                     </div>
                     <div className="flex justify-between items-center text-sm mt-2">
@@ -939,6 +1106,19 @@ export default function AdminPage() {
                       </div>
                       <div>
                         <span className="font-medium">Stock:</span> {product.stock}
+                      </div>
+                      <div>
+                        <button
+                          onClick={() => handleToggleFeatured(product._id)}
+                          className={`p-1 rounded transition-colors ${
+                            product.isFeatured 
+                              ? 'text-yellow-500 hover:text-yellow-600' 
+                              : 'text-gray-400 hover:text-yellow-500'
+                          }`}
+                          title={product.isFeatured ? 'Remove from featured' : 'Add to featured'}
+                        >
+                          <Star className={`h-5 w-5 ${product.isFeatured ? 'fill-current' : ''}`} />
+                        </button>
                       </div>
                     </div>
                     <div className="flex gap-2 mt-2">

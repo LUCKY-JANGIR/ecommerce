@@ -149,7 +149,7 @@ export default function ErrorHandlingExample() {
         <button
           onClick={async () => {
             try {
-              await fetch('http://localhost:5001/api/non-existent-endpoint');
+              await fetch('/api/non-existent-endpoint');
             } catch (error) {
               console.error('Network error:', error);
               alert('Network error caught! Check console for details.');

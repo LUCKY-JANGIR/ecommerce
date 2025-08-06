@@ -2,188 +2,219 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --primary: #dc2626;
-  --primary-light: #ef4444;
-  --primary-dark: #b91c1c;
-  --accent: #d97706;
-  --accent-light: #f59e0b;
-  --accent-dark: #b45309;
-  --heritage: #bfa094;
-  --heritage-light: #d2bab0;
-  --heritage-dark: #a18072;
-  --foreground-rgb: 31, 41, 55;
-  --background-start-rgb: 255, 255, 255;
-  --background-end-rgb: 254, 252, 248;
-  --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --transition-ease: cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+/* Custom CSS for Swiper Carousels */
+.swiper {
+  width: 100%;
+  height: 100%;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --primary: #dc2626;
-    --primary-light: #ef4444;
-    --primary-dark: #b91c1c;
-    --accent: #d97706;
-    --accent-light: #f59e0b;
-    --accent-dark: #b45309;
-    --heritage: #bfa094;
-    --heritage-light: #d2bab0;
-    --heritage-dark: #a18072;
-    --foreground-rgb: 31, 41, 55;
-    --background-start-rgb: 255, 255, 255;
-    --background-end-rgb: 254, 252, 248;
+.swiper-slide {
+  text-align: center;
+  font-size: 18px;
+  background: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.swiper-slide img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Custom Swiper Navigation Buttons */
+.swiper-button-next,
+.swiper-button-prev {
+  color: #f97316 !important;
+  background: rgba(255, 255, 255, 0.9);
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: scale(1.1);
+}
+
+.swiper-button-next::after,
+.swiper-button-prev::after {
+  font-size: 18px !important;
+  font-weight: bold;
+}
+
+/* Custom Swiper Pagination */
+.swiper-pagination-bullet {
+  background: #f97316 !important;
+  opacity: 0.5;
+  transition: all 0.3s ease;
+}
+
+.swiper-pagination-bullet-active {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+/* Product Image Swiper Specific Styles */
+.product-image-swiper .swiper-pagination {
+  bottom: 20px !important;
+}
+
+.product-image-swiper .swiper-pagination-bullet {
+  background: white !important;
+  opacity: 0.7;
+}
+
+.product-image-swiper .swiper-pagination-bullet-active {
+  opacity: 1;
+  background: #f97316 !important;
+}
+
+/* Featured Products Swiper */
+.featured-products-swiper .swiper-slide {
+  height: auto;
+}
+
+/* Testimonials Swiper */
+.testimonials-swiper .swiper-slide {
+  height: auto;
+}
+
+/* Brand Story Swiper */
+.brand-story-swiper .swiper-slide {
+  height: auto;
+}
+
+/* Category Showcase Swiper */
+.category-showcase-swiper .swiper-slide {
+  height: auto;
+}
+
+/* Stats Swiper */
+.stats-swiper .swiper-slide {
+  height: auto;
+}
+
+/* Responsive Swiper Styles */
+@media (max-width: 768px) {
+  .swiper-button-next,
+  .swiper-button-prev {
+    width: 36px !important;
+    height: 36px !important;
+  }
+  
+  .swiper-button-next::after,
+  .swiper-button-prev::after {
+    font-size: 16px !important;
   }
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-  
-  .glass-effect {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-  }
-  
-  .glass-effect-dark {
-    background: rgba(0, 0, 0, 0.75);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-  }
-  
-  .text-shadow {
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .hover-lift {
-    transition: transform 0.3s var(--transition-bounce);
-  }
-  
-  .hover-lift:hover {
-    transform: translateY(-5px);
-  }
+/* Smooth transitions for all Swiper elements */
+.swiper * {
+  transition: all 0.3s ease;
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar for webkit browsers */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f8f8f8;
+  background: #f1f1f1;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 3px;
+  background: #c1c1c1;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  background: #a8a8a8;
 }
 
-/* Loading animation */
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+/* Hide scrollbar for specific elements */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-.animate-spin {
-  animation: spin 1s linear infinite;
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
 
-/* Slide animations for menu */
-@keyframes slideInRight {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(0);
-  }
+/* Global scrollbar hiding */
+html, body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-@keyframes slideOutRight {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(100%);
-  }
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+/* Responsive utilities */
+.text-responsive-xs { @apply text-xs sm:text-sm md:text-base; }
+.text-responsive-sm { @apply text-sm sm:text-base md:text-lg; }
+.text-responsive-base { @apply text-base sm:text-lg md:text-xl; }
+.text-responsive-lg { @apply text-lg sm:text-xl md:text-2xl; }
+.text-responsive-xl { @apply text-xl sm:text-2xl md:text-3xl; }
+.text-responsive-2xl { @apply text-2xl sm:text-3xl md:text-4xl; }
+.text-responsive-3xl { @apply text-3xl sm:text-4xl md:text-5xl; }
+.text-responsive-4xl { @apply text-4xl sm:text-5xl md:text-6xl; }
+
+.p-responsive { @apply p-4 sm:p-6 md:p-8; }
+.px-responsive { @apply px-4 sm:px-6 md:px-8; }
+.py-responsive { @apply py-4 sm:py-6 md:py-8; }
+
+.grid-responsive-2 { @apply grid-cols-1 sm:grid-cols-2; }
+.grid-responsive-3 { @apply grid-cols-1 sm:grid-cols-2 md:grid-cols-3; }
+.grid-responsive-4 { @apply grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4; }
+
+.gap-responsive { @apply gap-4 sm:gap-6 md:gap-8; }
+.gap-responsive-sm { @apply gap-2 sm:gap-3 md:gap-4; }
+
+.container-responsive { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
+.section-responsive { @apply py-12 sm:py-16 md:py-20; }
+
+.btn-responsive { @apply px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4; }
+
+.modal-responsive { @apply w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl; }
+.rounded-responsive { @apply rounded-lg sm:rounded-xl md:rounded-2xl; }
+.shadow-responsive { @apply shadow-lg sm:shadow-xl md:shadow-2xl; }
+
+/* Accessibility utilities */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-@keyframes fadeOut {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
+/* Focus utilities */
+.focus-visible:focus {
+  outline: 2px solid #f97316;
+  outline-offset: 2px;
 }
 
-.slide-in-right {
-  animation: slideInRight 0.3s ease-out forwards;
-}
-
-.slide-out-right {
-  animation: slideOutRight 0.3s ease-in forwards;
-}
-
-.fade-in {
-  animation: fadeIn 0.3s ease-out forwards;
-}
-
-.fade-out {
-  animation: fadeOut 0.3s ease-in forwards;
-}
-
-/* Hide scrollbars globally */
-body, * {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
-}
-body::-webkit-scrollbar, *::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
-}
-
-@layer base {
-  * {
-    @apply border-heritage-200;
+/* Print utilities */
+@media print {
+  .no-print {
+    display: none !important;
   }
-  body {
-    @apply bg-background-cream text-text-primary font-body;
-  }
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-serif text-primary-700;
-  }
-  a {
-    @apply text-primary-700 hover:text-accent-600 transition-colors;
-  }
-  button, .btn, [type="button"], [type="submit"] {
-    @apply bg-accent-500 text-white rounded-xl px-6 py-3 font-medium shadow-lg hover:bg-accent-600 transition-colors;
-  }
-  input, select, textarea {
-    @apply border-heritage-200 focus:ring-accent-500 focus:border-accent-500 bg-white text-text-primary placeholder-text-muted rounded-xl;
-  }
-  .card, .bg-card {
-    @apply bg-white border border-heritage-200 shadow-lg rounded-2xl;
-  }
-  .muted {
-    @apply text-text-muted;
+  
+  .print-only {
+    display: block !important;
   }
 }

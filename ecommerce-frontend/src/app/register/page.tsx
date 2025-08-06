@@ -54,7 +54,7 @@ export default function RegisterPage() {
     resolver: zodResolver(registerSchema),
   });
 
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
   const sendOtp = async (email: string) => {
     setOtpLoading(true);

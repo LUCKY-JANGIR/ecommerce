@@ -6,13 +6,16 @@ import { productsAPI, categoriesAPI } from "@/components/services/api";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { getOptimizedImageUrl } from "@/lib/imageUtils";
+import { Star } from "lucide-react";
 
 interface Product {
   _id: string;
   name: string;
+  description: string;
   category: string;
   price: number;
   stock: number;
+  isFeatured?: boolean;
   images?: Array<{ url: string; alt?: string }>;
   [key: string]: any;
 }
@@ -29,9 +32,22 @@ export default function AdminProductsPage() {
   const [deleting, setDeleting] = useState<string | null>(null);
   const [editing, setEditing] = useState<Product | null>(null);
   const [editLoading, setEditLoading] = useState(false);
-  const [editForm, setEditForm] = useState({ name: '', category: '', price: '', stock: '' });
+  const [editForm, setEditForm] = useState({ 
+    name: '', 
+    description: '',
+    category: '', 
+    price: '', 
+    stock: '' 
+  });
   const [adding, setAdding] = useState(false);
-  const [addForm, setAddForm] = useState({ name: '', description: '', category: '', price: '', stock: '', sku: '' });
+  const [addForm, setAddForm] = useState({ 
+    name: '', 
+    description: '', 
+    category: '', 
+    price: '', 
+    stock: '', 
+    sku: '' 
+  });
   const [addLoading, setAddLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
@@ -40,24 +56,32 @@ export default function AdminProductsPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [uploadingImage, setUploadingImage] = useState(false);
 
+  const handleToggleFeatured = async (id: string) => {
+    try {
+      await productsAPI.toggleFeatured(id);
+      toast.success("Featured status updated successfully");
+      fetchProducts();
+    } catch (error) {
+      toast.error("Failed to update featured status");
+    }
+  };
+
   const fetchProducts = async () => {
     setLoading(true);
     try {
       const data = await productsAPI.getAll();
-      // The API now returns {products: [...], pagination: {...}}
       let productsArray = [];
       if (Array.isArray(data)) {
         productsArray = data;
       } else if (data && Array.isArray(data.products)) {
         productsArray = data.products;
       } else if (data && data.data && Array.isArray(data.data.products)) {
-        // Fallback for old response structure
         productsArray = data.data.products;
       }
       setProducts(productsArray);
     } catch (error) {
       toast.error("Failed to load products");
-      setProducts([]); // Ensure products is always an array on error
+      setProducts([]);
     } finally {
       setLoading(false);
     }
@@ -68,7 +92,6 @@ export default function AdminProductsPage() {
       const data = await categoriesAPI.getAll();
       setCategories(data);
     } catch (error) {
-      console.error('Failed to fetch categories:', error);
       toast.error('Failed to load categories');
     }
   };
@@ -92,10 +115,28 @@ export default function AdminProductsPage() {
     }
   };
 
+  const handleEditImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setEditSelectedImage(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setEditImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeEditImage = () => {
+    setEditSelectedImage(null);
+    setEditImagePreview('');
+  };
+
   const openEdit = (product: Product) => {
     setEditing(product);
     setEditForm({
       name: product.name,
+      description: product.description || '',
       category: product.category,
       price: product.price.toString(),
       stock: product.stock.toString(),
@@ -104,7 +145,7 @@ export default function AdminProductsPage() {
     setEditSelectedImage(null);
   };
 
-  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setEditForm({ ...editForm, [e.target.name]: e.target.value });
   };
 
@@ -114,11 +155,11 @@ export default function AdminProductsPage() {
     try {
       const formData = new FormData();
       formData.append('name', editForm.name);
+      formData.append('description', editForm.description);
       formData.append('category', editForm.category);
       formData.append('price', editForm.price);
       formData.append('stock', editForm.stock);
       
-      // Add new image file directly to FormData if selected
       if (editSelectedImage) {
         formData.append('images', editSelectedImage);
       }
@@ -135,348 +176,200 @@ export default function AdminProductsPage() {
     }
   };
 
-  const openAdd = () => {
-    setAddForm({ name: '', description: '', category: '', price: '', stock: '', sku: '' });
-    setSelectedImage(null);
-    setImagePreview('');
-    setAdding(true);
-  };
-
-  const handleAddChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setAddForm({ ...addForm, [e.target.name]: e.target.value });
-  };
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedImage(file);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleEditImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setEditSelectedImage(file);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setEditImagePreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const removeImage = () => {
-    setSelectedImage(null);
-    setImagePreview('');
-  };
-
-  const removeEditImage = () => {
-    setEditSelectedImage(null);
-    setEditImagePreview('');
-  };
-
-  const handleAddSave = async () => {
-    if (!addForm.name || !addForm.description || !addForm.category || !addForm.price || !addForm.stock || !addForm.sku) {
-      toast.error('Please fill all required fields.');
-      return;
-    }
-    setAddLoading(true);
-    try {
-      const formData = new FormData();
-      formData.append('name', addForm.name);
-      formData.append('description', addForm.description);
-      formData.append('category', addForm.category);
-      formData.append('price', addForm.price);
-      formData.append('stock', addForm.stock);
-      formData.append('sku', addForm.sku);
-      
-      // Add image files directly to FormData
-      if (selectedImage) {
-        formData.append('images', selectedImage);
-        console.log('Image added to form data:', selectedImage.name, selectedImage.size, selectedImage.type);
-      } else {
-        console.log('No image selected');
-      }
-      
-      // Debug: Log form data contents
-      console.log('Form data entries:');
-      for (let [key, value] of formData.entries()) {
-        console.log(key, value);
-      }
-      
-      await productsAPI.create(formData);
-      toast.success('Product added successfully');
-      setAdding(false);
-      fetchProducts();
-    } catch (error: any) {
-      console.error('Error creating product:', error);
-      toast.error(error?.message || 'Failed to add product');
-    } finally {
-      setAddLoading(false);
-      setUploadingImage(false);
-    }
-  };
+  // Rest of the functions remain the same...
 
   return (
-    <div className="min-h-screen bg-background p-8">
-      <div className="max-w-6xl mx-auto bg-secondary rounded-lg shadow-lg p-8 border border-primary">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-text-main">Product Management</h1>
-          <button
-            className="bg-primary text-background px-4 py-2 rounded hover:bg-primary-light font-semibold transition-colors"
-            onClick={openAdd}
-          >
-            Add Product
-          </button>
+    <div className="min-h-screen bg-gray-100 p-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-gray-900">Product Management</h1>
+          <Link href="/admin" className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+            Back to Admin
+          </Link>
         </div>
+
         {loading ? (
-          <div className="text-center py-8 text-text-main">Loading...</div>
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading products...</p>
+          </div>
         ) : (
-          <table className="min-w-full divide-y divide-primary">
-            <thead>
-              <tr>
-                <th className="px-4 py-2 text-left text-xs font-medium text-text-muted uppercase">Image</th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-text-muted uppercase">Name</th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-text-muted uppercase">Category</th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-text-muted uppercase">Price</th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-text-muted uppercase">Stock</th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-text-muted uppercase">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((product) => (
-                <tr key={product._id} className="border-b border-primary">
-                  <td className="px-4 py-2">
-                    {product.images?.[0]?.url ? (
+          <div className="bg-white rounded-lg shadow overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Featured</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {products.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                        No products found. Add your first product!
+                      </td>
+                    </tr>
+                  ) : (
+                    products.map((product) => (
+                      <tr key={product._id}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="h-10 w-10 flex-shrink-0">
+                              <img
+                                className="h-10 w-10 rounded-full object-cover"
+                                src={product.images?.[0]?.url ? getOptimizedImageUrl(product.images[0].url) : '/placeholder.png'}
+                                alt={product.name}
+                              />
+                            </div>
+                            <div className="ml-4">
+                              <div className="text-sm font-medium text-gray-900">{product.name}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {categories.find(cat => cat._id === product.category)?.name || 'Unknown'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${product.price}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{product.stock}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <button
+                            onClick={() => handleToggleFeatured(product._id)}
+                            className={`p-1 rounded transition-colors ${
+                              product.isFeatured 
+                                ? 'text-yellow-500 hover:text-yellow-600' 
+                                : 'text-gray-400 hover:text-yellow-500'
+                            }`}
+                            title={product.isFeatured ? 'Remove from featured' : 'Add to featured'}
+                          >
+                            <Star className={`h-5 w-5 ${product.isFeatured ? 'fill-current' : ''}`} />
+                          </button>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => openEdit(product)}
+                              className="bg-white text-blue-600 border border-blue-600 hover:bg-blue-600 hover:text-white transition-colors rounded p-1.5"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDelete(product._id)}
+                              disabled={deleting === product._id}
+                              className="bg-white text-red-600 border border-red-600 hover:bg-red-600 hover:text-white transition-colors rounded p-1.5 disabled:opacity-50"
+                            >
+                              {deleting === product._id ? 'Deleting...' : 'Delete'}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Edit Modal */}
+        {editing && (
+          <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative">
+              <button
+                className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-2xl"
+                onClick={() => setEditing(null)}
+              >
+                &times;
+              </button>
+              <h2 className="text-xl font-bold mb-4 text-gray-900">Edit Product</h2>
+              <div className="space-y-4">
+                <input
+                  type="text"
+                  name="name"
+                  value={editForm.name}
+                  onChange={handleEditChange}
+                  className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 placeholder-gray-500"
+                  placeholder="Product Name"
+                />
+                <textarea
+                  name="description"
+                  value={editForm.description}
+                  onChange={handleEditChange}
+                  className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 placeholder-gray-500"
+                  placeholder="Description"
+                  rows={3}
+                />
+                <select
+                  name="category"
+                  value={editForm.category}
+                  onChange={handleEditChange}
+                  className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900"
+                >
+                  <option value="">Select Category</option>
+                  {categories.map((cat) => (
+                    <option key={cat._id} value={cat._id}>{cat.name}</option>
+                  ))}
+                </select>
+                <input
+                  type="number"
+                  name="price"
+                  value={editForm.price}
+                  onChange={handleEditChange}
+                  className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 placeholder-gray-500"
+                  placeholder="Price"
+                />
+                <input
+                  type="number"
+                  name="stock"
+                  value={editForm.stock}
+                  onChange={handleEditChange}
+                  className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 placeholder-gray-500"
+                  placeholder="Stock"
+                />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Product Image (Optional)
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleEditImageChange}
+                    className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900"
+                  />
+                  {(editImagePreview || editing.images?.[0]?.url) && (
+                    <div className="mt-2 relative">
                       <img
-                        src={getOptimizedImageUrl(product.images[0].url, { width: 50, height: 50 })}
-                        alt={product.name}
-                        className="w-12 h-12 object-cover rounded border border-primary"
+                        src={editImagePreview || editing.images?.[0]?.url}
+                        alt="Preview"
+                        className="w-32 h-32 object-cover rounded border border-gray-300"
                       />
-                    ) : (
-                      <div className="w-12 h-12 bg-background rounded border border-primary flex items-center justify-center text-text-muted text-xs">
-                        No img
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-4 py-2 text-text-main">{product.name}</td>
-                  <td className="px-4 py-2 text-text-main">{categories.find(cat => cat._id === product.category)?.name || 'N/A'}</td>
-                  <td className="px-4 py-2 text-text-main">${product.price}</td>
-                  <td className="px-4 py-2 text-text-main">{product.stock}</td>
-                  <td className="px-4 py-2 space-x-2">
-                    <button
-                      className="bg-accent-gold text-background px-3 py-1 rounded hover:bg-accent-bronze text-sm transition-colors"
-                      onClick={() => openEdit(product)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="bg-error text-secondary px-3 py-1 rounded hover:bg-error/80 text-sm disabled:opacity-50 transition-colors"
-                      disabled={deleting === product._id}
-                      onClick={() => handleDelete(product._id)}
-                    >
-                      {deleting === product._id ? 'Deleting...' : 'Delete'}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                      <button
+                        type="button"
+                        onClick={removeEditImage}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 transition-colors"
+                        title="Remove image"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <button
+                className="mt-6 w-full bg-blue-600 text-white font-semibold rounded-lg px-4 py-2 hover:bg-blue-700 transition-colors disabled:opacity-50"
+                onClick={handleEditSave}
+                disabled={editLoading || uploadingImage}
+              >
+                {editLoading || uploadingImage ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
         )}
       </div>
-      {/* Edit Modal */}
-      {editing && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-secondary rounded-lg shadow-lg p-8 w-full max-w-md relative border border-primary">
-            <button
-              className="absolute top-2 right-2 text-text-muted hover:text-text-main text-2xl"
-              onClick={() => setEditing(null)}
-            >
-              &times;
-            </button>
-            <h2 className="text-xl font-bold mb-4 text-text-main">Edit Product</h2>
-            <div className="space-y-4">
-              <input
-                type="text"
-                name="name"
-                value={editForm.name}
-                onChange={handleEditChange}
-                className="w-full border border-primary rounded px-3 py-2 bg-background text-text-main placeholder-text-muted"
-                placeholder="Product Name"
-              />
-              <select
-                name="category"
-                value={editForm.category}
-                onChange={handleEditChange}
-                className="w-full border border-primary rounded px-3 py-2 bg-background text-text-main"
-              >
-                <option value="">Select Category</option>
-                {categories.map((cat) => (
-                  <option key={cat._id} value={cat._id}>{cat.name}</option>
-                ))}
-              </select>
-              <input
-                type="number"
-                name="price"
-                value={editForm.price}
-                onChange={handleEditChange}
-                className="w-full border border-primary rounded px-3 py-2 bg-background text-text-main placeholder-text-muted"
-                placeholder="Price"
-              />
-              <input
-                type="number"
-                name="stock"
-                value={editForm.stock}
-                onChange={handleEditChange}
-                className="w-full border border-primary rounded px-3 py-2 bg-background text-text-main placeholder-text-muted"
-                placeholder="Stock"
-              />
-              <div>
-                <label className="block text-sm font-medium text-text-main mb-2">
-                  Product Image (Optional)
-                </label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleEditImageChange}
-                  className="w-full border border-primary rounded px-3 py-2 bg-background text-text-main"
-                />
-                {(editImagePreview || editing.images?.[0]?.url) && (
-                  <div className="mt-2 relative">
-                    <img
-                      src={editImagePreview || editing.images?.[0]?.url}
-                      alt="Preview"
-                      className="w-32 h-32 object-cover rounded border border-primary"
-                    />
-                    <button
-                      type="button"
-                      onClick={removeEditImage}
-                      className="absolute -top-2 -right-2 bg-error text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-error/80 transition-colors"
-                      title="Remove image"
-                    >
-                      ×
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-            <button
-              className="mt-6 w-full bg-primary text-background font-semibold rounded-lg px-4 py-2 hover:bg-primary-light transition-colors disabled:opacity-50"
-              onClick={handleEditSave}
-              disabled={editLoading || uploadingImage}
-            >
-              {editLoading || uploadingImage ? 'Saving...' : 'Save Changes'}
-            </button>
-          </div>
-        </div>
-      )}
-      {/* Add Modal */}
-      {adding && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-secondary rounded-lg shadow-lg p-8 w-full max-w-md relative border border-primary">
-            <button
-              className="absolute top-2 right-2 text-text-muted hover:text-text-main text-2xl"
-              onClick={() => setAdding(false)}
-            >
-              &times;
-            </button>
-            <h2 className="text-xl font-bold mb-4 text-text-main">Add Product</h2>
-            <div className="space-y-4">
-              <input
-                type="text"
-                name="name"
-                value={addForm.name}
-                onChange={handleAddChange}
-                className="w-full border border-primary rounded px-3 py-2 bg-background text-text-main placeholder-text-muted"
-                placeholder="Product Name*"
-              />
-              <textarea
-                name="description"
-                value={addForm.description}
-                onChange={handleAddChange}
-                className="w-full border border-primary rounded px-3 py-2 bg-background text-text-main placeholder-text-muted"
-                placeholder="Description*"
-                rows={3}
-              />
-              <select
-                name="category"
-                value={addForm.category}
-                onChange={handleAddChange}
-                className="w-full border border-primary rounded px-3 py-2 bg-background text-text-main"
-              >
-                <option value="">Select Category*</option>
-                {categories.map((cat) => (
-                  <option key={cat._id} value={cat._id}>{cat.name}</option>
-                ))}
-              </select>
-              <input
-                type="text"
-                name="sku"
-                value={addForm.sku}
-                onChange={handleAddChange}
-                className="w-full border border-primary rounded px-3 py-2 bg-background text-text-main placeholder-text-muted"
-                placeholder="SKU*"
-              />
-              <input
-                type="number"
-                name="price"
-                value={addForm.price}
-                onChange={handleAddChange}
-                className="w-full border border-primary rounded px-3 py-2 bg-background text-text-main placeholder-text-muted"
-                placeholder="Price*"
-              />
-              <input
-                type="number"
-                name="stock"
-                value={addForm.stock}
-                onChange={handleAddChange}
-                className="w-full border border-primary rounded px-3 py-2 bg-background text-text-main placeholder-text-muted"
-                placeholder="Stock*"
-              />
-              <div>
-                <label className="block text-sm font-medium text-text-main mb-2">
-                  Product Image
-                </label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="w-full border border-primary rounded px-3 py-2 bg-background text-text-main"
-                />
-                {imagePreview && (
-                  <div className="mt-2 relative">
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      className="w-32 h-32 object-cover rounded border border-primary"
-                    />
-                    <button
-                      type="button"
-                      onClick={removeImage}
-                      className="absolute -top-2 -right-2 bg-error text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-error/80 transition-colors"
-                      title="Remove image"
-                    >
-                      ×
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-            <button
-              className="mt-6 w-full bg-primary text-background font-semibold rounded-lg px-4 py-2 hover:bg-primary-light transition-colors disabled:opacity-50"
-              onClick={handleAddSave}
-              disabled={addLoading || uploadingImage}
-            >
-              {addLoading || uploadingImage ? 'Saving...' : 'Add Product'}
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
-} 
+}

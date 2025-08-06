@@ -49,9 +49,12 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
     }
   };
 
-  const renderNegotiable = () => (
-    <span className="text-lg font-serif font-bold text-accent-600">Negotiable</span>
-  );
+  const renderPrice = () => {
+    if (product.price === 0) {
+      return <span className="text-lg font-serif font-bold text-accent-600">Negotiable</span>;
+    }
+    return <span className="text-lg font-serif font-bold text-accent-600">${product.price}</span>;
+  };
 
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
@@ -79,7 +82,7 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
                 }
                 alt={product.name}
                 fill
-                className="object-cover rounded-l-2xl group-hover:scale-105 transition-transform duration-300"
+                                                className="object-cover rounded-l-2xl group-hover:scale-105 transition-transform duration-200"
               />
             </div>
 
@@ -105,7 +108,7 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
                     )}
                   </div>
                   <div className="flex items-center justify-between">
-                    {renderNegotiable()}
+                    {renderPrice()}
                     <span className={`text-sm font-medium ${
                       product.stock > 0 ? 'text-green-600' : 'text-red-600'
                     }`}>
@@ -172,46 +175,46 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
     );
   }
 
-  // Animation variants
+  // Animation variants - optimized for faster performance
   const cardVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 10 },
     visible: { 
       opacity: 1, 
       y: 0,
       transition: { 
         type: "spring" as const,
-        stiffness: 300,
-        damping: 30,
-        duration: 0.4
+        stiffness: 400,
+        damping: 25,
+        duration: 0.2
       }
     },
     hover: {
-      y: -8,
+      y: -4,
       transition: { 
         type: "spring" as const,
-        stiffness: 500,
-        damping: 30 
+        stiffness: 600,
+        damping: 25 
       }
     }
   };
 
   const imageVariants = {
     hover: { 
-      scale: 1.05,
-      transition: { duration: 0.3 }
+      scale: 1.03,
+      transition: { duration: 0.2 }
     }
   };
 
   const buttonVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
+    hidden: { opacity: 0, scale: 0.9 },
     visible: { 
       opacity: 1, 
       scale: 1,
       transition: { 
         type: "spring" as const,
-        stiffness: 500,
-        damping: 30,
-        delay: 0.1
+        stiffness: 600,
+        damping: 25,
+        delay: 0.05
       }
     },
     tap: { scale: 0.95 }
@@ -220,7 +223,7 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
   return (
     <Link href={`/products/${product._id}`} className="block">
       <motion.div 
-        className="bg-white rounded-2xl border border-heritage-200 overflow-hidden group shadow-lg hover:shadow-2xl transition-all duration-300"
+        className="bg-white rounded-2xl border border-heritage-200 overflow-hidden group shadow-lg hover:shadow-2xl transition-all duration-200"
         initial="hidden"
         animate="visible"
         whileHover="hover"
@@ -345,7 +348,7 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
           
           <div className="flex items-center justify-between">
             <div className="text-lg font-serif font-bold text-accent-600">
-              {renderNegotiable()}
+              {renderPrice()}
             </div>
             
             {cartQuantity === 0 ? (

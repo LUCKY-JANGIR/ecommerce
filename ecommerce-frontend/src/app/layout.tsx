@@ -7,6 +7,7 @@ import '@fontsource/caveat/400.css';
 import Header from "@/components/Header";
 import HydrationProvider from "@/components/HydrationProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import LenisProvider from "@/components/LenisProvider";
 import "@/app/fonts.css";
 import Link from 'next/link';
 import { Toaster } from 'react-hot-toast';
@@ -26,9 +27,11 @@ export default function RootLayout({
       <body className="bg-white min-h-screen" style={{ fontFamily: 'Playfair Display, Inter, sans-serif' }}>
         <Toaster position="top-right" />
         <ErrorBoundary>
-        <HydrationProvider />
-        <Header />
-        {children}
+          <LenisProvider>
+            <HydrationProvider />
+            <Header />
+            {children}
+          </LenisProvider>
         </ErrorBoundary>
       </body>
     </html>

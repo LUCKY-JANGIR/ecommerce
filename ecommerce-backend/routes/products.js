@@ -217,6 +217,36 @@ router.get('/', [
     });
 }));
 
+// @desc    Get featured products
+// @route   GET /api/products/featured
+// @access  Public
+router.get('/featured', async (req, res, next) => {
+    try {
+        const products = await Product.getFeatured()
+            .limit(8)
+            .select('-reviews');
+
+        res.json(products);
+    } catch (error) {
+        next(error);
+    }
+});
+
+// @desc    Get products by category
+// @route   GET /api/products/category/:category
+// @access  Public
+router.get('/category/:category', async (req, res, next) => {
+    try {
+        const products = await Product.getByCategory(req.params.category)
+            .limit(8)
+            .select('-reviews');
+
+        res.json(products);
+    } catch (error) {
+        next(error);
+    }
+});
+
 // @desc    Get single product by ID
 // @route   GET /api/products/:id
 // @access  Public
@@ -581,20 +611,28 @@ router.delete('/:id/reviews/:reviewId', protect, asyncHandler(async (req, res) =
     });
 }));
 
-// @desc    Get featured products
-// @route   GET /api/products/featured
-// @access  Public
-router.get('/featured', async (req, res, next) => {
-    try {
-        const products = await Product.getFeatured()
-            .limit(8)
-            .select('-reviews');
-
-        res.json(products);
-    } catch (error) {
-        next(error);
+// @desc    Toggle featured status of a product
+// @route   PATCH /api/products/:id/toggle-featured
+// @access  Private/Admin
+router.patch('/:id/toggle-featured', protect, admin, asyncHandler(async (req, res) => {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+        throw new ApiError('Product not found', 404);
     }
-});
+
+    // Toggle the featured status
+    product.isFeatured = !product.isFeatured;
+    await product.save();
+
+    res.json({
+        success: true,
+        message: `Product ${product.isFeatured ? 'added to' : 'removed from'} featured products`,
+        data: {
+            productId: product._id,
+            isFeatured: product.isFeatured
+        }
+    });
+}));
 
 // @desc    Upload image to Google Drive
 // @route   POST /api/products/upload-image
@@ -610,21 +648,6 @@ router.post('/upload-image', protect, admin, upload.single('image'), async (req,
             imageUrl: result.secure_url,
             public_id: result.public_id,
         });
-    } catch (error) {
-        next(error);
-    }
-});
-
-// @desc    Get products by category
-// @route   GET /api/products/category/:category
-// @access  Public
-router.get('/category/:category', async (req, res, next) => {
-    try {
-        const products = await Product.getByCategory(req.params.category)
-            .limit(8)
-            .select('-reviews');
-
-        res.json(products);
     } catch (error) {
         next(error);
     }

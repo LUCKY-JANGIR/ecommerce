@@ -86,22 +86,22 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background-light">
+    <div className="min-h-screen bg-gray-50">
       <div className="container w-full px-4 pt-24 pb-8">
         {/* Top Section: Profile Info and Actions */}
         <motion.div 
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="bg-card border border-accent rounded-2xl shadow-lg p-8 md:p-12 w-full mb-10"
+          className="bg-white border border-gray-200 rounded-2xl shadow-lg p-8 md:p-12 w-full mb-10"
         >
           {/* User Avatar */}
           <div className="text-center mb-10">
-            <div className="w-24 h-24 bg-accent rounded-full flex items-center justify-center text-white text-4xl font-bold mb-6 mx-auto shadow-lg">
+            <div className="w-24 h-24 bg-blue-600 rounded-full flex items-center justify-center text-white text-4xl font-bold mb-6 mx-auto shadow-lg">
               {profile?.name ? profile.name.split(' ').map((n: string) => n[0]).join('').toUpperCase() : 'U'}
             </div>
-            <h1 className="text-4xl font-serif font-bold text-primary mb-3">My Profile</h1>
-            <p className="text-muted text-lg">Manage your account information</p>
+            <h1 className="text-4xl font-serif font-bold text-gray-900 mb-3">My Profile</h1>
+            <p className="text-gray-600 text-lg">Manage your account information</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -110,27 +110,27 @@ export default function ProfilePage() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 }}
-              className="bg-background-light border border-accent rounded-xl p-6 shadow-md"
+              className="bg-gray-50 border border-gray-200 rounded-xl p-6 shadow-md"
             >
-              <h2 className="text-2xl font-serif font-bold text-primary mb-6 flex items-center gap-3">
-                <User className="h-6 w-6" /> Basic Information
+              <h2 className="text-2xl font-serif font-bold text-gray-900 mb-6 flex items-center gap-3">
+                <User className="h-6 w-6 text-blue-600" /> Basic Information
               </h2>
               <div className="space-y-4">
                 <div className="flex items-center">
-                  <User className="h-5 w-5 text-muted mr-3" />
-                  <span className="text-muted">Name:</span>
-                  <span className="ml-2 font-semibold text-primary">{profile?.name}</span>
+                  <User className="h-5 w-5 text-gray-500 mr-3" />
+                  <span className="text-gray-600">Name:</span>
+                  <span className="ml-2 font-semibold text-gray-900">{profile?.name}</span>
                 </div>
                 <div className="flex items-center">
-                  <Mail className="h-5 w-5 text-muted mr-3" />
-                  <span className="text-muted">Email:</span>
-                  <span className="ml-2 font-semibold text-primary">{profile?.email}</span>
+                  <Mail className="h-5 w-5 text-gray-500 mr-3" />
+                  <span className="text-gray-600">Email:</span>
+                  <span className="ml-2 font-semibold text-gray-900">{profile?.email}</span>
                 </div>
                 {profile?.phone && (
                   <div className="flex items-center">
-                    <Phone className="h-5 w-5 text-muted mr-3" />
-                    <span className="text-muted">Phone:</span>
-                    <span className="ml-2 font-semibold text-primary">{profile.phone}</span>
+                    <Phone className="h-5 w-5 text-gray-500 mr-3" />
+                    <span className="text-gray-600">Phone:</span>
+                    <span className="ml-2 font-semibold text-gray-900">{profile.phone}</span>
                   </div>
                 )}
               </div>
@@ -142,14 +142,14 @@ export default function ProfilePage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="bg-background-light border border-accent rounded-xl p-6 shadow-md"
+                className="bg-gray-50 border border-gray-200 rounded-xl p-6 shadow-md"
               >
-                <h2 className="text-2xl font-serif font-bold text-primary mb-6 flex items-center gap-3">
-                  <MapPin className="h-6 w-6" /> Address
+                <h2 className="text-2xl font-serif font-bold text-gray-900 mb-6 flex items-center gap-3">
+                  <MapPin className="h-6 w-6 text-blue-600" /> Address
                 </h2>
                 <div className="flex items-start">
-                  <MapPin className="h-5 w-5 text-muted mr-3 mt-1" />
-                  <div className="text-muted">
+                  <MapPin className="h-5 w-5 text-gray-500 mr-3 mt-1" />
+                  <div className="text-gray-600">
                     {profile.address.street && <p className="mb-1">{profile.address.street}</p>}
                     <p className="mb-1">{profile.address.city}, {profile.address.state} {profile.address.zipCode}</p>
                     <p>{profile.address.country}</p>
@@ -163,19 +163,19 @@ export default function ProfilePage() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 }}
-              className="bg-background-light border border-accent rounded-xl p-6 shadow-md"
+              className="bg-gray-50 border border-gray-200 rounded-xl p-6 shadow-md"
             >
-              <h2 className="text-2xl font-serif font-bold text-primary mb-6 flex items-center gap-3">
-                <User className="h-6 w-6" /> Account Information
+              <h2 className="text-2xl font-serif font-bold text-gray-900 mb-6 flex items-center gap-3">
+                <User className="h-6 w-6 text-blue-600" /> Account Information
               </h2>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-muted">Account Type:</span>
-                  <span className="font-semibold text-primary capitalize">{profile?.role}</span>
+                  <span className="text-gray-600">Account Type:</span>
+                  <span className="font-semibold text-gray-900 capitalize">{profile?.role}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-muted">Member Since:</span>
-                  <span className="font-semibold text-primary">
+                  <span className="text-gray-600">Member Since:</span>
+                  <span className="font-semibold text-gray-900">
                     {profile?.createdAt && !isNaN(new Date(profile.createdAt).getTime())
                       ? new Date(profile.createdAt).toLocaleDateString()
                       : 'N/A'}
@@ -195,19 +195,19 @@ export default function ProfilePage() {
             {auth.user?.role === 'admin' && (
               <Link
                 href="/admin"
-                className="block bg-primary text-white hover:bg-accent font-semibold rounded-xl px-6 py-3 transition-colors w-full md:w-auto text-center shadow-lg"
+                className="block bg-blue-600 text-white hover:bg-blue-700 font-semibold rounded-xl px-6 py-3 transition-colors w-full md:w-auto text-center shadow-lg"
               >
                 Go to Admin Panel
               </Link>
             )}
             <button
-              className="bg-accent text-white hover:bg-primary font-semibold rounded-xl px-6 py-3 transition-colors w-full md:w-auto shadow-lg"
+              className="bg-green-600 text-white hover:bg-green-700 font-semibold rounded-xl px-6 py-3 transition-colors w-full md:w-auto shadow-lg"
               onClick={() => setIsModalOpen(true)}
             >
               Update Profile
             </button>
             <button
-              className="bg-primary text-white hover:bg-accent font-semibold rounded-xl px-6 py-3 transition-colors w-full md:w-auto shadow-lg"
+              className="bg-purple-600 text-white hover:bg-purple-700 font-semibold rounded-xl px-6 py-3 transition-colors w-full md:w-auto shadow-lg"
               onClick={() => setIsChangePasswordOpen(true)}
             >
               Change Password
@@ -229,8 +229,8 @@ export default function ProfilePage() {
         <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} className="fixed z-50 inset-0 overflow-y-auto">
           <div className="fixed inset-0 bg-black/40" aria-hidden="true" />
           <div className="flex items-center justify-center min-h-screen px-4">
-            <Dialog.Panel className="relative bg-card border border-accent rounded-2xl shadow-xl w-full max-w-lg mx-auto p-8 z-50">
-              <Dialog.Title className="text-2xl font-serif font-bold text-primary mb-6 text-center">Update Profile</Dialog.Title>
+            <Dialog.Panel className="relative bg-white border border-gray-200 rounded-2xl shadow-xl w-full max-w-lg mx-auto p-8 z-50">
+              <Dialog.Title className="text-2xl font-serif font-bold text-gray-900 mb-6 text-center">Update Profile</Dialog.Title>
               <form
                 onSubmit={async (e) => {
                   e.preventDefault();
@@ -256,77 +256,77 @@ export default function ProfilePage() {
                 className="space-y-6"
               >
                 <div>
-                  <label className="block text-sm font-medium text-muted mb-2">Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
                   <input
                     type="text"
                     value={form.name}
                     onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                    className="w-full border border-accent rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-muted mb-2">Phone</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
                   <input
                     type="text"
                     value={form.phone}
                     onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
-                    className="w-full border border-accent rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-muted mb-2">Street</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Street</label>
                   <input
                     type="text"
                     value={form.address.street}
                     onChange={e => setForm(f => ({ ...f, address: { ...f.address, street: e.target.value } }))}
-                    className="w-full border border-accent rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-muted mb-2">City</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
                     <input
                       type="text"
                       value={form.address.city}
                       onChange={e => setForm(f => ({ ...f, address: { ...f.address, city: e.target.value } }))}
-                      className="w-full border border-accent rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
+                      className="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-muted mb-2">State</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
                     <input
                       type="text"
                       value={form.address.state}
                       onChange={e => setForm(f => ({ ...f, address: { ...f.address, state: e.target.value } }))}
-                      className="w-full border border-accent rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
+                      className="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
                     />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-muted mb-2">Zip Code</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Zip Code</label>
                     <input
                       type="text"
                       value={form.address.zipCode}
                       onChange={e => setForm(f => ({ ...f, address: { ...f.address, zipCode: e.target.value } }))}
-                      className="w-full border border-accent rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
+                      className="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-muted mb-2">Country</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
                     <input
                       type="text"
                       value={form.address.country}
                       onChange={e => setForm(f => ({ ...f, address: { ...f.address, country: e.target.value } }))}
-                      className="w-full border border-accent rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
+                      className="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
                     />
                   </div>
                 </div>
                 <div className="flex justify-end gap-4 mt-8">
                   <button
                     type="button"
-                    className="px-6 py-3 rounded-xl border border-accent bg-card hover:bg-background-light font-semibold transition-colors"
+                    className="px-6 py-3 rounded-xl border border-gray-300 bg-white hover:bg-gray-50 font-semibold transition-colors text-gray-700"
                     onClick={() => setIsModalOpen(false)}
                     disabled={saving}
                   >
@@ -334,7 +334,7 @@ export default function ProfilePage() {
                   </button>
                   <button
                     type="submit"
-                    className="px-8 py-3 rounded-xl bg-primary text-white font-bold hover:bg-accent transition-colors disabled:opacity-60 shadow-lg"
+                    className="px-8 py-3 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition-colors disabled:opacity-60 shadow-lg"
                     disabled={saving}
                   >
                     {saving ? 'Saving...' : 'Save Changes'}
@@ -349,8 +349,8 @@ export default function ProfilePage() {
         <Dialog open={isChangePasswordOpen} onClose={() => setIsChangePasswordOpen(false)} className="fixed z-50 inset-0 overflow-y-auto">
           <div className="fixed inset-0 bg-black/40" aria-hidden="true" />
           <div className="flex items-center justify-center min-h-screen px-4">
-            <Dialog.Panel className="relative bg-card border border-accent rounded-2xl shadow-xl w-full max-w-lg mx-auto p-8 z-50">
-              <Dialog.Title className="text-2xl font-serif font-bold text-primary mb-6 text-center">Change Password</Dialog.Title>
+            <Dialog.Panel className="relative bg-white border border-gray-200 rounded-2xl shadow-xl w-full max-w-lg mx-auto p-8 z-50">
+              <Dialog.Title className="text-2xl font-serif font-bold text-gray-900 mb-6 text-center">Change Password</Dialog.Title>
               <form
                 onSubmit={async (e) => {
                   e.preventDefault();
@@ -379,47 +379,47 @@ export default function ProfilePage() {
                 className="space-y-6"
               >
                 <div>
-                  <label htmlFor="currentPassword" className="block text-sm font-medium text-muted mb-2">Current Password</label>
+                  <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
                   <input
                     id="currentPassword"
                     type="password"
                     required
                     value={currentPassword}
                     onChange={e => setCurrentPassword(e.target.value)}
-                    className="w-full border border-accent rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
                   />
                 </div>
                 <div>
-                  <label htmlFor="newPassword" className="block text-sm font-medium text-muted mb-2">New Password</label>
+                  <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-2">New Password</label>
                   <input
                     id="newPassword"
                     type="password"
                     required
                     value={newPassword}
                     onChange={e => setNewPassword(e.target.value)}
-                    className="w-full border border-accent rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
                   />
                 </div>
                 <div>
-                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-muted mb-2">Confirm New Password</label>
+                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
                   <input
                     id="confirmPassword"
                     type="password"
                     required
                     value={confirmPassword}
                     onChange={e => setConfirmPassword(e.target.value)}
-                    className="w-full border border-accent rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={changing}
-                  className="w-full py-3 px-6 bg-primary text-white font-bold rounded-xl hover:bg-accent transition-colors disabled:opacity-60 shadow-lg"
+                  className="w-full py-3 px-6 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-60 shadow-lg"
                 >
                   {changing ? 'Changing...' : 'Change Password'}
                 </button>
                 <div className="text-center mt-4">
-                  <Link href="/forgot-password" className="text-primary hover:text-accent underline text-sm">Forgot Password?</Link>
+                  <Link href="/forgot-password" className="text-blue-600 hover:text-blue-700 underline text-sm">Forgot Password?</Link>
                 </div>
               </form>
             </Dialog.Panel>

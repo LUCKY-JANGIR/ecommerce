@@ -6,40 +6,45 @@ import dynamic from 'next/dynamic';
 
 // Dynamic imports for better performance
 const HeroSection = dynamic(() => import('@/components/Home/HeroSection'), {
-  loading: () => <div className="h-screen bg-background-cream animate-pulse" />,
+  loading: () => <div className="h-screen bg-gray-100 animate-pulse" />,
   ssr: true
 });
 
-const FeaturedCollections = dynamic(() => import('@/components/Home/FeaturedCollections'), {
-  loading: () => <div className="py-24 bg-background-cream animate-pulse" />,
+const BrandStory = dynamic(() => import('@/components/Home/BrandStory'), {
+  loading: () => <div className="py-20 bg-gray-100 animate-pulse" />,
   ssr: true
 });
 
-const AboutSection = dynamic(() => import('@/components/Home/AboutSection'), {
-  loading: () => <div className="py-24 bg-background-cream animate-pulse" />,
+const FeaturedProducts = dynamic(() => import('@/components/Home/FeaturedProducts'), {
+  loading: () => <div className="py-20 bg-gray-100 animate-pulse" />,
+  ssr: true
+});
+
+const CategoriesSection = dynamic(() => import('@/components/Home/CategoriesSection'), {
+  loading: () => <div className="py-20 bg-gray-100 animate-pulse" />,
   ssr: true
 });
 
 const Testimonials = dynamic(() => import('@/components/Home/Testimonials'), {
-  loading: () => <div className="py-24 bg-background-cream animate-pulse" />,
+  loading: () => <div className="py-20 bg-gray-100 animate-pulse" />,
   ssr: true
 });
 
 const NewsletterCTA = dynamic(() => import('@/components/Home/NewsletterCTA'), {
-  loading: () => <div className="py-24 bg-background-cream animate-pulse" />,
+  loading: () => <div className="py-20 bg-gray-100 animate-pulse" />,
   ssr: true
 });
 
 const Footer = dynamic(() => import('@/components/Shared/Footer'), {
-  loading: () => <div className="py-12 bg-background-cream animate-pulse" />,
+  loading: () => <div className="py-12 bg-gray-100 animate-pulse" />,
   ssr: true
 });
 
 export default function Home() {
   return (
     <main className="min-h-screen">
-      {/* Hero Section */}
-      <Suspense fallback={<div className="h-screen bg-background-cream animate-pulse" />}>
+      {/* Hero Section with Swiper Carousel */}
+      <Suspense fallback={<div className="h-screen bg-gray-100 animate-pulse" />}>
         <motion.section
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -49,61 +54,73 @@ export default function Home() {
         </motion.section>
       </Suspense>
 
-      {/* Featured Collections */}
-      <Suspense fallback={<div className="py-24 bg-background-cream animate-pulse" />}>
+      {/* Brand Story Section */}
+      <Suspense fallback={<div className="py-20 bg-gray-100 animate-pulse" />}>
         <motion.section
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.1 }}
         >
-          <FeaturedCollections />
+          <BrandStory />
         </motion.section>
       </Suspense>
 
-      {/* About/Brand Story Section */}
-      <Suspense fallback={<div className="py-24 bg-background-cream animate-pulse" />}>
+      {/* Featured Products Section */}
+      <Suspense fallback={<div className="py-20 bg-gray-100 animate-pulse" />}>
         <motion.section
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <AboutSection />
+          <FeaturedProducts />
         </motion.section>
       </Suspense>
 
-      {/* Testimonials Section */}
-      <Suspense fallback={<div className="py-24 bg-background-cream animate-pulse" />}>
+      {/* Categories Section */}
+      <Suspense fallback={<div className="py-20 bg-gray-100 animate-pulse" />}>
         <motion.section
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.3 }}
         >
-          <Testimonials />
+          <CategoriesSection />
         </motion.section>
       </Suspense>
 
-      {/* Newsletter CTA Section */}
-      <Suspense fallback={<div className="py-24 bg-background-cream animate-pulse" />}>
+      {/* Testimonials Section */}
+      <Suspense fallback={<div className="py-20 bg-gray-100 animate-pulse" />}>
         <motion.section
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.4 }}
         >
-          <NewsletterCTA />
+          <Testimonials />
         </motion.section>
       </Suspense>
 
-      {/* Footer */}
-      <Suspense fallback={<div className="py-12 bg-background-cream animate-pulse" />}>
+      {/* Newsletter CTA Section */}
+      <Suspense fallback={<div className="py-20 bg-gray-100 animate-pulse" />}>
         <motion.section
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.5 }}
+        >
+          <NewsletterCTA />
+        </motion.section>
+      </Suspense>
+
+      {/* Footer */}
+      <Suspense fallback={<div className="py-12 bg-gray-100 animate-pulse" />}>
+        <motion.section
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.6 }}
         >
           <Footer />
         </motion.section>

@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useStore } from '@/store/useStore';
 import { handleApiError, CustomError } from '@/lib/errorHandler';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 // Create axios instance
 const api = axios.create({
@@ -326,6 +326,15 @@ export const productsAPI = {
     }
   },
 
+  toggleFeatured: async (id: string) => {
+    try {
+      const response = await api.patch(`/products/${id}/toggle-featured`);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
+  },
+
   addReview: async (productId: string, review: {
     rating: number;
     comment: string;
@@ -575,16 +584,49 @@ export const usersAPI = {
   },
 
   getWishlist: async () => {
-    const response = await api.get('/users/wishlist');
-    return response.data;
+    try {
+      const response = await api.get('/users/wishlist');
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
   },
   addToWishlist: async (productId: string) => {
-    const response = await api.post('/users/wishlist', { productId });
-    return response.data;
+    try {
+      const response = await api.post('/users/wishlist', { productId });
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
   },
   removeFromWishlist: async (productId: string) => {
-    const response = await api.delete(`/users/wishlist/${productId}`);
-    return response.data;
+    try {
+      const response = await api.delete(`/users/wishlist/${productId}`);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
+  },
+};
+
+// Platform Reviews API
+export const platformReviewsAPI = {
+  getAll: async () => {
+    try {
+      const response = await api.get('/reviews');
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
+  },
+
+  create: async (reviewData: { comment: string }) => {
+    try {
+      const response = await api.post('/reviews', reviewData);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
   },
 };
 

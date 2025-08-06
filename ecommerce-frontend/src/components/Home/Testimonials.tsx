@@ -1,230 +1,257 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Card, CardContent } from '@/components/ui/card';
+import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+import { platformReviewsAPI } from '@/components/services/api';
+import { Star } from 'lucide-react';
+import PlatformReviewModal from '@/components/PlatformReviewModal';
 
-interface Testimonial {
-  id: string;
-  quote: string;
-  name: string;
-  title: string;
-  rating: number;
-  avatar?: string;
-  location?: string;
+// Import Swiper styles
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+
+interface Review {
+  _id: string;
+  comment: string;
+  user: {
+    _id: string;
+    name: string;
+  };
+  createdAt: string;
 }
 
-interface TestimonialsProps {
-  testimonials?: Testimonial[];
-  title?: string;
-  subtitle?: string;
-}
+export default function Testimonials() {
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
 
-const defaultTestimonials: Testimonial[] = [
-  {
-    id: '1',
-    quote: "The quality of craftsmanship is absolutely breathtaking. Each piece tells a story and brings such warmth to our home. I'm in love with my handwoven textiles!",
-    name: "Priya Sharma",
-    title: "Interior Designer",
-    rating: 5,
-    location: "Mumbai, India"
-  },
-  {
-    id: '2',
-    quote: "I've been collecting Indian handloom for years, and this is by far the most authentic and beautifully curated collection I've found. The attention to detail is remarkable.",
-    name: "Sarah Johnson",
-    title: "Art Collector",
-    rating: 5,
-    location: "New York, USA"
-  },
-  {
-    id: '3',
-    quote: "The jewelry pieces are stunning - they're not just accessories, they're works of art. I receive compliments every time I wear them. The heritage gold work is exceptional.",
-    name: "Aisha Patel",
-    title: "Fashion Blogger",
-    rating: 5,
-    location: "London, UK"
-  },
-  {
-    id: '4',
-    quote: "As someone who values sustainable and ethical fashion, I appreciate how this brand supports artisan communities. The quality and authenticity are unmatched.",
-    name: "Michael Chen",
-    title: "Sustainability Advocate",
-    rating: 5,
-    location: "San Francisco, USA"
-  }
-];
-
-export default function Testimonials({
-  testimonials = defaultTestimonials,
-  title = "What Our Customers Say",
-  subtitle = "Discover why discerning customers choose Indian Handloom for their most treasured pieces."
-}: TestimonialsProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  // Auto-advance carousel
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % testimonials.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [testimonials.length]);
-
-  const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }, (_, i) => (
-      <svg
-        key={i}
-        className={`w-5 h-5 ${i < rating ? 'text-accent-500' : 'text-gray-300'}`}
-        fill="currentColor"
-        viewBox="0 0 20 20"
-      >
-        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-      </svg>
-    ));
+  const fetchReviews = async () => {
+    try {
+      const data = await platformReviewsAPI.getAll();
+      if (data && data.reviews && Array.isArray(data.reviews)) {
+        // Take the latest 6 reviews
+        setReviews(data.reviews.slice(0, 6));
+      }
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  useEffect(() => {
+    fetchReviews();
+  }, []);
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  };
+
+  const handleReviewSubmitted = () => {
+    fetchReviews(); // Refresh reviews after submission
+  };
+
+  if (loading) {
+    return (
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">What Our Customers Say</h2>
+            <p className="text-lg text-gray-600">Real reviews from our valued customers</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {[...Array(6)].map((_, index) => (
+              <div key={index} className="bg-gray-50 rounded-2xl p-6 animate-pulse">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-gray-300 rounded-full"></div>
+                  <div className="ml-4">
+                    <div className="h-4 bg-gray-300 rounded w-24 mb-2"></div>
+                    <div className="h-3 bg-gray-300 rounded w-16"></div>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="h-4 bg-gray-300 rounded"></div>
+                  <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section className="py-24 bg-heritage-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <motion.div
+    <section className="section-responsive bg-white">
+      <div className="container-responsive">
+        <motion.div 
+          className="text-center mb-12"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-16"
         >
-          <div className="flex justify-center mb-6">
-            <div className="w-20 h-1 bg-accent-500 rounded-full" />
-          </div>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-primary-700 mb-6">
-            {title}
-          </h2>
-          <p className="max-w-3xl mx-auto text-lg md:text-xl text-text-secondary leading-relaxed">
-            {subtitle}
-          </p>
+          <h2 className="text-responsive-3xl font-bold text-gray-900 mb-4">What Our Customers Say</h2>
+          <p className="text-responsive-base text-gray-600">Real reviews from our valued customers</p>
+          <motion.button
+            onClick={() => setIsReviewModalOpen(true)}
+            className="mt-6 bg-orange-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-orange-700 transition-colors"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            Write a Review
+          </motion.button>
         </motion.div>
 
-        {/* Testimonials Carousel */}
-        <div className="relative max-w-4xl mx-auto">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentIndex}
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -50 }}
-              transition={{ duration: 0.5 }}
-              className="relative"
+        {reviews.length > 0 ? (
+          <div className="relative">
+            <Swiper
+              modules={[Navigation, Pagination, Autoplay]}
+              spaceBetween={24}
+              slidesPerView={1}
+              navigation={{
+                nextEl: '.testimonials-swiper-next',
+                prevEl: '.testimonials-swiper-prev',
+              }}
+              pagination={{
+                clickable: true,
+                dynamicBullets: true,
+              }}
+              autoplay={{
+                delay: 5000,
+                disableOnInteraction: false,
+              }}
+              breakpoints={{
+                640: {
+                  slidesPerView: 2,
+                  spaceBetween: 20,
+                },
+                1024: {
+                  slidesPerView: 3,
+                  spaceBetween: 24,
+                },
+              }}
+              className="testimonials-swiper"
             >
-              <Card variant="testimonial" className="text-center p-8 md:p-12">
-                <CardContent className="space-y-6">
-                  {/* Quote Icon */}
-                  <div className="flex justify-center mb-6">
-                    <div className="w-16 h-16 bg-accent-100 rounded-full flex items-center justify-center">
-                      <svg
-                        className="w-8 h-8 text-accent-600"
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
-                      </svg>
+              {reviews.map((review, index) => (
+                <SwiperSlide key={review._id}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                    className="bg-gray-50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 h-full"
+                  >
+                    {/* Stars */}
+                    <div className="flex items-center mb-4">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`w-5 h-5 ${
+                            i < 5 ? 'text-yellow-400 fill-current' : 'text-gray-300'
+                          }`}
+                        />
+                      ))}
                     </div>
-                  </div>
 
-                  {/* Quote */}
-                  <blockquote className="text-xl md:text-2xl lg:text-3xl font-serif text-primary-700 leading-relaxed mb-8">
-                    "{testimonials[currentIndex].quote}"
-                  </blockquote>
+                    {/* Review Text */}
+                    <blockquote className="text-gray-700 mb-6 italic text-sm leading-relaxed">
+                      "{review.comment}"
+                    </blockquote>
 
-                  {/* Rating */}
-                  <div className="flex justify-center mb-6">
-                    <div className="flex gap-1">
-                      {renderStars(testimonials[currentIndex].rating)}
-                    </div>
-                  </div>
-
-                  {/* Author */}
-                  <div className="space-y-2">
-                    <div className="font-semibold text-lg text-primary-700">
-                      {testimonials[currentIndex].name}
-                    </div>
-                    <div className="text-text-secondary">
-                      {testimonials[currentIndex].title}
-                    </div>
-                    {testimonials[currentIndex].location && (
-                      <div className="text-sm text-text-muted">
-                        {testimonials[currentIndex].location}
+                    {/* User Info */}
+                    <div className="flex items-center">
+                      <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center text-white font-semibold text-lg">
+                        {review.user.name.charAt(0).toUpperCase()}
                       </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </AnimatePresence>
-
-          {/* Navigation Dots */}
-          <div className="flex justify-center mt-8 space-x-2">
-            {testimonials.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentIndex(index)}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                  index === currentIndex
-                    ? 'bg-accent-500 scale-125'
-                    : 'bg-heritage-300 hover:bg-heritage-400'
-                }`}
-                aria-label={`Go to testimonial ${index + 1}`}
-              />
-            ))}
-          </div>
-
-          {/* Navigation Arrows */}
-          <button
-            onClick={() => setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length)}
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow"
-            aria-label="Previous testimonial"
-          >
-            <svg className="w-6 h-6 text-primary-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-
-          <button
-            onClick={() => setCurrentIndex((prev) => (prev + 1) % testimonials.length)}
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow"
-            aria-label="Next testimonial"
-          >
-            <svg className="w-6 h-6 text-primary-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
-
-        {/* Trust Indicators */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-          className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 text-center"
-        >
-          {[
-            { label: "Authentic Craftsmanship", value: "100%" },
-            { label: "Artisan Support", value: "500+" },
-            { label: "Customer Satisfaction", value: "98%" },
-            { label: "Years of Heritage", value: "200+" }
-          ].map((stat, index) => (
-            <div key={stat.label} className="space-y-2">
-              <div className="text-2xl md:text-3xl font-serif font-bold text-accent-600">
-                {stat.value}
-              </div>
-              <div className="text-sm text-text-muted">
-                {stat.label}
-              </div>
+                      <div className="ml-4">
+                        <div className="font-semibold text-gray-900">{review.user.name}</div>
+                        <div className="text-sm text-gray-500">{formatDate(review.createdAt)}</div>
+                      </div>
+                    </div>
+                  </motion.div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+            
+            {/* Custom Navigation Buttons */}
+            <div className="testimonials-swiper-prev absolute left-4 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
+              <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
             </div>
-          ))}
-        </motion.div>
+            <div className="testimonials-swiper-next absolute right-4 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
+              <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </div>
+        ) : (
+          <motion.div 
+            className="text-center py-12"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <div className="max-w-md mx-auto">
+              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Star className="w-8 h-8 text-orange-500" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Be the First to Review</h3>
+              <p className="text-gray-600 mb-6">
+                We'd love to hear about your experience with our handloom products. 
+                Share your thoughts and help others discover the beauty of authentic Indian textiles.
+              </p>
+              <button 
+                onClick={() => setIsReviewModalOpen(true)}
+                className="bg-orange-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-orange-700 transition-colors"
+              >
+                Write a Review
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Stats */}
+        {reviews.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="mt-16 grid grid-cols-3 gap-8 text-center"
+          >
+            <div>
+              <div className="text-3xl font-bold text-orange-600">{reviews.length}+</div>
+              <div className="text-gray-600">Happy Customers</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-orange-600">5.0</div>
+              <div className="text-gray-600">Average Rating</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-orange-600">100%</div>
+              <div className="text-gray-600">Satisfaction Rate</div>
+            </div>
+          </motion.div>
+        )}
       </div>
+
+      {/* Review Modal */}
+      <PlatformReviewModal
+        isOpen={isReviewModalOpen}
+        onClose={() => setIsReviewModalOpen(false)}
+        onReviewSubmitted={handleReviewSubmitted}
+      />
     </section>
   );
 } 

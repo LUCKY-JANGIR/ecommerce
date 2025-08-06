@@ -1,6 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // API rewrites to proxy requests to backend
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://localhost:5001/api/:path*', // Proxy to your Express backend
+      },
+    ];
+  },
+
   // Image optimization
   images: {
     remotePatterns: [
@@ -50,9 +60,9 @@ const nextConfig: NextConfig = {
     },
   },
   
-  // Disable ESLint during builds for faster builds
+  // ESLint configuration
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: process.env.NODE_ENV === 'production',
   },
   
   // Environment variables

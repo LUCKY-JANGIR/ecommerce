@@ -80,12 +80,32 @@ app.use(performanceMonitor);
 app.use(requestLogger);
 app.use(securityMonitor);
 
-// Rate limiting
+// Rate limiting - more lenient for development
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100 // limit each IP to 100 requests per windowMs
+    max: 1000, // Increased from 100 to 1000 for development
+    message: 'Too many requests from this IP, please try again later.',
+    standardHeaders: true,
+    legacyHeaders: false,
 });
-app.use(limiter);
+
+// Apply rate limiting to all routes except health checks
+app.use('/api', limiter);
+
+// Skip rate limiting for health checks
+app.get('/api/health', (req, res) => {
+    res.json({ 
+        status: 'OK', 
+        message: 'Server is running',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        environment: process.env.NODE_ENV || 'development'
+    });
+});
+
+app.get('/api/system-health', (req, res) => {
+    res.json(systemHealth());
+});
 
 // CORS configuration
 const allowedOrigins = [
@@ -131,22 +151,6 @@ app.use('/api/users', userRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/reviews', platformReviewsRoute);
-
-// Health check endpoint
-app.get('/api/health', (req, res) => {
-    res.json({ 
-        status: 'OK', 
-        message: 'Server is running',
-        timestamp: new Date().toISOString(),
-        uptime: process.uptime(),
-        environment: process.env.NODE_ENV || 'development'
-    });
-});
-
-// System health endpoint
-app.get('/api/system-health', (req, res) => {
-    res.json(systemHealth());
-});
 
 // Error handling middleware (must be after routes)
 app.use(notFound);

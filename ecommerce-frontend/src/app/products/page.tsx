@@ -17,6 +17,13 @@ import {
 } from 'lucide-react';
 import { useDebounce } from '@/hooks/useDebounce';
 import { motion } from 'framer-motion';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+
+// Import Swiper styles
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 
 // Dynamic import for ProductCard to reduce initial bundle
 const ProductCard = dynamic(() => import('@/components/ProductCard'), {
@@ -35,6 +42,7 @@ export default function ProductsPageWrapper() {
 function ProductsPage() {
   const searchParams = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -90,7 +98,10 @@ function ProductsPage() {
       const response = await productsAPI.getAll(params);
       if (response.products && response.products.length > 0) {
         setProducts(prev => [...prev, ...response.products]);
-        setPagination(response.pagination);
+        setPagination(prev => ({
+          ...response.pagination,
+          currentPage: nextPage,
+        }));
       }
     } catch (error) {
       console.error('Error loading more products:', error);
@@ -104,15 +115,15 @@ function ProductsPage() {
     if (loading || loadingMore) return;
     if (observer.current) observer.current.disconnect();
     observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && pagination.hasNextPage) {
-        // Call loadMoreProducts directly without dependency
-        if (!loadingMore && pagination.hasNextPage) {
-          loadMoreProducts();
-        }
+      if (entries[0].isIntersecting && pagination.hasNextPage && !loadingMore) {
+        loadMoreProducts();
       }
+    }, {
+      rootMargin: '100px', // Start loading 100px before the element is visible
+      threshold: 0.1
     });
     if (node) observer.current.observe(node);
-  }, [loading, loadingMore, pagination.hasNextPage]);
+  }, [loading, loadingMore, pagination.hasNextPage, loadMoreProducts]);
 
   useEffect(() => {
     // Fetch categories from backend
@@ -126,6 +137,19 @@ function ProductsPage() {
       }
     };
     fetchCategories();
+
+    // Fetch featured products
+    const fetchFeaturedProducts = async () => {
+      try {
+        const data = await productsAPI.getFeatured();
+        if (data && Array.isArray(data)) {
+          setFeaturedProducts(data.slice(0, 6)); // Show only 6 featured products
+        }
+      } catch (error) {
+        console.error('Error fetching featured products:', error);
+      }
+    };
+    fetchFeaturedProducts();
   }, []);
 
   useEffect(() => {
@@ -224,10 +248,83 @@ function ProductsPage() {
               Explore handcrafted treasures from India's finest artisans. Each piece tells a story of tradition, passion, and unparalleled craftsmanship.
             </p>
           </div>
-          <div className="text-center">
-            <p className="text-text-muted font-medium">{pagination.totalProducts} products found</p>
-          </div>
         </motion.div>
+
+        {/* Featured Products Carousel */}
+        {featuredProducts.length > 0 && (
+          <motion.div 
+            className="mb-16"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">Featured Products</h2>
+              <p className="text-gray-600">Handpicked collection of our finest items</p>
+            </div>
+            
+            <div className="relative">
+              <Swiper
+                modules={[Navigation, Pagination, Autoplay]}
+                spaceBetween={24}
+                slidesPerView={1}
+                navigation={{
+                  nextEl: '.featured-products-next',
+                  prevEl: '.featured-products-prev',
+                }}
+                pagination={{
+                  clickable: true,
+                  dynamicBullets: true,
+                }}
+                autoplay={{
+                  delay: 4000,
+                  disableOnInteraction: false,
+                }}
+                breakpoints={{
+                  640: {
+                    slidesPerView: 2,
+                    spaceBetween: 20,
+                  },
+                  768: {
+                    slidesPerView: 3,
+                    spaceBetween: 24,
+                  },
+                  1024: {
+                    slidesPerView: 4,
+                    spaceBetween: 24,
+                  },
+                }}
+                className="featured-products-swiper"
+              >
+                {featuredProducts.map((product, index) => (
+                  <SwiperSlide key={product._id}>
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                    >
+                      <ProductCard product={product} viewMode="grid" />
+                    </motion.div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+              
+              {/* Custom Navigation Buttons */}
+              <div className="featured-products-prev absolute left-4 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
+                <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </div>
+              <div className="featured-products-next absolute right-4 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
+                <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
+          </motion.div>
+        )}
 
         {/* Search and Filters */}
         <motion.div 
@@ -374,10 +471,10 @@ function ProductsPage() {
                   <motion.div
                     key={product._id}
                     ref={index === products.length - 1 ? lastProductElementRef : null}
-                    initial={{ opacity: 0, y: 40 }}
+                    initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, amount: 0.2 }}
-                    transition={{ duration: 0.6, delay: index * 0.05 }}
+                    viewport={{ once: true, amount: 0.1 }}
+                    transition={{ duration: 0.3, delay: index * 0.02 }}
                   >
                     <ProductCard product={product} viewMode={viewMode} />
                   </motion.div>

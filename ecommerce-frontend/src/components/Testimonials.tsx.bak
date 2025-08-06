@@ -1,0 +1,100 @@
+"use client";
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
+
+const testimonials = [
+  {
+    id: 1,
+    name: "Priya Sharma",
+    role: "Fashion Designer",
+    image: "/IMG-20250805-WA0005.jpg",
+    content: "The quality of handloom products is exceptional. Each piece tells a story of tradition and craftsmanship. I've been a loyal customer for years.",
+  },
+  {
+    id: 2,
+    name: "Rajesh Kumar",
+    role: "Art Collector",
+    image: "/IMG-20250805-WA0007.jpg",
+    content: "What sets this platform apart is their commitment to authenticity. The direct connection with artisans makes each purchase special.",
+  },
+  {
+    id: 3,
+    name: "Anita Patel",
+    role: "Interior Designer",
+    image: "/IMG-20250805-WA0008.jpg",
+    content: "The variety and quality of traditional textiles available here is amazing. It's a treasure trove for anyone who appreciates Indian craftsmanship.",
+  }
+];
+
+export default function Testimonials() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const next = () => {
+    setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+  };
+
+  const prev = () => {
+    setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+  };
+
+  return (
+    <div className="relative overflow-hidden">
+      <div className="max-w-3xl mx-auto px-4">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentIndex}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className="text-center"
+          >
+            <div className="relative w-24 h-24 mx-auto mb-6">
+              <Image
+                src={testimonials[currentIndex].image}
+                alt={testimonials[currentIndex].name}
+                fill
+                className="object-cover rounded-full"
+              />
+            </div>
+            <blockquote className="text-xl italic text-gray-600 mb-6">
+              "{testimonials[currentIndex].content}"
+            </blockquote>
+            <div className="font-semibold text-lg">{testimonials[currentIndex].name}</div>
+            <div className="text-gray-500">{testimonials[currentIndex].role}</div>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Navigation Dots */}
+      <div className="flex justify-center space-x-2 mt-8">
+        {testimonials.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentIndex(index)}
+            className={`w-2 h-2 rounded-full transition-all ${
+              index === currentIndex ? 'bg-heritage-600 w-4' : 'bg-gray-300'
+            }`}
+          />
+        ))}
+      </div>
+
+      {/* Navigation Arrows */}
+      <button
+        onClick={prev}
+        className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 shadow-lg flex items-center justify-center text-gray-600 hover:bg-white transition-all"
+        aria-label="Previous testimonial"
+      >
+        ←
+      </button>
+      <button
+        onClick={next}
+        className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 shadow-lg flex items-center justify-center text-gray-600 hover:bg-white transition-all"
+        aria-label="Next testimonial"
+      >
+        →
+      </button>
+    </div>
+  );
+}

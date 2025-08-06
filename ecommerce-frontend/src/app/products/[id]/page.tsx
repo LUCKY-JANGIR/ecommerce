@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination, Thumbs } from 'swiper/modules';
 import { productsAPI } from "@/components/services/api";
 import { Product } from "@/store/useStore";
 import { useStore } from "@/store/useStore";
@@ -24,6 +26,12 @@ import {
 import toast from "react-hot-toast";
 import Link from "next/link";
 import ReviewModal from "@/components/ReviewModal";
+
+// Import Swiper styles
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import 'swiper/css/thumbs';
 
 interface Review {
   _id: string;
@@ -200,14 +208,68 @@ export default function ProductDetailsPage() {
             transition={{ duration: 0.6 }}
             className="space-y-8"
           >
-            {/* Main Image */}
-            <div className="relative aspect-square bg-white border border-heritage-200 rounded-3xl shadow-lg overflow-hidden">
-              <Image
-                src={mainImage}
-                alt={product.name}
-                fill
-                className="object-cover"
-                />
+            {/* Main Image Carousel */}
+            <div className="relative">
+              <Swiper
+                modules={[Navigation, Pagination, Thumbs]}
+                spaceBetween={0}
+                slidesPerView={1}
+                navigation={{
+                  nextEl: '.product-image-next',
+                  prevEl: '.product-image-prev',
+                }}
+                pagination={{
+                  clickable: true,
+                  dynamicBullets: true,
+                }}
+                onSlideChange={(swiper) => setSelectedImage(swiper.activeIndex)}
+                className="product-image-swiper rounded-3xl overflow-hidden shadow-lg"
+              >
+                {images.length > 0 ? (
+                  images.map((image, index) => {
+                    const imageUrl = typeof image === 'string' ? image : image?.url || '/placeholder-product.svg';
+                    return (
+                      <SwiperSlide key={index}>
+                        <div className="relative aspect-square bg-white">
+                          <Image
+                            src={imageUrl}
+                            alt={`${product.name} ${index + 1}`}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      </SwiperSlide>
+                    );
+                  })
+                ) : (
+                  <SwiperSlide>
+                    <div className="relative aspect-square bg-white">
+                      <Image
+                        src="/placeholder-product.svg"
+                        alt={product.name}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  </SwiperSlide>
+                )}
+              </Swiper>
+              
+              {/* Custom Navigation Buttons */}
+              {images.length > 1 && (
+                <>
+                  <div className="product-image-prev absolute left-4 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white bg-opacity-80 rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-white transition-colors">
+                    <svg className="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </div>
+                  <div className="product-image-next absolute right-4 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white bg-opacity-80 rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-white transition-colors">
+                    <svg className="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </>
+              )}
             </div>
             
             {/* Thumbnail Images */}
