@@ -7,18 +7,8 @@ import Image from 'next/image';
 import { productsAPI } from '@/components/services/api';
 import { getOptimizedImageUrl } from '@/lib/imageUtils';
 import { Heart, ShoppingCart } from 'lucide-react';
-import { useStore } from '@/store/useStore';
+import { useStore, Product } from '@/store/useStore';
 import toast from 'react-hot-toast';
-
-interface Product {
-  _id: string;
-  name: string;
-  price: number;
-  images?: Array<{ url: string; alt?: string }>;
-  category?: { name: string; _id: string };
-  averageRating?: number;
-  numReviews?: number;
-}
 
 interface RecommendedProductsProps {
   currentProductId: string;
@@ -164,7 +154,7 @@ export default function RecommendedProducts({
                   
                   {product.category && (
                     <p className="text-gray-500 text-xs sm:text-sm mb-2">
-                      {product.category.name}
+                      {typeof product.category === 'object' ? product.category.name : product.category}
                     </p>
                   )}
 
