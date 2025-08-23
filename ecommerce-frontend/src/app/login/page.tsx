@@ -162,7 +162,7 @@ export default function LoginPage() {
             {/* Register Link */}
             <div className="text-center">
               <p className="text-muted">
-                Don't have an account?{' '}
+                Don&apos;t have an account?{' '}
                 <Link href="/register" className="text-primary hover:text-accent font-semibold transition-colors">
                   Sign up
                 </Link>

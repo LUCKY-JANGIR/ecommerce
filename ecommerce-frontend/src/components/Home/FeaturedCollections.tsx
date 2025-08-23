@@ -59,7 +59,7 @@ const defaultCollections: Collection[] = [
 export default function FeaturedCollections({
   collections = defaultCollections,
   title = "Featured Collections",
-  subtitle = "Discover our carefully curated collections, each representing the finest craftsmanship from India's artisan communities."
+  subtitle = "Discover our carefully curated collections, each representing the finest craftsmanship from India&apos;s artisan communities."
 }: FeaturedCollectionsProps) {
   const containerVariants = {
     hidden: { opacity: 0 },

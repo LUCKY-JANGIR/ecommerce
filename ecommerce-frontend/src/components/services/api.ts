@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useStore } from '@/store/useStore';
-import { handleApiError, CustomError } from '@/lib/errorHandler';
+import { handleApiError } from '@/lib/errorHandler';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 

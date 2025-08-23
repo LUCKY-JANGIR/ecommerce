@@ -12,7 +12,6 @@ import toast from 'react-hot-toast';
 export default function CartPage() {
   const router = useRouter();
   const { cart, removeFromCart, updateCartItemQuantity, clearCart } = useStore();
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleQuantityChange = (productId: string, newQuantity: number) => {
     if (newQuantity < 1) {
@@ -60,7 +59,7 @@ export default function CartPage() {
             </div>
             <h1 className="text-4xl md:text-5xl font-serif font-bold text-primary-700 mb-6">Your Cart is Empty</h1>
             <p className="text-text-secondary text-lg mb-10 max-w-md mx-auto">
-              Looks like you haven't added any items to your cart yet. Start exploring our handcrafted treasures.
+              Looks like you haven&apos;t added any items to your cart yet. Start exploring our handcrafted treasures.
             </p>
             <Link
               href="/products"

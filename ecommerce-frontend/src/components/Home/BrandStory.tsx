@@ -83,7 +83,7 @@ export default function BrandStory() {
               transition={{ duration: 0.8, delay: 0.6 }}
             >
               <p>
-                Founded with a deep passion for preserving India's rich textile heritage, 
+                Founded with a deep passion for preserving India&apos;s rich textile heritage, 
                 our journey began in the heart of traditional weaving communities. We believe 
                 that every thread tells a story, every pattern carries a legacy, and every 
                 piece of fabric connects us to our cultural roots.
@@ -99,7 +99,7 @@ export default function BrandStory() {
               <p>
                 From the vibrant colors of Rajasthan to the intricate weaves of Varanasi, 
                 from the soft cottons of Bengal to the luxurious silks of Karnataka, 
-                we curate the finest handloom products that celebrate India's diverse 
+                we curate the finest handloom products that celebrate India&apos;s diverse 
                 textile traditions.
               </p>
             </motion.div>

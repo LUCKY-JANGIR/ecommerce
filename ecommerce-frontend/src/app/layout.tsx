@@ -9,7 +9,6 @@ import HydrationProvider from "@/components/HydrationProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import LenisProvider from "@/components/LenisProvider";
 import "@/app/fonts.css";
-import Link from 'next/link';
 import { Toaster } from 'react-hot-toast';
 
 export const metadata: Metadata = {

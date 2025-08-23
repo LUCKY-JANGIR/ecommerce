@@ -131,7 +131,7 @@ export default function RegisterPage() {
             className="bg-card border border-accent rounded-2xl shadow-xl p-8 max-w-md w-full text-center"
           >
             <h2 className="text-2xl font-serif font-bold text-primary mb-4">Welcome!</h2>
-            <p className="text-muted mb-6">Registration successful. Don't forget to set up your profile for a better experience!</p>
+            <p className="text-muted mb-6">Registration successful. Don&apos;t forget to set up your profile for a better experience!</p>
             <button
               className="bg-primary text-white px-8 py-3 rounded-xl font-semibold hover:bg-accent transition-colors shadow-lg"
               onClick={() => { setShowProfileReminder(false); router.push('/products'); }}

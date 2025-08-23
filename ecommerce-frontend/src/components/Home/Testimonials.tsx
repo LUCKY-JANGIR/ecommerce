@@ -168,7 +168,7 @@ export default function Testimonials() {
 
                     {/* Review Text */}
                     <blockquote className="text-gray-700 mb-4 sm:mb-6 italic text-xs sm:text-sm leading-relaxed">
-                      "{review.comment}"
+                      &quot;{review.comment}&quot;
                     </blockquote>
 
                     {/* User Info */}
@@ -212,7 +212,7 @@ export default function Testimonials() {
               </div>
               <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Be the First to Review</h3>
               <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
-                We'd love to hear about your experience with our handloom products. 
+                We&apos;d love to hear about your experience with our handloom products. 
                 Share your thoughts and help others discover the beauty of authentic Indian textiles.
               </p>
               <button 

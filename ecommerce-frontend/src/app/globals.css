@@ -2,27 +2,64 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Prevent horizontal overflow */
+/* Prevent horizontal overflow and hide all scrollbars */
 html, body {
   overflow-x: hidden;
   max-width: 100vw;
+  /* Hide scrollbars globally */
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
 }
 
-/* Ensure all containers respect viewport width */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Ensure all containers respect viewport width and hide scrollbars */
 * {
   box-sizing: border-box;
+  /* Hide scrollbars on all elements */
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
 }
 
-/* Container constraints */
+*::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Container constraints - removed problematic overflow */
 .container, .max-w-7xl {
   max-width: 100vw;
-  overflow-x: hidden;
+}
+
+/* Navigation link styles */
+.nav-link {
+  @apply text-text-primary hover:text-accent-600 transition-colors duration-200 font-medium;
+}
+
+/* Dropdown z-index fix */
+.dropdown-menu {
+  z-index: 1000;
 }
 
 /* Custom CSS for Swiper Carousels */
 .swiper {
   width: 100%;
   height: 100%;
+  /* Hide scrollbars on Swiper */
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.swiper::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 .swiper-slide {
@@ -148,45 +185,54 @@ html, body {
   transition: all 0.3s ease;
 }
 
-/* Custom scrollbar for webkit browsers */
+/* Completely hide all scrollbars - no custom styling */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
+  display: none !important;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 4px;
+  display: none !important;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  display: none !important;
 }
 
-/* Hide scrollbar for specific elements */
+/* Enhanced scrollbar hiding for specific elements */
 .scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
 }
 
 .scrollbar-hide::-webkit-scrollbar {
-  display: none;
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
-/* Global scrollbar hiding */
-html, body {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+/* Force hide scrollbars on all common elements */
+div, section, article, aside, nav, header, footer, main {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
 }
 
-html::-webkit-scrollbar,
-body::-webkit-scrollbar {
-  display: none;
+div::-webkit-scrollbar,
+section::-webkit-scrollbar,
+article::-webkit-scrollbar,
+aside::-webkit-scrollbar,
+nav::-webkit-scrollbar,
+header::-webkit-scrollbar,
+footer::-webkit-scrollbar,
+main::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 /* Responsive utilities */
@@ -370,4 +416,88 @@ body::-webkit-scrollbar {
   .swiper {
     --swiper-navigation-size: 0;
   }
+}
+
+/* COMPREHENSIVE SCROLLBAR HIDING - FINAL LAYER */
+/* This ensures no scrollbars appear anywhere in the application */
+
+/* Hide scrollbars on all possible elements */
+*, *::before, *::after {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+*::-webkit-scrollbar,
+*::before::-webkit-scrollbar,
+*::after::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Specific elements that commonly show scrollbars */
+.container, .wrapper, .content, .main, .sidebar, .panel, .modal, .popup, .overlay {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.container::-webkit-scrollbar,
+.wrapper::-webkit-scrollbar,
+.content::-webkit-scrollbar,
+.main::-webkit-scrollbar,
+.sidebar::-webkit-scrollbar,
+.panel::-webkit-scrollbar,
+.modal::-webkit-scrollbar,
+.popup::-webkit-scrollbar,
+.overlay::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* React/Next.js specific elements */
+[data-nextjs-scroll-focus-boundary],
+[data-radix-scroll-area-viewport],
+[data-radix-popper-content-wrapper] {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+[data-nextjs-scroll-focus-boundary]::-webkit-scrollbar,
+[data-radix-scroll-area-viewport]::-webkit-scrollbar,
+[data-radix-popper-content-wrapper]::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Force hide on all form elements */
+input, textarea, select, button, form {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+input::-webkit-scrollbar,
+textarea::-webkit-scrollbar,
+select::-webkit-scrollbar,
+button::-webkit-scrollbar,
+form::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Ensure no scrollbars in any layout */
+.layout, .page, .screen, .view {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.layout::-webkit-scrollbar,
+.page::-webkit-scrollbar,
+.screen::-webkit-scrollbar,
+.view::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }

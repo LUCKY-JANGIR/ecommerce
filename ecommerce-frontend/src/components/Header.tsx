@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiUser, FiShoppingCart, FiLogIn, FiChevronDown, FiHeart, FiSearch, FiPackage, FiMenu, FiX } from "react-icons/fi";
+import { FiUser, FiShoppingCart, FiLogIn, FiChevronDown, FiHeart, FiSearch, FiMenu, FiX } from "react-icons/fi";
 import { useStore } from '@/store/useStore';
 
 export default function Header() {
@@ -35,16 +35,11 @@ export default function Header() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Prevent body scroll when mobile menu is open
+  // Close dropdown when mobile menu opens
   useEffect(() => {
     if (mobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
+      setProfileDropdownOpen(false);
     }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
   }, [mobileMenuOpen]);
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
@@ -54,6 +49,11 @@ export default function Header() {
       setSearch("");
       setMobileMenuOpen(false);
     }
+  };
+
+  const handleProfileToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setProfileDropdownOpen(!profileDropdownOpen);
   };
 
   return (
@@ -114,39 +114,53 @@ export default function Header() {
               {auth.isAuthenticated ? (
                 <div className="relative" ref={profileDropdownRef}>
                   <button
-                    onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                    className="flex items-center space-x-1 p-2"
+                    onClick={handleProfileToggle}
+                    className="flex items-center space-x-1 p-2 hover:bg-gray-50 rounded-lg transition-colors"
                   >
-                    <FiUser className="w-5 h-5 xl:w-6 xl:h-6 text-text-primary hover:text-accent-600" />
-                    <FiChevronDown className={`w-3 h-3 xl:w-4 xl:h-4 transition-transform ${profileDropdownOpen ? 'rotate-180' : ''}`} />
+                    <FiUser className="w-5 h-5 xl:w-6 xl:h-6 text-text-primary" />
+                    <FiChevronDown className={`w-3 h-3 xl:w-4 xl:h-4 transition-transform duration-200 ${profileDropdownOpen ? 'rotate-180' : ''}`} />
                   </button>
 
                   <AnimatePresence>
                     {profileDropdownOpen && (
                       <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        className="absolute right-0 mt-2 w-40 xl:w-48 bg-white rounded-lg shadow-lg py-2"
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-[9999]"
                       >
-                        <Link href="/profile" className="block px-3 xl:px-4 py-2 text-sm hover:bg-heritage-50">
+                        <Link 
+                          href="/profile" 
+                          className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                          onClick={() => setProfileDropdownOpen(false)}
+                        >
                           Profile
                         </Link>
-                        <Link href="/orders" className="block px-3 xl:px-4 py-2 text-sm hover:bg-heritage-50">
+                        <Link 
+                          href="/orders" 
+                          className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                          onClick={() => setProfileDropdownOpen(false)}
+                        >
                           Orders
                         </Link>
                         {auth.user?.role === 'admin' && (
-                          <Link href="/admin" className="block px-3 xl:px-4 py-2 text-sm hover:bg-heritage-50">
+                          <Link 
+                            href="/admin" 
+                            className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                            onClick={() => setProfileDropdownOpen(false)}
+                          >
                             Admin Panel
                           </Link>
                         )}
+                        <div className="border-t border-gray-100 my-1"></div>
                         <button
                           onClick={() => {
                             logout();
                             setProfileDropdownOpen(false);
                             router.push('/');
                           }}
-                          className="block w-full text-left px-3 xl:px-4 py-2 text-sm hover:bg-heritage-50"
+                          className="block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
                         >
                           Logout
                         </button>
@@ -216,7 +230,7 @@ export default function Header() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="fixed top-0 right-0 h-full w-[280px] sm:w-[320px] bg-white z-50 overflow-y-auto"
+              className="fixed top-0 right-0 h-full w-[280px] sm:w-[320px] bg-white z-50"
             >
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between p-3 sm:p-4 border-b border-heritage-200">

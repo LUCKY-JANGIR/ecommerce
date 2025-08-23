@@ -12,15 +12,12 @@ import toast from 'react-hot-toast';
 
 interface RecommendedProductsProps {
   currentProductId: string;
-  currentProductName: string;
 }
 
 export default function RecommendedProducts({ 
-  currentProductId, 
-  currentProductName 
+  currentProductId
 }: RecommendedProductsProps) {
   const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
   const [hasLoaded, setHasLoaded] = useState(false);
   const { addToCart, addToWishlist, removeFromWishlist, wishlist, auth } = useStore();
 
@@ -28,8 +25,6 @@ export default function RecommendedProducts({
     // Add a delay before fetching to make it feel more natural
     const timer = setTimeout(async () => {
       try {
-        setLoading(true);
-        
         // Simply fetch some products and exclude the current one
         const response = await productsAPI.getAll({ limit: 12 });
         
@@ -43,7 +38,6 @@ export default function RecommendedProducts({
       } catch (error) {
         console.error('Error fetching recommended products:', error);
       } finally {
-        setLoading(false);
         setHasLoaded(true);
       }
     }, 2000); // 2 second delay

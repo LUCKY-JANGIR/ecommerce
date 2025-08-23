@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Users, ShoppingBag, BarChart3, Tag, Settings, Plus, Edit, Trash2, X, Star } from 'lucide-react';
 import { FiPackage } from 'react-icons/fi';
@@ -107,20 +107,8 @@ export default function AdminPage() {
   }, [router]);
 
   // Fetch data when section changes
-  useEffect(() => {
-    if (activeSection === 'products') {
-      fetchProducts();
-      fetchCategories();
-    } else if (activeSection === 'categories') {
-      fetchCategories();
-    } else if (activeSection === 'orders') {
-      fetchOrders();
-      fetchOrderStats();
-    }
-  }, [activeSection, orderFilters]);
-
   // Order Management Functions
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     setOrderLoading(true);
     try {
       const { ordersAPI } = await import('@/components/services/api');
@@ -132,7 +120,19 @@ export default function AdminPage() {
     } finally {
       setOrderLoading(false);
     }
-  };
+  }, [orderFilters]);
+
+  useEffect(() => {
+    if (activeSection === 'products') {
+      fetchProducts();
+      fetchCategories();
+    } else if (activeSection === 'categories') {
+      fetchCategories();
+    } else if (activeSection === 'orders') {
+      fetchOrders();
+      fetchOrderStats();
+    }
+  }, [activeSection, orderFilters, fetchOrders]);
 
   const fetchOrderStats = async () => {
     try {

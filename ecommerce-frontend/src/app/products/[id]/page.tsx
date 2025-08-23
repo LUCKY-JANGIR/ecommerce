@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -10,7 +10,6 @@ import { productsAPI } from "@/components/services/api";
 import { Product } from "@/store/useStore";
 import { useStore } from "@/store/useStore";
 import { 
-  Star, 
   Heart, 
   ShoppingCart, 
   ArrowLeft, 
@@ -49,13 +48,12 @@ interface Review {
 
 export default function ProductDetailsPage() {
   const { id } = useParams();
-  const router = useRouter();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedImage, setSelectedImage] = useState(0);
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [reviewLoading, setReviewLoading] = useState(false);
+
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [editingReview, setEditingReview] = useState<Review | null>(null);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
@@ -78,7 +76,7 @@ export default function ProductDetailsPage() {
         // Fetch reviews
         const reviewsData = await productsAPI.getProductReviews(id as string);
         setReviews(reviewsData.reviews || []);
-      } catch (err) {
+      } catch {
         setError("Product not found.");
       } finally {
         setLoading(false);
@@ -184,9 +182,6 @@ export default function ProductDetailsPage() {
   }
 
   const images = Array.isArray(product.images) ? product.images : [];
-  const mainImage = typeof images[selectedImage] === 'string' 
-    ? images[selectedImage] 
-    : images[selectedImage]?.url || '/placeholder-product.svg';
 
   return (
     <div className="min-h-screen bg-background-cream">
@@ -531,9 +526,8 @@ export default function ProductDetailsPage() {
         </motion.div>
 
         {/* Recommended Products */}
-        <RecommendedProducts
+                <RecommendedProducts 
           currentProductId={product._id}
-          currentProductName={product.name}
         />
       </div>
 

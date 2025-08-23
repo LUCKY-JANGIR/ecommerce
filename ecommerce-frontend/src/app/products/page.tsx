@@ -1,7 +1,6 @@
 'use client';
 
-import { Suspense, useCallback, useRef } from 'react';
-import { useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState, useCallback, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { productsAPI, categoriesAPI } from '@/components/services/api';
@@ -11,9 +10,7 @@ import {
   Filter, 
   Grid, 
   List, 
-  ChevronDown,
-  Search,
-  X
+  Search
 } from 'lucide-react';
 import { useDebounce } from '@/hooks/useDebounce';
 import { motion } from 'framer-motion';
@@ -76,7 +73,6 @@ function ProductsPage() {
   ];
 
   const { hydrated } = useStore();
-  const { auth } = useStore();
 
   const loadMoreProducts = useCallback(async () => {
     if (loadingMore || !pagination.hasNextPage) return;
@@ -152,13 +148,7 @@ function ProductsPage() {
     fetchFeaturedProducts();
   }, []);
 
-  useEffect(() => {
-    setFilters(prev => ({ ...prev, search: debouncedSearch }));
-    // Only update filter when debounced value changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedSearch]);
-
-  const fetchProducts = async (page = 1, reset = true) => {
+  const fetchProducts = useCallback(async (page = 1, reset = true) => {
     if (reset) {
       setLoading(true);
       setProducts([]);
@@ -194,11 +184,17 @@ function ProductsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
+
+  useEffect(() => {
+    setFilters(prev => ({ ...prev, search: debouncedSearch }));
+    // Only update filter when debounced value changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch]);
 
   useEffect(() => {
     fetchProducts(1, true);
-  }, [filters]);
+  }, [filters, fetchProducts]);
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -245,7 +241,7 @@ function ProductsPage() {
               Discover Our Collection
             </h1>
             <p className="text-lg md:text-xl text-text-secondary max-w-3xl mx-auto">
-              Explore handcrafted treasures from India's finest artisans. Each piece tells a story of tradition, passion, and unparalleled craftsmanship.
+                                Explore handcrafted treasures from India&apos;s finest artisans. Each piece tells a story of tradition, passion, and unparalleled craftsmanship.
             </p>
           </div>
         </motion.div>
@@ -487,7 +483,7 @@ function ProductsPage() {
                     </div>
                     <h3 className="text-2xl font-serif font-bold text-primary-700 mb-4">No products found</h3>
                     <p className="text-text-secondary mb-8 max-w-md mx-auto">
-                      We couldn't find any products matching your criteria. Try adjusting your filters or search terms.
+                      We couldn&apos;t find any products matching your criteria. Try adjusting your filters or search terms.
                     </p>
                     <button
                       onClick={clearFilters}

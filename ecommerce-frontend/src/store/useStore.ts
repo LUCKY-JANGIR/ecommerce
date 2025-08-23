@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { authAPI } from '@/components/services/api';
 import { usersAPI } from '@/components/services/api';
 
 export interface User {
