@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config();         
 
 // Validate required environment variables
 const requiredEnvVars = [
@@ -137,11 +137,46 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Static files for uploaded images
 app.use('/uploads', express.static('uploads'));
 
-// Database connection
+// Database connection with improved options
 const mongoUri = process.env.MONGODB_URI;
-mongoose.connect(mongoUri)
-    .then(() => console.log('Connected to MongoDB'))
-    .catch(err => console.error('MongoDB connection error:', err));
+const mongooseOptions = {
+    serverSelectionTimeoutMS: 5000, // 5 seconds timeout
+    socketTimeoutMS: 45000, // 45 seconds socket timeout
+    bufferCommands: true, // Enable mongoose buffering for better compatibility
+    maxPoolSize: 10, // Maximum number of connections in the pool
+    minPoolSize: 1, // Minimum number of connections in the pool
+    maxIdleTimeMS: 30000, // Close connections after 30 seconds of inactivity
+    connectTimeoutMS: 10000, // 10 seconds connection timeout
+    retryWrites: true,
+    w: 'majority'
+};
+
+mongoose.connect(mongoUri, mongooseOptions)
+    .then(() => {
+        console.log('✅ Connected to MongoDB');
+        console.log('📊 Connection pool size:', mongoose.connection.db.serverConfig?.s?.options?.maxPoolSize || 'Default');
+    })
+    .catch(err => {
+        console.error('❌ MongoDB connection error:', err.message);
+        console.log('💡 For development, you can:');
+        console.log('   1. Install MongoDB locally: https://docs.mongodb.com/manual/installation/');
+        console.log('   2. Use MongoDB Atlas (free): https://www.mongodb.com/atlas');
+        console.log('   3. Update MONGODB_URI in .env file');
+        console.log('🔄 Server will continue without database connection...');
+    });
+
+// Handle MongoDB connection events
+mongoose.connection.on('error', (err) => {
+    console.error('❌ MongoDB connection error:', err.message);
+});
+
+mongoose.connection.on('disconnected', () => {
+    console.log('⚠️ MongoDB disconnected');
+});
+
+mongoose.connection.on('reconnected', () => {
+    console.log('✅ MongoDB reconnected');
+});
 
 // Routes
 app.use('/api/auth', authRoutes);

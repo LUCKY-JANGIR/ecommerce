@@ -15,7 +15,7 @@ A modern, production-ready ecommerce application built with Next.js 15, Express.
 - ✅ **Product Management** - CRUD operations with image upload
 - ✅ **Shopping Cart** - Persistent cart with quantity management
 - ✅ **Order Management** - Complete order lifecycle
-- ✅ **Wishlist** - Save favorite products
+
 - ✅ **Product Reviews** - Rating and review system
 - ✅ **Search & Filter** - Advanced product search
 - ✅ **Categories** - Organized product browsing

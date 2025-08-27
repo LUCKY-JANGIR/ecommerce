@@ -135,12 +135,7 @@ interface AppState {
   hydrated: boolean;
   setHydrated: (hydrated: boolean) => void;
 
-  // Wishlist
-  wishlist: Product[];
-  fetchWishlist: () => Promise<void>;
-  addToWishlist: (product: Product) => Promise<void>;
-  removeFromWishlist: (productId: string) => Promise<void>;
-  clearWishlist: () => void;
+
 }
 
 export const useStore = create<AppState>()(
@@ -164,8 +159,7 @@ export const useStore = create<AppState>()(
             loading: false,
           },
         }));
-        // Fetch wishlist from backend after login
-        await get().fetchWishlist();
+
       },
       
       logout: () =>
@@ -288,76 +282,7 @@ export const useStore = create<AppState>()(
       hydrated: false,
       setHydrated: (hydrated: boolean) => set({ hydrated }),
 
-      // Wishlist state
-      wishlist: [],
-      fetchWishlist: async () => {
-        const { auth } = get();
-        if (!auth.isAuthenticated || !auth.token) {
-          console.log('Not authenticated, skipping wishlist fetch');
-          set({ wishlist: [] });
-          return;
-        }
-        try {
-          const data = await usersAPI.getWishlist();
-          console.log('Fetched wishlist from backend:', data.wishlist);
-          // Extract products from the nested structure
-          const products = data.wishlist?.map((item: any) => item.product) || [];
-          set({ wishlist: products });
-        } catch (e) {
-          console.error('Error fetching wishlist:', e);
-          set({ wishlist: [] });
-        }
-      },
-      addToWishlist: async (product: Product) => {
-        try {
-          const { auth } = get();
-          if (!auth.isAuthenticated || !auth.token) {
-            console.log('User not authenticated, cannot add to wishlist');
-            // You could redirect to login here or show a toast
-            return;
-          }
-          
-          console.log('Adding to wishlist:', product._id);
-          console.log('Auth state:', { isAuthenticated: auth.isAuthenticated, hasToken: !!auth.token });
-          
-          const data = await usersAPI.addToWishlist(product._id);
-          console.log('Wishlist response:', data);
-          
-          // Extract products from the nested structure
-          const products = data.wishlist?.map((item: any) => item.product) || [];
-          set({ wishlist: products });
-        } catch (e: any) {
-          console.error('Error adding to wishlist:', e);
-          // Show user-friendly error message
-          if (e?.response?.status === 400) {
-            console.error('400 Error details:', e.response.data);
-          }
-        }
-      },
-      removeFromWishlist: async (productId: string) => {
-        try {
-          const { auth } = get();
-          if (!auth.isAuthenticated || !auth.token) {
-            console.log('User not authenticated, cannot remove from wishlist');
-            return;
-          }
-          
-          console.log('Removing from wishlist:', productId);
-          const data = await usersAPI.removeFromWishlist(productId);
-          console.log('Remove wishlist response:', data);
-          
-          // Extract products from the nested structure
-          const products = data.wishlist?.map((item: any) => item.product) || [];
-          set({ wishlist: products });
-        } catch (e: any) {
-          console.error('Error removing from wishlist:', e);
-          // Show user-friendly error message
-          if (e?.response?.status === 400) {
-            console.error('400 Error details:', e.response.data);
-          }
-        }
-      },
-      clearWishlist: () => set({ wishlist: [] }),
+
     }),
     {
       name: 'ecommerce-store',
@@ -368,7 +293,7 @@ export const useStore = create<AppState>()(
           isAuthenticated: state.auth.isAuthenticated,
         },
         cart: state.cart,
-        wishlist: state.wishlist,
+
       }),
     }
   )

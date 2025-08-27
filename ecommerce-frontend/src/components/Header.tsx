@@ -3,28 +3,37 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiUser, FiShoppingCart, FiLogIn, FiChevronDown, FiHeart, FiSearch, FiMenu, FiX } from "react-icons/fi";
+import { FiUser, FiShoppingCart, FiLogIn, FiChevronDown, FiSearch, FiMenu, FiX } from "react-icons/fi";
 import { useStore } from '@/store/useStore';
 
 export default function Header() {
-  const { auth, cart, logout } = useStore();
+  const { auth, cart, logout, hydrated } = useStore();
   const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [search, setSearch] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
     };
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [mounted]);
 
   useEffect(() => {
+    if (!mounted) return;
+    
     const handleClickOutside = (event: MouseEvent) => {
       if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
         setProfileDropdownOpen(false);
@@ -33,7 +42,7 @@ export default function Header() {
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [mounted]);
 
   // Close dropdown when mobile menu opens
   useEffect(() => {
@@ -56,6 +65,25 @@ export default function Header() {
     setProfileDropdownOpen(!profileDropdownOpen);
   };
 
+  // Don't render until hydrated and mounted to prevent hydration mismatches
+  if (!hydrated || !mounted) {
+    return (
+      <header className="fixed top-0 left-0 right-0 z-50 w-full">
+        <div className="absolute inset-0 bg-white/80 backdrop-blur-md" />
+        <div className="relative w-full max-w-7xl mx-auto">
+          <nav className="flex items-center justify-between h-14 sm:h-16 px-3 sm:px-4 lg:px-8">
+            <div className="flex-shrink-0">
+              <h1 className="text-lg sm:text-xl md:text-2xl font-serif font-bold text-gray-900">
+                Indian Handlooms
+              </h1>
+            </div>
+          </nav>
+        </div>
+        <div className="h-[3.5rem] sm:h-[4rem] md:h-[4.5rem] lg:h-[5rem]" />
+      </header>
+    );
+  }
+
   return (
     <>
       <header className="fixed top-0 left-0 right-0 z-50 w-full">
@@ -67,7 +95,7 @@ export default function Header() {
           <nav className="flex items-center justify-between h-14 sm:h-16 px-3 sm:px-4 lg:px-8">
             {/* Logo */}
             <Link href="/" className="flex-shrink-0">
-              <h1 className="text-lg sm:text-xl md:text-2xl font-serif font-bold text-primary-700">
+              <h1 className="text-lg sm:text-xl md:text-2xl font-serif font-bold text-gray-900">
                 Indian Handlooms
               </h1>
             </Link>
@@ -89,6 +117,7 @@ export default function Header() {
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder="Search products..."
                     className="w-full pl-3 sm:pl-4 pr-10 py-2 text-sm rounded-lg border border-heritage-200 focus:outline-none focus:ring-2 focus:ring-accent-500 bg-white/50"
+                    suppressHydrationWarning
                   />
                   <button type="submit" className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2">
                     <FiSearch className="w-4 h-4 sm:w-5 sm:h-5 text-text-muted hover:text-accent-600" />
@@ -99,12 +128,10 @@ export default function Header() {
 
             {/* Desktop Actions */}
             <div className="hidden lg:flex items-center space-x-2 xl:space-x-4">
-              <Link href="/my-wishlist" className="p-2">
-                <FiHeart className="w-5 h-5 xl:w-6 xl:h-6 text-text-primary hover:text-accent-600" />
-              </Link>
+
               <Link href="/cart" className="p-2 relative">
                 <FiShoppingCart className="w-5 h-5 xl:w-6 xl:h-6 text-text-primary hover:text-accent-600" />
-                {cart.totalItems > 0 && (
+                {mounted && cart.totalItems > 0 && (
                   <span className="absolute -top-1 -right-1 bg-accent-500 text-white text-xs w-4 h-4 xl:w-5 xl:h-5 flex items-center justify-center rounded-full">
                     {cart.totalItems}
                   </span>
@@ -180,7 +207,7 @@ export default function Header() {
             <div className="flex lg:hidden items-center space-x-1 sm:space-x-2">
               <Link href="/cart" className="p-1 sm:p-2 relative">
                 <FiShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 text-text-primary" />
-                {cart.totalItems > 0 && (
+                {mounted && cart.totalItems > 0 && (
                   <span className="absolute -top-1 -right-1 bg-accent-500 text-white text-xs w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center rounded-full">
                     {cart.totalItems}
                   </span>
@@ -198,13 +225,14 @@ export default function Header() {
           {/* Mobile Search */}
           <div className="lg:hidden px-3 sm:px-4 pb-3">
             <form onSubmit={handleSearch} className="relative">
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search products..."
-                className="w-full pl-3 sm:pl-4 pr-10 py-2 text-sm rounded-lg border border-heritage-200 focus:outline-none focus:ring-2 focus:ring-accent-500 bg-white/50"
-              />
+                             <input
+                 type="text"
+                 value={search}
+                 onChange={(e) => setSearch(e.target.value)}
+                 placeholder="Search products..."
+                 className="w-full pl-3 sm:pl-4 pr-10 py-2 text-sm rounded-lg border border-heritage-200 focus:outline-none focus:ring-2 focus:ring-accent-500 bg-white/50"
+                 suppressHydrationWarning
+               />
               <button type="submit" className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2">
                 <FiSearch className="w-4 h-4 sm:w-5 sm:h-5 text-text-muted" />
               </button>
@@ -234,7 +262,7 @@ export default function Header() {
             >
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between p-3 sm:p-4 border-b border-heritage-200">
-                  <h2 className="text-lg sm:text-xl font-serif font-bold text-primary-700">Menu</h2>
+                  <h2 className="text-lg sm:text-xl font-serif font-bold text-gray-900">Menu</h2>
                   <button onClick={() => setMobileMenuOpen(false)} className="p-1 sm:p-2">
                     <FiX className="w-5 h-5 sm:w-6 sm:h-6" />
                   </button>
@@ -242,7 +270,7 @@ export default function Header() {
 
                 {auth.isAuthenticated && (
                   <div className="p-3 sm:p-4 bg-heritage-50">
-                    <p className="font-medium text-primary-700 text-sm sm:text-base">{auth.user?.name}</p>
+                    <p className="font-medium text-gray-900 text-sm sm:text-base">{auth.user?.name}</p>
                     <p className="text-xs sm:text-sm text-text-muted">{auth.user?.email}</p>
                   </div>
                 )}
@@ -250,32 +278,26 @@ export default function Header() {
                 <nav className="flex-1 p-3 sm:p-4 space-y-1">
                   <Link
                     href="/"
-                    className="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-heritage-50 text-sm sm:text-base"
+                    className="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-heritage-50 text-sm sm:text-base text-gray-900"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Home
                   </Link>
                   <Link
                     href="/categories"
-                    className="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-heritage-50 text-sm sm:text-base"
+                    className="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-heritage-50 text-sm sm:text-base text-gray-900"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Categories
                   </Link>
                   <Link
                     href="/products"
-                    className="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-heritage-50 text-sm sm:text-base"
+                    className="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-heritage-50 text-sm sm:text-base text-gray-900"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Shop
                   </Link>
-                  <Link
-                    href="/my-wishlist"
-                    className="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-heritage-50 text-sm sm:text-base"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Wishlist
-                  </Link>
+
                 </nav>
 
                 <div className="p-3 sm:p-4 border-t border-heritage-200">
@@ -283,14 +305,14 @@ export default function Header() {
                     <div className="space-y-1">
                       <Link
                         href="/profile"
-                        className="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-heritage-50 text-sm sm:text-base"
+                        className="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-heritage-50 text-sm sm:text-base text-gray-900"
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         Profile
                       </Link>
                       <Link
                         href="/orders"
-                        className="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-heritage-50 text-sm sm:text-base"
+                        className="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-heritage-50 text-sm sm:text-base text-gray-900"
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         Orders
@@ -298,7 +320,7 @@ export default function Header() {
                       {auth.user?.role === 'admin' && (
                         <Link
                           href="/admin"
-                          className="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-heritage-50 text-sm sm:text-base"
+                          className="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-heritage-50 text-sm sm:text-base text-gray-900"
                           onClick={() => setMobileMenuOpen(false)}
                         >
                           Admin Panel
@@ -310,7 +332,7 @@ export default function Header() {
                           setMobileMenuOpen(false);
                           router.push('/');
                         }}
-                        className="block w-full text-left px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-heritage-50 text-sm sm:text-base"
+                        className="block w-full text-left px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-heritage-50 text-sm sm:text-base text-gray-900"
                       >
                         Logout
                       </button>

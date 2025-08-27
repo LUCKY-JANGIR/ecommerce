@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 
@@ -22,6 +22,11 @@ export default function NewsletterCTA({
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,7 +124,7 @@ export default function NewsletterCTA({
             transition={{ duration: 0.8, delay: 0.7 }}
             className="max-w-sm sm:max-w-md mx-auto"
           >
-            {!isSubmitted ? (
+            {mounted && !isSubmitted ? (
               <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
                 <div className="relative">
                   <input
@@ -129,6 +134,7 @@ export default function NewsletterCTA({
                     placeholder={placeholder}
                     required
                     className="w-full px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base md:text-lg bg-white/10 backdrop-blur-sm border-2 border-white/20 rounded-xl sm:rounded-2xl text-white placeholder-heritage-200 focus:outline-none focus:border-accent-500 focus:bg-white/20 transition-all duration-300"
+                    suppressHydrationWarning
                   />
                   <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-gradient-to-r from-accent-500/20 to-accent-600/20 opacity-0 focus-within:opacity-100 transition-opacity duration-300 pointer-events-none" />
                 </div>

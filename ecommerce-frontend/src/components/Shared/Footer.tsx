@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -64,6 +64,11 @@ const socialLinks = [
 
 export default function Footer() {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const toggleSection = (title: string) => {
     const newExpanded = new Set(expandedSections);
@@ -168,6 +173,7 @@ export default function Footer() {
                 <button
                   onClick={() => toggleSection(section.title)}
                   className="flex items-center justify-between w-full md:justify-start md:cursor-default"
+                  suppressHydrationWarning
                 >
                   <h3 className="text-base sm:text-lg font-semibold text-white">{section.title}</h3>
                   <svg
@@ -198,31 +204,34 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Newsletter Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="border-t border-primary-800 py-6 sm:py-8"
-        >
-          <div className="max-w-sm sm:max-w-md">
-            <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Stay Updated</h3>
-            <p className="text-heritage-200 mb-3 sm:mb-4 text-sm sm:text-base">
-              Get the latest updates on new collections and artisan stories.
-            </p>
-            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 px-3 sm:px-4 py-2 bg-primary-800 border border-primary-700 rounded-lg text-white placeholder-heritage-300 focus:outline-none focus:border-accent-500 text-sm sm:text-base"
-              />
-              <Button size="sm" variant="accent" className="text-sm sm:text-base">
-                Subscribe
-              </Button>
-            </div>
-          </div>
-        </motion.div>
+                    {/* Newsletter Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="border-t border-primary-800 py-6 sm:py-8"
+            >
+              <div className="max-w-sm sm:max-w-md">
+                <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Stay Updated</h3>
+                <p className="text-heritage-200 mb-3 sm:mb-4 text-sm sm:text-base">
+                  Get the latest updates on new collections and artisan stories.
+                </p>
+                {mounted && (
+                  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                    <input
+                      type="email"
+                      placeholder="Enter your email"
+                      className="flex-1 px-3 sm:px-4 py-2 bg-primary-800 border border-primary-700 rounded-lg text-white placeholder-heritage-300 focus:outline-none focus:border-accent-500 text-sm sm:text-base"
+                      suppressHydrationWarning
+                    />
+                    <Button size="sm" variant="accent" className="text-sm sm:text-base">
+                      Subscribe
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </motion.div>
 
         {/* Bottom Bar */}
         <motion.div

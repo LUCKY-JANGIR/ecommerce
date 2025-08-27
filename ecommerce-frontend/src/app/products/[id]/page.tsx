@@ -4,13 +4,11 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination, Thumbs } from 'swiper/modules';
+
 import { productsAPI } from "@/components/services/api";
 import { Product } from "@/store/useStore";
 import { useStore } from "@/store/useStore";
 import { 
-  Heart, 
   ShoppingCart, 
   ArrowLeft, 
   Minus, 
@@ -29,11 +27,7 @@ import ReviewModal from "@/components/ReviewModal";
 import ImageModal from "@/components/ImageModal";
 import RecommendedProducts from "@/components/RecommendedProducts";
 
-// Import Swiper styles
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
-import 'swiper/css/thumbs';
+
 
 interface Review {
   _id: string;
@@ -58,12 +52,12 @@ export default function ProductDetailsPage() {
   const [editingReview, setEditingReview] = useState<Review | null>(null);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   
-  const { addToCart, addToWishlist, removeFromWishlist, wishlist, auth } = useStore();
+  const { addToCart, auth } = useStore();
   const cartItem = useStore((state) => state.cart.items.find((item) => item.product._id === (product?._id || '')));
   const cartQuantity = cartItem ? cartItem.quantity : 0;
   const { updateCartItemQuantity, removeFromCart } = useStore();
 
-  const isInWishlist = product ? wishlist.some(item => item._id === product._id) : false;
+
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -92,23 +86,7 @@ export default function ProductDetailsPage() {
     toast.success("Item added to cart");
   };
 
-  const handleWishlistToggle = () => {
-    if (!product) return;
-    
-    const { auth } = useStore.getState();
-    if (!auth.isAuthenticated || !auth.token) {
-      toast.error('Please log in to add items to your wishlist');
-      return;
-    }
-    
-    if (isInWishlist) {
-      removeFromWishlist(product._id);
-      toast.success("Removed from wishlist");
-    } else {
-      addToWishlist(product);
-      toast.success("Added to wishlist");
-    }
-  };
+
 
   const handleReviewSubmitted = async () => {
     try {
@@ -209,95 +187,54 @@ export default function ProductDetailsPage() {
             initial={{ opacity: 0, x: -40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
-            className="space-y-8"
+            className="space-y-6"
           >
-            {/* Main Image Carousel */}
-            <div className="relative">
-              <Swiper
-                modules={[Navigation, Pagination, Thumbs]}
-                spaceBetween={0}
-                slidesPerView={1}
-                navigation={{
-                  nextEl: '.product-image-next',
-                  prevEl: '.product-image-prev',
-                }}
-                pagination={{
-                  clickable: true,
-                  dynamicBullets: true,
-                }}
-                onSlideChange={(swiper) => setSelectedImage(swiper.activeIndex)}
-                className="product-image-swiper rounded-3xl overflow-hidden shadow-lg"
-              >
-                {images.length > 0 ? (
-                  images.map((image, index) => {
-                    const imageUrl = typeof image === 'string' ? image : image?.url || '/placeholder-product.svg';
-                    return (
-                      <SwiperSlide key={index}>
-                        <div className="relative aspect-square bg-white group cursor-pointer" onClick={handleImageClick}>
-                          <Image
-                            src={imageUrl}
-                            alt={`${product.name} ${index + 1}`}
-                            fill
-                            className="object-cover"
-                          />
-                          {/* Zoom overlay */}
-                          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
-                            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 backdrop-blur-sm rounded-full p-3">
-                              <ZoomIn className="w-6 h-6 text-gray-800" />
-                            </div>
-                          </div>
-                        </div>
-                      </SwiperSlide>
-                    );
-                  })
-                ) : (
-                  <SwiperSlide>
-                    <div className="relative aspect-square bg-white group cursor-pointer" onClick={handleImageClick}>
-                      <Image
-                        src="/placeholder-product.svg"
-                        alt={product.name}
-                        fill
-                        className="object-cover"
-                      />
-                      {/* Zoom overlay */}
-                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 backdrop-blur-sm rounded-full p-3">
-                          <ZoomIn className="w-6 h-6 text-gray-800" />
-                        </div>
-                      </div>
+            {/* Main Image Display */}
+            <div className="relative aspect-square bg-white rounded-3xl overflow-hidden shadow-lg">
+              {images.length > 0 ? (
+                <div className="relative w-full h-full group cursor-pointer" onClick={handleImageClick}>
+                  <Image
+                    src={typeof images[selectedImage] === 'string' ? images[selectedImage] : images[selectedImage]?.url || '/placeholder-product.svg'}
+                    alt={`${product.name} ${selectedImage + 1}`}
+                    fill
+                    className="object-cover"
+                  />
+                  {/* Zoom overlay */}
+                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 backdrop-blur-sm rounded-full p-3">
+                      <ZoomIn className="w-6 h-6 text-gray-800" />
                     </div>
-                  </SwiperSlide>
-                )}
-              </Swiper>
-              
-              {/* Custom Navigation Buttons */}
-              {images.length > 1 && (
-                <>
-                  <div className="product-image-prev absolute left-4 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white bg-opacity-80 rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-white transition-colors">
-                    <svg className="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
                   </div>
-                  <div className="product-image-next absolute right-4 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white bg-opacity-80 rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-white transition-colors">
-                    <svg className="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
+                </div>
+              ) : (
+                <div className="relative w-full h-full group cursor-pointer" onClick={handleImageClick}>
+                  <Image
+                    src="/placeholder-product.svg"
+                    alt={product.name}
+                    fill
+                    className="object-cover"
+                  />
+                  {/* Zoom overlay */}
+                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 backdrop-blur-sm rounded-full p-3">
+                      <ZoomIn className="w-6 h-6 text-gray-800" />
+                    </div>
                   </div>
-                </>
+                </div>
               )}
             </div>
             
-            {/* Thumbnail Images */}
+            {/* Image Gallery Grid */}
             {images.length > 1 && (
-              <div className="grid grid-cols-4 gap-4">
+              <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-3">
                 {images.map((image, index) => {
                   const imageUrl = typeof image === 'string' ? image : image?.url || '/placeholder-product.svg';
                   return (
                     <button
                       key={index}
                       onClick={() => setSelectedImage(index)}
-                      className={`relative aspect-square bg-white rounded-2xl overflow-hidden border-2 transition-all shadow-lg group ${
-                        selectedImage === index ? 'border-accent-500 shadow-xl' : 'border-heritage-200 hover:border-accent-300'
+                      className={`relative aspect-square bg-white rounded-xl overflow-hidden border-2 transition-all shadow-md group hover:shadow-lg ${
+                        selectedImage === index ? 'border-accent-500 shadow-xl ring-2 ring-accent-200' : 'border-heritage-200 hover:border-accent-300'
                       }`}
                     >
                       <Image
@@ -306,12 +243,19 @@ export default function ProductDetailsPage() {
                         fill
                         className="object-cover"
                       />
-                      {/* Zoom overlay for thumbnails */}
+                      {/* Zoom overlay for gallery images */}
                       <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 backdrop-blur-sm rounded-full p-2">
-                          <ZoomIn className="w-4 h-4 text-gray-800" />
+                          <ZoomIn className="w-3 h-3 text-gray-800" />
                         </div>
                       </div>
+                      
+                      {/* Selected indicator */}
+                      {selectedImage === index && (
+                        <div className="absolute top-1 right-1 bg-accent-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+                          ✓
+                        </div>
+                      )}
                     </button>
                   );
                 })}
@@ -405,16 +349,7 @@ export default function ProductDetailsPage() {
                   </button>
                 </div>
               )}
-              <button
-                onClick={handleWishlistToggle}
-                className={`p-4 rounded-2xl border-2 transition-colors shadow-lg ${
-                  isInWishlist
-                    ? 'border-red-500 text-red-500 hover:bg-red-50'
-                    : 'border-heritage-300 text-heritage-600 hover:border-accent-500 hover:text-accent-600'
-                }`}
-              >
-                <Heart className={`h-5 w-5 ${isInWishlist ? 'fill-current' : ''}`} />
-              </button>
+
             </div>
           </motion.div>
         </div>
@@ -558,4 +493,4 @@ export default function ProductDetailsPage() {
       />
     </div>
   );
-} 
+}

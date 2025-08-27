@@ -7,6 +7,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { getOptimizedImageUrl } from "@/lib/imageUtils";
 import { Star } from "lucide-react";
+import MultipleImageUpload from "@/app/components/ui/MultipleImageUpload";
 
 interface Product {
   _id: string;
@@ -23,6 +24,13 @@ interface Product {
 interface Category {
   _id: string;
   name: string;
+}
+
+interface ImageItem {
+  id: string;
+  url?: string;
+  file?: File;
+  alt?: string;
 }
 
 export default function AdminProductsPage() {
@@ -49,10 +57,8 @@ export default function AdminProductsPage() {
     sku: '' 
   });
   const [addLoading, setAddLoading] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>('');
-  const [editSelectedImage, setEditSelectedImage] = useState<File | null>(null);
-  const [editImagePreview, setEditImagePreview] = useState<string>('');
+  const [selectedImages, setSelectedImages] = useState<ImageItem[]>([]);
+  const [editSelectedImages, setEditSelectedImages] = useState<ImageItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [uploadingImage, setUploadingImage] = useState(false);
 
@@ -115,21 +121,8 @@ export default function AdminProductsPage() {
     }
   };
 
-  const handleEditImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setEditSelectedImage(file);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setEditImagePreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const removeEditImage = () => {
-    setEditSelectedImage(null);
-    setEditImagePreview('');
+  const handleEditImagesChange = (images: ImageItem[]) => {
+    setEditSelectedImages(images);
   };
 
   const openEdit = (product: Product) => {
@@ -141,8 +134,14 @@ export default function AdminProductsPage() {
       price: product.price.toString(),
       stock: product.stock.toString(),
     });
-    setEditImagePreview(product.images?.[0]?.url || '');
-    setEditSelectedImage(null);
+    
+    // Convert existing images to ImageItem format
+    const existingImages: ImageItem[] = (product.images || []).map((img, index) => ({
+      id: `existing-${index}`,
+      url: img.url,
+      alt: img.alt || product.name
+    }));
+    setEditSelectedImages(existingImages);
   };
 
   const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -160,9 +159,13 @@ export default function AdminProductsPage() {
       formData.append('price', editForm.price);
       formData.append('stock', editForm.stock);
       
-      if (editSelectedImage) {
-        formData.append('images', editSelectedImage);
-      }
+      // Add new images (files) to formData
+      const newImages = editSelectedImages.filter(img => img.file);
+      newImages.forEach((image) => {
+        if (image.file) {
+          formData.append('images', image.file);
+        }
+      });
       
       await productsAPI.update(editing._id, formData);
       toast.success('Product updated successfully');
@@ -330,34 +333,12 @@ export default function AdminProductsPage() {
                   className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900 placeholder-gray-500"
                   placeholder="Stock"
                 />
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Product Image (Optional)
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleEditImageChange}
-                    className="w-full border border-gray-300 rounded px-3 py-2 bg-white text-gray-900"
-                  />
-                  {(editImagePreview || editing.images?.[0]?.url) && (
-                    <div className="mt-2 relative">
-                      <img
-                        src={editImagePreview || editing.images?.[0]?.url}
-                        alt="Preview"
-                        className="w-32 h-32 object-cover rounded border border-gray-300"
-                      />
-                      <button
-                        type="button"
-                        onClick={removeEditImage}
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 transition-colors"
-                        title="Remove image"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  )}
-                </div>
+                <MultipleImageUpload
+                  images={editSelectedImages}
+                  onChange={handleEditImagesChange}
+                  maxImages={5}
+                  disabled={editLoading}
+                />
               </div>
               <button
                 className="mt-6 w-full bg-blue-600 text-white font-semibold rounded-lg px-4 py-2 hover:bg-blue-700 transition-colors disabled:opacity-50"

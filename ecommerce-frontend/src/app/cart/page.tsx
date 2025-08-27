@@ -12,6 +12,7 @@ import toast from 'react-hot-toast';
 export default function CartPage() {
   const router = useRouter();
   const { cart, removeFromCart, updateCartItemQuantity, clearCart } = useStore();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleQuantityChange = (productId: string, newQuantity: number) => {
     if (newQuantity < 1) {
@@ -37,6 +38,7 @@ export default function CartPage() {
       toast.error('Your cart is empty');
       return;
     }
+    setIsLoading(true);
     router.push('/checkout');
   };
 

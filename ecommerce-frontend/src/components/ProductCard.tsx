@@ -15,9 +15,7 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
-  const { addToCart, addToWishlist, removeFromWishlist, wishlist, updateCartItemQuantity, removeFromCart } = useStore();
-  
-  const isInWishlist = wishlist.some(item => item._id === product._id);
+  const { addToCart, updateCartItemQuantity, removeFromCart } = useStore();
   const cartItem = useStore((state) => state.cart.items.find((item) => item.product._id === product._id));
   const cartQuantity = cartItem ? cartItem.quantity : 0;
 
@@ -28,26 +26,7 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
     toast.success('Added to cart');
   };
 
-  const handleWishlistToggle = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    const { auth } = useStore.getState();
-    if (!auth.isAuthenticated || !auth.token) {
-      toast.error('Please log in to add items to your wishlist');
-      // Optionally redirect to login
-      // router.push('/login');
-      return;
-    }
-    
-    if (isInWishlist) {
-      removeFromWishlist(product._id);
-      toast.success('Removed from wishlist');
-    } else {
-      addToWishlist(product);
-      toast.success('Added to wishlist');
-    }
-  };
+
 
   const renderPrice = () => {
     if (product.price === 0) {
@@ -155,17 +134,7 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
                       </button>
                     </div>
                   )}
-                  <button
-                    onClick={handleWishlistToggle}
-                    className={`p-3 rounded-xl border-2 transition-colors ${
-                      isInWishlist
-                        ? 'border-red-500 text-red-500 hover:bg-red-50'
-                        : 'border-heritage-300 text-heritage-600 hover:border-accent-500 hover:text-accent-600'
-                    }`}
-                    title={isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
-                  >
-                    <Heart className={`h-4 w-4 ${isInWishlist ? 'fill-current' : ''}`} />
-                  </button>
+
                 </div>
               </div>
             </div>
@@ -249,19 +218,7 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
           {/* Quick Action Buttons */}
           <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
             <div className="flex space-x-3">
-              <motion.button
-                onClick={handleWishlistToggle}
-                className={`p-3 rounded-full shadow-lg transition-colors ${
-                  isInWishlist
-                    ? 'bg-red-500 text-white hover:bg-red-600'
-                    : 'bg-white text-primary-700 hover:bg-heritage-100'
-                }`}
-                title={isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
-                variants={buttonVariants}
-                whileTap="tap"
-              >
-                <Heart className={`h-5 w-5 ${isInWishlist ? 'fill-current' : ''}`} />
-              </motion.button>
+
               
               <motion.button
                 onClick={(e) => {

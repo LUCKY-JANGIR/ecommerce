@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
@@ -45,6 +45,7 @@ export default function RegisterPage() {
   const [otpSuccess, setOtpSuccess] = useState('');
   const [otpVerified, setOtpVerified] = useState(false);
   const [showProfileReminder, setShowProfileReminder] = useState(false);
+  const emailRef = useRef<HTMLInputElement>(null);
 
   const {
     register,
@@ -203,6 +204,7 @@ export default function RegisterPage() {
                       {...register('email')}
                       type="email"
                       id="email"
+                      ref={emailRef}
                       className="w-full pl-12 pr-4 py-4 border border-accent rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
                       placeholder="Enter your email"
                       disabled={otpSent || otpVerified}
@@ -210,7 +212,7 @@ export default function RegisterPage() {
                   </div>
                   <button
                     type="button"
-                    onClick={() => sendOtp((document.getElementById('email') as HTMLInputElement)?.value)}
+                    onClick={() => sendOtp(emailRef.current?.value || '')}
                     className="bg-primary text-white font-semibold rounded-xl px-6 py-4 transition-colors disabled:opacity-50 shadow-lg hover:bg-accent"
                     disabled={otpLoading || otpSent || otpVerified}
                   >
@@ -243,7 +245,7 @@ export default function RegisterPage() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => verifyOtp((document.getElementById('email') as HTMLInputElement)?.value, otp)}
+                  onClick={() => verifyOtp(emailRef.current?.value || '', otp)}
                   className="bg-green-600 text-white font-semibold rounded-xl px-6 py-4 mb-1 transition-colors disabled:opacity-50 shadow-lg hover:bg-green-700"
                   disabled={otpLoading || !otpSent || otpVerified || otp.length !== 6}
                 >

@@ -1,5 +1,6 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
+const mongoose = require('mongoose');
 const Category = require('../models/Category');
 const { protect, admin } = require('../middleware/auth');
 const multer = require('multer');
@@ -15,6 +16,8 @@ const upload = multer({ storage: multer.memoryStorage() });
 // @access  Public
 router.get('/', async (req, res, next) => {
     try {
+
+        
         const categories = await Category.find().sort({ name: 1 });
         res.json(categories);
     } catch (error) {

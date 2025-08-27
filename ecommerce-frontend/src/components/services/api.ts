@@ -583,30 +583,7 @@ export const usersAPI = {
     }
   },
 
-  getWishlist: async () => {
-    try {
-      const response = await api.get('/users/wishlist');
-      return response.data;
-    } catch (error) {
-      handleApiError(error);
-    }
-  },
-  addToWishlist: async (productId: string) => {
-    try {
-      const response = await api.post('/users/wishlist', { productId });
-      return response.data;
-    } catch (error) {
-      handleApiError(error);
-    }
-  },
-  removeFromWishlist: async (productId: string) => {
-    try {
-      const response = await api.delete(`/users/wishlist/${productId}`);
-      return response.data;
-    } catch (error) {
-      handleApiError(error);
-    }
-  },
+
 };
 
 // Platform Reviews API

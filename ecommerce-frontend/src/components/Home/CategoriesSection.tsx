@@ -35,20 +35,23 @@ export default function CategoriesSection() {
         const categoriesData = await categoriesAPI.getAll();
         
         if (categoriesData && Array.isArray(categoriesData)) {
-          // Fetch products for each category to check if they have at least 4 products
+          // Take first 3 categories to reduce API calls
+          const selectedCategories = categoriesData.slice(0, 3);
+          
+          // Fetch products for selected categories only
           const categoriesWithProducts = await Promise.all(
-            categoriesData.map(async (category) => {
+            selectedCategories.map(async (category) => {
               try {
                 const productsData = await productsAPI.getAll({ 
                   category: category._id, 
-                  limit: 10 // Fetch more to check if category has at least 4 products
+                  limit: 4 // Only fetch 4 products per category
                 });
                 
                 const products = productsData?.products || [];
                 
                 return {
                   ...category,
-                  products: products.slice(0, 4) // Limit to 4 products per category
+                  products: products
                 };
               } catch (error) {
                 console.error(`Error fetching products for category ${category._id}:`, error);
@@ -60,13 +63,10 @@ export default function CategoriesSection() {
             })
           );
           
-          // Filter categories that have at least 4 products
-          const validCategories = categoriesWithProducts.filter(category => category.products.length >= 4);
+          // Filter categories that have at least 2 products (reduced requirement)
+          const validCategories = categoriesWithProducts.filter(category => category.products.length >= 2);
           
-          // Shuffle and take first 3 categories from valid ones
-          const shuffledCategories = validCategories.sort(() => 0.5 - Math.random()).slice(0, 3);
-          
-          setCategories(shuffledCategories);
+          setCategories(validCategories);
         }
       } catch (error) {
         console.error('Error fetching categories:', error);

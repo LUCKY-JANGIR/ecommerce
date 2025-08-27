@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { productsAPI } from '@/components/services/api';
 import { getOptimizedImageUrl } from '@/lib/imageUtils';
-import { Heart, ShoppingCart } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 import { useStore, Product } from '@/store/useStore';
 import toast from 'react-hot-toast';
 
@@ -19,7 +19,7 @@ export default function RecommendedProducts({
 }: RecommendedProductsProps) {
   const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([]);
   const [hasLoaded, setHasLoaded] = useState(false);
-  const { addToCart, addToWishlist, removeFromWishlist, wishlist, auth } = useStore();
+  const { addToCart, auth } = useStore();
 
   useEffect(() => {
     // Add a delay before fetching to make it feel more natural
@@ -50,22 +50,7 @@ export default function RecommendedProducts({
     toast.success("Item added to cart");
   };
 
-  const handleWishlistToggle = (product: Product) => {
-    if (!auth.isAuthenticated || !auth.token) {
-      toast.error('Please log in to add items to your wishlist');
-      return;
-    }
-    
-    const isInWishlist = wishlist.some(item => item._id === product._id);
-    
-    if (isInWishlist) {
-      removeFromWishlist(product._id);
-      toast.success("Removed from wishlist");
-    } else {
-      addToWishlist(product);
-      toast.success("Added to wishlist");
-    }
-  };
+
 
   if (!hasLoaded) {
     return (
@@ -111,7 +96,6 @@ export default function RecommendedProducts({
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
         {recommendedProducts.map((product, index) => {
-          const isInWishlist = wishlist.some(item => item._id === product._id);
           const imageUrl = product.images?.[0]?.url 
             ? getOptimizedImageUrl(product.images[0].url) 
             : '/placeholder-product.svg';
@@ -182,16 +166,6 @@ export default function RecommendedProducts({
                       {product.price === 0 ? 'Negotiable' : `$${product.price}`}
                     </span>
                     <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => handleWishlistToggle(product)}
-                        className={`p-2 rounded-lg transition-colors ${
-                          isInWishlist
-                            ? 'text-red-500 hover:bg-red-50'
-                            : 'text-gray-400 hover:text-accent-600 hover:bg-accent-50'
-                        }`}
-                      >
-                        <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${isInWishlist ? 'fill-current' : ''}`} />
-                      </button>
                       <button
                         onClick={() => handleAddToCart(product)}
                         className="p-2 bg-accent-500 text-white rounded-lg hover:bg-accent-600 transition-colors"

@@ -1,5 +1,6 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
+const mongoose = require('mongoose');
 const PlatformReview = require('../models/PlatformReview');
 const { protect } = require('../middleware/auth');
 
@@ -8,6 +9,8 @@ const router = express.Router();
 // GET /api/reviews - public, get all platform reviews
 router.get('/', async (req, res, next) => {
     try {
+
+        
         const reviews = await PlatformReview.find().populate('user', 'name').sort({ createdAt: -1 });
         res.json({ success: true, reviews });
     } catch (err) {

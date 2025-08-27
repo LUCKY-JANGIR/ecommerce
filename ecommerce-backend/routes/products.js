@@ -1,5 +1,6 @@
 const express = require('express');
 const { body, validationResult, query } = require('express-validator');
+const mongoose = require('mongoose');
 const Product = require('../models/Product');
 const Category = require('../models/Category');
 const { protect, admin, optionalAuth } = require('../middleware/auth');
@@ -53,6 +54,8 @@ router.get('/', [
     let products = [];
     let total = 0;
     let usedRegexFallback = false;
+
+
 
     // Professional search: use $text if search query is present
     let useTextSearch = false;

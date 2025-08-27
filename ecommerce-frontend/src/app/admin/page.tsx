@@ -12,6 +12,7 @@ import { FiMenu, FiX } from 'react-icons/fi';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import { motion } from 'framer-motion';
+import MultipleImageUpload from "@/app/components/ui/MultipleImageUpload";
 
 // Import Swiper styles
 import 'swiper/css';
@@ -37,6 +38,13 @@ interface Category {
   image: string;
 }
 
+interface ImageItem {
+  id: string;
+  url?: string;
+  file?: File;
+  alt?: string;
+}
+
 export default function AdminPage() {
   const router = useRouter();
   const [isAdmin, setIsAdmin] = useState(false);
@@ -53,10 +61,8 @@ export default function AdminPage() {
   const [productAdding, setProductAdding] = useState(false);
   const [productAddForm, setProductAddForm] = useState({ name: '', description: '', category: '', price: '', stock: '', sku: '' });
   const [productAddLoading, setProductAddLoading] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>('');
-  const [editSelectedImage, setEditSelectedImage] = useState<File | null>(null);
-  const [editImagePreview, setEditImagePreview] = useState<string>('');
+  const [selectedImages, setSelectedImages] = useState<ImageItem[]>([]);
+  const [editSelectedImages, setEditSelectedImages] = useState<ImageItem[]>([]);
 
   // Category Management States
   const [categories, setCategories] = useState<Category[]>([]);
@@ -299,8 +305,13 @@ export default function AdminPage() {
       price: product.price.toString(),
       stock: product.stock.toString(),
     });
-    setEditImagePreview(product.images?.[0]?.url || '');
-    setEditSelectedImage(null);
+    // Convert existing images to ImageItem format
+    const existingImages: ImageItem[] = (product.images || []).map((img, index) => ({
+      id: `existing-${index}`,
+      url: img.url,
+      alt: img.alt || product.name
+    }));
+    setEditSelectedImages(existingImages);
   };
 
   const handleProductEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -318,9 +329,12 @@ export default function AdminPage() {
       formData.append('price', productEditForm.price);
       formData.append('stock', productEditForm.stock);
       
-      if (editSelectedImage) {
-        formData.append('images', editSelectedImage);
-      }
+      // Add multiple images
+      editSelectedImages.forEach((imageItem) => {
+        if (imageItem.file) {
+          formData.append('images', imageItem.file);
+        }
+      });
       
       await productsAPI.update(productEditing._id, formData);
       toast.success('Product updated successfully');
@@ -335,8 +349,7 @@ export default function AdminPage() {
 
   const openProductAdd = () => {
     setProductAddForm({ name: '', description: '', category: '', price: '', stock: '', sku: '' });
-    setSelectedImage(null);
-    setImagePreview('');
+    setSelectedImages([]);
     setProductAdding(true);
   };
 
@@ -344,28 +357,12 @@ export default function AdminPage() {
     setProductAddForm({ ...productAddForm, [e.target.name]: e.target.value });
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedImage(file);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
+  const handleImagesChange = (images: ImageItem[]) => {
+    setSelectedImages(images);
   };
 
-  const handleEditImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setEditSelectedImage(file);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setEditImagePreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
+  const handleEditImagesChange = (images: ImageItem[]) => {
+    setEditSelectedImages(images);
   };
 
   const handleProductAddSave = async () => {
@@ -383,16 +380,18 @@ export default function AdminPage() {
       formData.append('stock', productAddForm.stock);
       formData.append('sku', productAddForm.sku);
       
-      if (selectedImage) {
-        formData.append('images', selectedImage);
-      }
+      // Add multiple images
+      selectedImages.forEach((imageItem) => {
+        if (imageItem.file) {
+          formData.append('images', imageItem.file);
+        }
+      });
       
       await productsAPI.create(formData);
       toast.success('Product added successfully');
       setProductAdding(false);
       setProductAddForm({ name: '', description: '', category: '', price: '', stock: '', sku: '' });
-      setSelectedImage(null);
-      setImagePreview('');
+      setSelectedImages([]);
       fetchProducts();
     } catch (error: any) {
       toast.error(error?.message || 'Failed to add product');
@@ -639,7 +638,7 @@ export default function AdminPage() {
               <h3 className="text-lg font-semibold">Product Management</h3>
               <button
                 onClick={openProductAdd}
-                className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors flex items-center gap-2"
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 shadow-md"
               >
                 <Plus className="h-4 w-4" />
                 Add Product
@@ -649,7 +648,7 @@ export default function AdminPage() {
             {/* Add Product Modal */}
             {productAdding && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
                   <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-xl">
                     <div className="flex justify-between items-center">
                       <h3 className="text-xl font-semibold text-gray-800">Add New Product</h3>
@@ -662,36 +661,15 @@ export default function AdminPage() {
                     </div>
                   </div>
                   
-                  <div className="p-6 space-y-6">
-                    {/* Product Image Section */}
+                  <div className="p-6 space-y-6 overflow-y-auto flex-1">
+                    {/* Product Images Section */}
                     <div className="space-y-3">
-                      <label className="block text-sm font-medium text-gray-700">
-                        Product Image
-                      </label>
-                      <div className="flex items-center space-x-4">
-                        <div className="flex-1">
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageChange}
-                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-colors"
-                          />
-                        </div>
-                        {imagePreview && (
-                          <div className="relative">
-                            <img src={imagePreview} alt="Preview" className="w-20 h-20 object-cover rounded-lg border-2 border-gray-200" />
-                            <button
-                              onClick={() => {
-                                setSelectedImage(null);
-                                setImagePreview('');
-                              }}
-                              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                            >
-                              <X className="h-3 w-3" />
-                            </button>
-                          </div>
-                        )}
-                      </div>
+                      <MultipleImageUpload
+                        images={selectedImages}
+                        onChange={handleImagesChange}
+                        maxImages={5}
+                        disabled={productAddLoading}
+                      />
                     </div>
 
                     {/* Product Details */}
@@ -832,7 +810,7 @@ export default function AdminPage() {
             {/* Edit Product Modal */}
             {productEditing && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
                   <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-xl">
                     <div className="flex justify-between items-center">
                       <h3 className="text-xl font-semibold text-gray-800">Edit Product</h3>
@@ -845,36 +823,15 @@ export default function AdminPage() {
                     </div>
                   </div>
                   
-                  <div className="p-6 space-y-6">
-                    {/* Product Image Section */}
+                  <div className="p-6 space-y-6 overflow-y-auto flex-1">
+                    {/* Product Images Section */}
                     <div className="space-y-3">
-                      <label className="block text-sm font-medium text-gray-700">
-                        Product Image
-                      </label>
-                      <div className="flex items-center space-x-4">
-                        <div className="flex-1">
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleEditImageChange}
-                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-colors"
-                          />
-                        </div>
-                        {editImagePreview && (
-                          <div className="relative">
-                            <img src={editImagePreview} alt="Preview" className="w-20 h-20 object-cover rounded-lg border-2 border-gray-200" />
-                            <button
-                              onClick={() => {
-                                setEditSelectedImage(null);
-                                setEditImagePreview('');
-                              }}
-                              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                            >
-                              <X className="h-3 w-3" />
-                            </button>
-                          </div>
-                        )}
-                      </div>
+                      <MultipleImageUpload
+                        images={editSelectedImages}
+                        onChange={handleEditImagesChange}
+                        maxImages={5}
+                        disabled={productEditLoading}
+                      />
                     </div>
 
                     {/* Product Details */}
@@ -1088,7 +1045,7 @@ export default function AdminPage() {
                 <div className="text-center text-gray-500 py-8">No products found. Add your first product!</div>
               ) : (
                 products.map(product => (
-                  <div key={product._id} className="bg-white rounded-lg shadow p-4 flex flex-col gap-2">
+                  <div key={product._id} className="bg-white rounded-lg shadow-md border border-gray-200 p-4 flex flex-col gap-2">
                     <div className="flex items-center gap-4">
                       <img src={product.images?.[0]?.url ? getOptimizedImageUrl(product.images[0].url) : '/placeholder.png'} alt={product.name} className="w-16 h-16 object-cover rounded" />
                       <div>
@@ -1122,8 +1079,8 @@ export default function AdminPage() {
                       </div>
                     </div>
                     <div className="flex gap-2 mt-2">
-                      <button onClick={() => openProductEdit(product)} className="bg-white text-blue-600 border border-blue-600 hover:bg-blue-600 hover:text-white transition-colors rounded p-1.5 flex-1">Edit</button>
-                      <button onClick={() => handleProductDelete(product._id)} disabled={productDeleting === product._id} className="bg-white text-red-600 border border-red-600 hover:bg-red-600 hover:text-white transition-colors rounded p-1.5 flex-1 disabled:opacity-50">{productDeleting === product._id ? 'Deleting...' : 'Delete'}</button>
+                                      <button onClick={() => openProductEdit(product)} className="bg-blue-600 text-white border border-blue-600 hover:bg-blue-700 hover:text-white transition-colors rounded p-1.5 flex-1 shadow-sm">Edit</button>
+                <button onClick={() => handleProductDelete(product._id)} disabled={productDeleting === product._id} className="bg-red-600 text-white border border-red-600 hover:bg-red-700 hover:text-white transition-colors rounded p-1.5 flex-1 disabled:opacity-50 shadow-sm">{productDeleting === product._id ? 'Deleting...' : 'Delete'}</button>
                     </div>
                   </div>
                 ))
@@ -1138,7 +1095,7 @@ export default function AdminPage() {
               <h3 className="text-lg font-semibold">Category Management</h3>
               <button
                 onClick={() => setCategoryAdding(true)}
-                className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors flex items-center gap-2"
+                className="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors flex items-center gap-2 shadow-md"
               >
                 <Plus className="h-4 w-4" />
                 Add Category
@@ -1148,7 +1105,7 @@ export default function AdminPage() {
             {/* Add Category Modal */}
             {categoryAdding && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg">
+                <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
                   <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-xl">
                     <div className="flex justify-between items-center">
                       <h3 className="text-xl font-semibold text-gray-800">Add New Category</h3>
@@ -1161,7 +1118,7 @@ export default function AdminPage() {
                     </div>
                   </div>
                   
-                  <div className="p-6 space-y-6">
+                  <div className="p-6 space-y-6 overflow-y-auto flex-1">
                     <div className="space-y-3">
                       <label className="block text-sm font-medium text-gray-700">
                         Category Name <span className="text-red-500">*</span>
@@ -1274,7 +1231,7 @@ export default function AdminPage() {
             {/* Edit Category Modal */}
             {categoryEditing && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg">
+                <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
                   <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-xl">
                     <div className="flex justify-between items-center">
                       <h3 className="text-xl font-semibold text-gray-800">Edit Category</h3>
@@ -1287,7 +1244,7 @@ export default function AdminPage() {
                     </div>
                   </div>
                   
-                  <div className="p-6 space-y-6">
+                  <div className="p-6 space-y-6 overflow-y-auto flex-1">
                     <div className="space-y-3">
                       <label className="block text-sm font-medium text-gray-700">
                         Category Name <span className="text-red-500">*</span>
@@ -1460,12 +1417,12 @@ export default function AdminPage() {
                 <div className="text-center text-gray-500 py-8">No categories found. Add your first category!</div>
               ) : (
                 categories.map(category => (
-                  <div key={category._id} className="bg-white rounded-lg shadow p-4 flex flex-col gap-2">
+                  <div key={category._id} className="bg-white rounded-lg shadow-md border border-gray-200 p-4 flex flex-col gap-2">
                     <div className="font-semibold text-gray-900">{category.name}</div>
                     <div className="text-xs text-gray-500">{category.description}</div>
                     <div className="flex gap-2 mt-2">
-                      <button onClick={() => openCategoryEdit(category)} className="bg-white text-blue-600 border border-blue-600 hover:bg-blue-600 hover:text-white transition-colors rounded p-1.5 flex-1">Edit</button>
-                      <button onClick={() => handleCategoryDelete(category._id)} disabled={categoryDeleting === category._id} className="bg-white text-red-600 border border-red-600 hover:bg-red-600 hover:text-white transition-colors rounded p-1.5 flex-1 disabled:opacity-50">{categoryDeleting === category._id ? 'Deleting...' : 'Delete'}</button>
+                                      <button onClick={() => openCategoryEdit(category)} className="bg-blue-600 text-white border border-blue-600 hover:bg-blue-700 hover:text-white transition-colors rounded p-1.5 flex-1 shadow-sm">Edit</button>
+                <button onClick={() => handleCategoryDelete(category._id)} disabled={categoryDeleting === category._id} className="bg-red-600 text-white border border-red-600 hover:bg-red-700 hover:text-white transition-colors rounded p-1.5 flex-1 disabled:opacity-50 shadow-sm">{categoryDeleting === category._id ? 'Deleting...' : 'Delete'}</button>
                     </div>
                   </div>
                 ))
@@ -1682,7 +1639,7 @@ export default function AdminPage() {
               <button
                 key={link.key}
                 onClick={() => setActiveSection(link.key)}
-                className={`flex flex-col items-center justify-center p-4 rounded-lg font-semibold transition-colors border-2 ${activeSection === link.key ? 'bg-white text-blue-600 border-primary hover:text-white hover:bg-primary' : 'bg-primary text-white border-primary/20 hover:bg-primary/90 hover:text-white'}`}
+                className={`flex flex-col items-center justify-center p-4 rounded-lg font-semibold transition-colors border-2 shadow-md ${activeSection === link.key ? 'bg-white text-primary border-primary hover:bg-primary hover:text-white shadow-lg' : 'bg-primary text-white border-primary hover:bg-primary-600 hover:text-white shadow-lg'}`}
               >
                 {link.icon}
                 <span className="mt-2 text-xs font-medium">{link.label}</span>
@@ -1691,12 +1648,12 @@ export default function AdminPage() {
           </div>
 
           {/* Mobile Tab Bar */}
-          <div className="md:hidden flex items-center gap-2 px-2 py-2 overflow-x-auto bg-background border-t border-primary mb-4">
+          <div className="md:hidden flex items-center gap-2 px-2 py-2 overflow-x-auto bg-gray-50 border-t border-gray-200 mb-4">
             {navLinks.map(link => (
                 <button
                 key={link.key}
                 onClick={() => setActiveSection(link.key)}
-                className={`flex-shrink-0 flex items-center gap-1 px-3 py-1.5 rounded font-semibold text-sm transition-colors ${activeSection === link.key ? 'bg-white text-blue-600 border border-primary hover:text-white hover:bg-primary' : 'bg-primary/10 text-primary hover:bg-primary hover:text-white'}`}
+                className={`flex-shrink-0 flex items-center gap-1 px-3 py-1.5 rounded font-semibold text-sm transition-colors shadow-sm ${activeSection === link.key ? 'bg-primary text-white border border-primary hover:bg-primary-600 shadow-md' : 'bg-white text-primary border border-primary/30 hover:bg-primary hover:text-white shadow-md'}`}
               >
                 {link.icon}
                 {link.label}
@@ -1705,7 +1662,7 @@ export default function AdminPage() {
           </div>
 
           {/* Section Content */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-lg shadow-lg p-6 border border-gray-200">
             {renderSectionContent()}
           </div>
 
