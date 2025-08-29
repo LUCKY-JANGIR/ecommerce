@@ -8,7 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion } from 'framer-motion';
 import { useStore } from '@/store/useStore';
-import { ArrowLeft, Truck, CheckCircle, Handshake, User, Mail, Phone, MapPin } from 'lucide-react';
+import { ArrowLeft, Truck, Handshake, User, Mail, Phone, MapPin } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const checkoutSchema = z.object({
@@ -121,9 +121,10 @@ export default function CheckoutPage() {
       } else {
         throw new Error('Failed to create order');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Order creation error:', error);
-      toast.error(error.message || 'Failed to place order');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to place order';
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

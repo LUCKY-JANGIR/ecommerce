@@ -4,7 +4,7 @@ let cloudinary: any = null;
 // Only initialize on server side
 if (typeof window === 'undefined') {
   try {
-    const { v2 } = require('cloudinary');
+    const { v2 } = await import('cloudinary');
     cloudinary = v2;
     
     cloudinary.config({
@@ -36,13 +36,16 @@ export const uploadToCloudinary = async (
       const uploadStream = cloudinary.uploader.upload_stream(
         {
           folder,
-          resource_type: 'auto',
+          resource_type: 'image' as const,
           transformation: [
             { width: 800, height: 800, crop: 'limit' },
             { quality: 'auto', fetch_format: 'auto' }
           ]
         },
-        (error: any, result: any) => {
+        (error: unknown, result: {
+          secure_url: string;
+          public_id: string;
+        }) => {
           if (error) {
             reject(error);
           } else if (result) {

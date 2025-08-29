@@ -187,18 +187,60 @@ export default function ProductDetailsPage() {
             initial={{ opacity: 0, x: -40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
-            className="space-y-6"
+            className="flex gap-6"
           >
+            {/* Image Gallery Thumbnails - Left Side */}
+            {images.length > 1 && (
+              <div className="flex flex-col gap-3">
+                {images.map((image, index) => {
+                  const imageUrl = typeof image === 'string' ? image : image?.url || '/placeholder-product.svg';
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => setSelectedImage(index)}
+                      className={`relative w-20 h-20 bg-white rounded-xl overflow-hidden border-2 transition-all shadow-md group hover:shadow-lg flex-shrink-0 ${
+                        selectedImage === index ? 'border-accent-500 shadow-xl ring-2 ring-accent-200' : 'border-heritage-200 hover:border-accent-300'
+                      }`}
+                    >
+                                             <div className="relative w-full h-full">
+                         <Image
+                           src={imageUrl}
+                           alt={`${product.name} ${index + 1}`}
+                           fill
+                           className="object-cover"
+                         />
+                       </div>
+                      {/* Zoom overlay for gallery images */}
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 backdrop-blur-sm rounded-full p-1">
+                          <ZoomIn className="w-2 h-2 text-gray-800" />
+                        </div>
+                      </div>
+                      
+                      {/* Selected indicator */}
+                      {selectedImage === index && (
+                        <div className="absolute top-1 right-1 bg-accent-500 text-white text-xs px-1 py-0.5 rounded-full">
+                          ✓
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
             {/* Main Image Display */}
-            <div className="relative aspect-square bg-white rounded-3xl overflow-hidden shadow-lg">
+            <div className="relative aspect-square bg-white rounded-3xl overflow-hidden shadow-lg flex-1">
               {images.length > 0 ? (
-                <div className="relative w-full h-full group cursor-pointer" onClick={handleImageClick}>
-                  <Image
-                    src={typeof images[selectedImage] === 'string' ? images[selectedImage] : images[selectedImage]?.url || '/placeholder-product.svg'}
-                    alt={`${product.name} ${selectedImage + 1}`}
-                    fill
-                    className="object-cover"
-                  />
+                                 <div className="relative w-full h-full group cursor-pointer" onClick={handleImageClick}>
+                   <div className="relative w-full h-full">
+                     <Image
+                       src={typeof images[selectedImage] === 'string' ? images[selectedImage] : images[selectedImage]?.url || '/placeholder-product.svg'}
+                       alt={`${product.name} ${selectedImage + 1}`}
+                       fill
+                       className="object-cover"
+                     />
+                   </div>
                   {/* Zoom overlay */}
                   <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
                     <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 backdrop-blur-sm rounded-full p-3">
@@ -207,13 +249,15 @@ export default function ProductDetailsPage() {
                   </div>
                 </div>
               ) : (
-                <div className="relative w-full h-full group cursor-pointer" onClick={handleImageClick}>
-                  <Image
-                    src="/placeholder-product.svg"
-                    alt={product.name}
-                    fill
-                    className="object-cover"
-                  />
+                                 <div className="relative w-full h-full group cursor-pointer" onClick={handleImageClick}>
+                   <div className="relative w-full h-full">
+                     <Image
+                       src="/placeholder-product.svg"
+                       alt={product.name}
+                       fill
+                       className="object-cover"
+                     />
+                   </div>
                   {/* Zoom overlay */}
                   <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
                     <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 backdrop-blur-sm rounded-full p-3">
@@ -223,44 +267,6 @@ export default function ProductDetailsPage() {
                 </div>
               )}
             </div>
-            
-            {/* Image Gallery Grid */}
-            {images.length > 1 && (
-              <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-3">
-                {images.map((image, index) => {
-                  const imageUrl = typeof image === 'string' ? image : image?.url || '/placeholder-product.svg';
-                  return (
-                    <button
-                      key={index}
-                      onClick={() => setSelectedImage(index)}
-                      className={`relative aspect-square bg-white rounded-xl overflow-hidden border-2 transition-all shadow-md group hover:shadow-lg ${
-                        selectedImage === index ? 'border-accent-500 shadow-xl ring-2 ring-accent-200' : 'border-heritage-200 hover:border-accent-300'
-                      }`}
-                    >
-                      <Image
-                        src={imageUrl}
-                        alt={`${product.name} ${index + 1}`}
-                        fill
-                        className="object-cover"
-                      />
-                      {/* Zoom overlay for gallery images */}
-                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
-                        <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 backdrop-blur-sm rounded-full p-2">
-                          <ZoomIn className="w-3 h-3 text-gray-800" />
-                        </div>
-                      </div>
-                      
-                      {/* Selected indicator */}
-                      {selectedImage === index && (
-                        <div className="absolute top-1 right-1 bg-accent-500 text-white text-xs px-1.5 py-0.5 rounded-full">
-                          ✓
-                        </div>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
           </motion.div>
 
           {/* Product Info */}

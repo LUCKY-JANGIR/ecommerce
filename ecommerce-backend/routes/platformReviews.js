@@ -9,7 +9,14 @@ const router = express.Router();
 // GET /api/reviews - public, get all platform reviews
 router.get('/', async (req, res, next) => {
     try {
-
+        // Check if MongoDB is connected
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(503).json({
+                success: false,
+                message: 'Database connection is not available. Please try again later.',
+                reviews: []
+            });
+        }
         
         const reviews = await PlatformReview.find().populate('user', 'name').sort({ createdAt: -1 });
         res.json({ success: true, reviews });

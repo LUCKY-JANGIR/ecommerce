@@ -14,13 +14,21 @@ export default function OrdersPage() {
   const router = useRouter();
   const { auth } = useStore();
   const [loading, setLoading] = useState(true);
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<Array<{
+    _id: string;
+    orderStatus: string;
+    createdAt: string;
+    orderItems: Array<{
+      name: string;
+      quantity: number;
+    }>;
+  }>>([]);
 
   useEffect(() => {
     // Wait for hydration to complete before checking authentication
     const checkAuth = () => {
       if (!auth.isAuthenticated) {
-        console.log('User not authenticated, redirecting to login');
+    
         router.push('/login');
         return;
       }
@@ -158,7 +166,7 @@ export default function OrdersPage() {
                   <div className="border-t border-accent pt-6">
                     <h4 className="font-serif font-bold text-primary mb-4">Order Items:</h4>
                     <div className="space-y-3">
-                      {order.orderItems.map((item: any, itemIndex: number) => (
+                                             {order.orderItems.map((item: { name: string; quantity: number }, itemIndex: number) => (
                         <div key={itemIndex} className="flex items-center justify-between text-sm bg-background-light p-3 rounded-xl">
                           <span className="text-muted font-medium">{item.name}</span>
                           <span className="text-primary font-semibold">

@@ -9,7 +9,7 @@ import { z } from 'zod';
 import { motion } from 'framer-motion';
 import { useStore } from '@/store/useStore';
 import { authAPI } from '@/components/services/api';
-import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowLeft } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 
@@ -62,12 +62,16 @@ export default function RegisterPage() {
     setOtpError('');
     setOtpSuccess('');
     try {
-      const res = await axios.post(`${API_BASE_URL}/auth/send-otp`, { email });
+      await axios.post(`${API_BASE_URL}/auth/send-otp`, { email });
       setOtpSent(true);
       setOtpSuccess('OTP sent to your email.');
       toast.success('OTP sent successfully! Check your email.');
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Failed to send OTP.';
+    } catch (err: unknown) {
+      const errorMessage = err && typeof err === 'object' && 'response' in err && 
+        err.response && typeof err.response === 'object' && 'data' in err.response &&
+        err.response.data && typeof err.response.data === 'object' && 'message' in err.response.data
+        ? String(err.response.data.message)
+        : 'Failed to send OTP.';
       setOtpError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -80,12 +84,16 @@ export default function RegisterPage() {
     setOtpError('');
     setOtpSuccess('');
     try {
-      const res = await axios.post(`${API_BASE_URL}/auth/verify-otp`, { email, otp });
+      await axios.post(`${API_BASE_URL}/auth/verify-otp`, { email, otp });
       setOtpVerified(true);
       setOtpSuccess('Email verified! You can now register.');
       toast.success('Email verified successfully!');
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Invalid or expired OTP.';
+    } catch (err: unknown) {
+      const errorMessage = err && typeof err === 'object' && 'response' in err && 
+        err.response && typeof err.response === 'object' && 'data' in err.response &&
+        err.response.data && typeof err.response.data === 'object' && 'message' in err.response.data
+        ? String(err.response.data.message)
+        : 'Invalid or expired OTP.';
       setOtpError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -106,12 +114,21 @@ export default function RegisterPage() {
         password: data.password,
         confirmPassword: data.confirmPassword,
       });
-      login(response.user, response.token);
+      // Cast the role to match the User interface
+      const user = {
+        ...response.user,
+        role: response.user.role as 'user' | 'admin'
+      };
+      login(user, response.token);
       toast.success('Registration successful!');
       setTimeout(() => setShowProfileReminder(true), 1000); // Show reminder after 1s
-    } catch (error: any) {
-      const backendError = error.response?.data?.errors?.[0]?.msg || error.response?.data?.message || 'Registration failed';
-      toast.error(backendError);
+    } catch (error: unknown) {
+      const errorMessage = error && typeof error === 'object' && 'response' in error && 
+        error.response && typeof error.response === 'object' && 'data' in error.response &&
+        error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data
+        ? String(error.response.data.message)
+        : 'Registration failed';
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

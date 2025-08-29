@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { CustomError, handleApiError } from '@/lib/errorHandler';
 import toast from 'react-hot-toast';
 
@@ -11,13 +11,13 @@ interface UseAsyncState<T> {
 }
 
 interface UseAsyncReturn<T> extends UseAsyncState<T> {
-  execute: (...args: any[]) => Promise<T | null>;
+  execute: (...args: unknown[]) => Promise<T | null>;
   reset: () => void;
   setData: (data: T) => void;
 }
 
-export function useAsync<T = any>(
-  asyncFunction: (...args: any[]) => Promise<T>,
+export function useAsync<T = unknown>(
+  asyncFunction: (...args: unknown[]) => Promise<T>,
   immediate = false,
   showToast = true
 ): UseAsyncReturn<T> {
@@ -28,7 +28,7 @@ export function useAsync<T = any>(
   });
 
   const execute = useCallback(
-    async (...args: any[]) => {
+    async (...args: unknown[]) => {
       setState(prev => ({ ...prev, loading: true, error: null }));
 
       try {
@@ -75,15 +75,15 @@ export function useAsync<T = any>(
 }
 
 // Hook for handling form submissions
-export function useFormSubmit<T = any>(
-  submitFunction: (...args: any[]) => Promise<T>,
+export function useFormSubmit<T = unknown>(
+  submitFunction: (...args: unknown[]) => Promise<T>,
   onSuccess?: (data: T) => void,
   onError?: (error: CustomError) => void
 ) {
   const { data, loading, error, execute, reset } = useAsync(submitFunction, false, false);
 
   const handleSubmit = useCallback(
-    async (...args: any[]) => {
+    async (...args: unknown[]) => {
       const result = await execute(...args);
       if (result) {
         onSuccess?.(result);
@@ -105,18 +105,21 @@ export function useFormSubmit<T = any>(
 }
 
 // Hook for handling data fetching
-export function useFetch<T = any>(
-  fetchFunction: (...args: any[]) => Promise<T>,
-  dependencies: any[] = [],
+export function useFetch<T = unknown>(
+  fetchFunction: (...args: unknown[]) => Promise<T>,
+      dependencies: unknown[] = [],
   immediate = true
 ) {
   const { data, loading, error, execute, reset } = useAsync(fetchFunction, false);
+
+  // Memoize dependencies to avoid spread element in dependency array
+  const memoizedDependencies = useMemo(() => dependencies, dependencies);
 
   useEffect(() => {
     if (immediate) {
       execute();
     }
-  }, [execute, immediate, ...dependencies]);
+  }, [execute, immediate, memoizedDependencies]);
 
   return {
     data,

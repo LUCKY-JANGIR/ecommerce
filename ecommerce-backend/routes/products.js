@@ -43,6 +43,24 @@ router.get('/', [
         throw new ApiError('Validation failed', 400);
     }
 
+    // Check if MongoDB is connected
+    if (mongoose.connection.readyState !== 1) {
+        return res.status(503).json({
+            success: false,
+            message: 'Database connection is not available. Please try again later.',
+            data: {
+                products: [],
+                pagination: {
+                    currentPage: 1,
+                    totalPages: 1,
+                    totalProducts: 0,
+                    hasNextPage: false,
+                    hasPrevPage: false
+                }
+            }
+        });
+    }
+
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 12;
     const skip = (page - 1) * limit;
@@ -390,7 +408,23 @@ router.put('/:id', protect, admin, upload.array('images', 5), async (req, res, n
             product.tags = JSON.parse(req.body.tags);
         }
 
-        // Handle new images
+        // Handle images: existing images, new images, and reordering
+        let finalImages = [];
+        
+        // Process existing images (from existingImages field)
+        if (req.body.existingImages) {
+            const existingImageUrls = Array.isArray(req.body.existingImages) 
+                ? req.body.existingImages 
+                : [req.body.existingImages];
+            
+            // Filter existing images to only include those that are still wanted
+            const existingImages = product.images.filter(img => 
+                existingImageUrls.includes(img.url)
+            );
+            finalImages = [...existingImages];
+        }
+        
+        // Add new images
         if (req.files && req.files.length > 0) {
             const newImages = [];
             for (const file of req.files) {
@@ -401,7 +435,41 @@ router.put('/:id', protect, admin, upload.array('images', 5), async (req, res, n
                     public_id: result.public_id,
                 });
             }
-            product.images = [...product.images, ...newImages];
+            finalImages = [...finalImages, ...newImages];
+        }
+        
+        // If no images were processed, keep existing images
+        if (finalImages.length === 0) {
+            finalImages = product.images;
+        }
+        
+        // Update product images
+        product.images = finalImages;
+        
+        // Handle image reordering if imageOrder is provided
+        if (req.body.imageOrder) {
+            try {
+                const imageOrder = JSON.parse(req.body.imageOrder);
+                // Reorder images based on the provided order
+                const orderedImages = [];
+                for (const imageId of imageOrder) {
+                    const image = finalImages.find(img => 
+                        img.url === imageId || img._id?.toString() === imageId
+                    );
+                    if (image) {
+                        orderedImages.push(image);
+                    }
+                }
+                // Add any remaining images that weren't in the order
+                finalImages.forEach(img => {
+                    if (!orderedImages.find(ordered => ordered.url === img.url)) {
+                        orderedImages.push(img);
+                    }
+                });
+                product.images = orderedImages;
+            } catch (error) {
+                console.error('Error parsing image order:', error);
+            }
         }
 
         await product.save();

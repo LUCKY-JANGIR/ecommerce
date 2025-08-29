@@ -17,7 +17,7 @@ export default function HydrationProvider() {
           // Basic JWT format validation (without secret verification)
           const parts = token.split('.');
           if (parts.length !== 3) {
-            console.log('Invalid token format, logging out');
+    
             logout();
             return;
           }
@@ -27,19 +27,19 @@ export default function HydrationProvider() {
           const currentTime = Math.floor(Date.now() / 1000);
           
           if (payload.exp && payload.exp < currentTime) {
-            console.log('Token expired, logging out');
+    
             logout();
             return;
           }
           
-          console.log('Token validation passed');
-        } catch (error) {
-          console.log('Token validation failed, logging out:', error);
-          logout();
-          return;
-        }
+  
+                  } catch {
+            
+            logout();
+            return;
+          }
       } else {
-        console.log('No token or user not authenticated, skipping validation');
+
       }
     };
 

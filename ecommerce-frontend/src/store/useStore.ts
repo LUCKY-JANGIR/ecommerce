@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { usersAPI } from '@/components/services/api';
+
 
 export interface User {
   _id: string;
@@ -140,7 +140,7 @@ interface AppState {
 
 export const useStore = create<AppState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       // Auth state
       auth: {
         user: null,

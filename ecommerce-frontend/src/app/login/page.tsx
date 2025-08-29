@@ -37,11 +37,21 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       const response = await authAPI.login(data);
-      login(response.user, response.token);
+      // Cast the role to match the User interface
+      const user = {
+        ...response.user,
+        role: response.user.role as 'user' | 'admin'
+      };
+      login(user, response.token);
       toast.success('Login successful!');
       router.push('/');
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Login failed');
+    } catch (error: unknown) {
+      const errorMessage = error && typeof error === 'object' && 'response' in error && 
+        error.response && typeof error.response === 'object' && 'data' in error.response &&
+        error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data
+        ? String(error.response.data.message)
+        : 'Login failed';
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

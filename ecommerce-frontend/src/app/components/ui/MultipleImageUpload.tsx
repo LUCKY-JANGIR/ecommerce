@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { X, Upload, ArrowUp, ArrowDown } from 'lucide-react';
 
@@ -22,10 +22,9 @@ export default function MultipleImageUpload({
   maxImages = 5, 
   disabled = false 
 }: MultipleImageUploadProps) {
-  const [uploading, setUploading] = useState(false);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    if (disabled || uploading) return;
+    if (disabled) return;
     
     const newImages = acceptedFiles.map(file => ({
       id: `new-${Date.now()}-${Math.random()}`,
@@ -40,13 +39,13 @@ export default function MultipleImageUpload({
     }
 
     onChange([...images, ...newImages]);
-  }, [images, onChange, maxImages, disabled, uploading]);
+  }, [images, onChange, maxImages, disabled]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: { 'image/*': [] },
     multiple: true,
-    disabled: disabled || uploading || images.length >= maxImages
+    disabled: disabled || images.length >= maxImages
   });
 
   const removeImage = (id: string) => {
@@ -104,18 +103,26 @@ export default function MultipleImageUpload({
                 {/* Remove button */}
                 <button
                   type="button"
-                  onClick={() => removeImage(image.id)}
-                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    removeImage(image.id);
+                  }}
+                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-80 group-hover:opacity-100 transition-opacity"
                   title="Remove image"
                 >
                   <X className="w-4 h-4" />
                 </button>
 
                 {/* Reorder buttons */}
-                <div className="absolute bottom-2 left-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute bottom-2 left-2 flex gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
                   <button
                     type="button"
-                    onClick={() => moveImage(index, index - 1)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      moveImage(index, index - 1);
+                    }}
                     disabled={index === 0}
                     className="bg-black bg-opacity-50 text-white rounded-full w-6 h-6 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-opacity-70"
                     title="Move up"
@@ -124,7 +131,11 @@ export default function MultipleImageUpload({
                   </button>
                   <button
                     type="button"
-                    onClick={() => moveImage(index, index + 1)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      moveImage(index, index + 1);
+                    }}
                     disabled={index === images.length - 1}
                     className="bg-black bg-opacity-50 text-white rounded-full w-6 h-6 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-opacity-70"
                     title="Move down"
@@ -151,7 +162,7 @@ export default function MultipleImageUpload({
             isDragActive 
               ? 'border-blue-500 bg-blue-50' 
               : 'border-gray-300 hover:border-gray-400 bg-gray-50'
-          } ${disabled || uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+          } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           <input {...getInputProps()} />
           <Upload className="w-8 h-8 text-gray-400 mb-2" />
@@ -167,13 +178,7 @@ export default function MultipleImageUpload({
         </div>
       )}
 
-      {/* Upload Progress */}
-      {uploading && (
-        <div className="text-center py-4">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="text-sm text-gray-600 mt-2">Uploading images...</p>
-        </div>
-      )}
+
     </div>
   );
 }

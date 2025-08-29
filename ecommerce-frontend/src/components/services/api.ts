@@ -19,7 +19,7 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    console.log('Axios Auth Header:', config.headers.Authorization); // Debug log
+
     return config;
   },
   (error) => {
@@ -32,12 +32,12 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      console.log('Auth error detected, checking if user should be logged out');
+
       
       // Only logout if the user is currently authenticated
       const currentAuth = useStore.getState().auth;
       if (currentAuth.isAuthenticated && currentAuth.token) {
-        console.log('User is authenticated but got 401, logging out');
+
         useStore.getState().logout();
         
         // Only redirect to login if not already on login page and not on public pages
@@ -64,9 +64,37 @@ export const authAPI: {
     password: string;
     confirmPassword?: string;
     phone?: string;
-  }) => Promise<any>;
-  login: (credentials: { email: string; password: string }) => Promise<any>;
-  getProfile: () => Promise<any>;
+  }) => Promise<{
+    user: {
+      _id: string;
+      name: string;
+      email: string;
+      role: string;
+    };
+    token: string;
+  }>;
+  login: (credentials: { email: string; password: string }) => Promise<{
+    user: {
+      _id: string;
+      name: string;
+      email: string;
+      role: string;
+    };
+    token: string;
+  }>;
+  getProfile: () => Promise<{
+    _id: string;
+    name: string;
+    email: string;
+    phone?: string;
+    address?: {
+      street: string;
+      city: string;
+      state: string;
+      zipCode: string;
+      country: string;
+    };
+  }>;
   updateProfile: (userData: Partial<{
     name: string;
     email: string;
@@ -78,10 +106,22 @@ export const authAPI: {
       zipCode: string;
       country: string;
     };
-  }>) => Promise<any>;
-  changePassword: (passwords: { currentPassword: string; newPassword: string }) => Promise<any>;
-  forgotPassword: (email: string) => Promise<any>;
-  resetPassword: (params: { email: string; token: string; newPassword: string }) => Promise<any>;
+  }>) => Promise<{
+    _id: string;
+    name: string;
+    email: string;
+    phone?: string;
+    address?: {
+      street: string;
+      city: string;
+      state: string;
+      zipCode: string;
+      country: string;
+    };
+  }>;
+  changePassword: (passwords: { currentPassword: string; newPassword: string }) => Promise<{ message: string }>;
+  forgotPassword: (email: string) => Promise<{ message: string }>;
+  resetPassword: (params: { email: string; token: string; newPassword: string }) => Promise<{ message: string }>;
 } = {
   register: async (userData: {
     name: string;

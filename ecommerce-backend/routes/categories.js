@@ -16,7 +16,14 @@ const upload = multer({ storage: multer.memoryStorage() });
 // @access  Public
 router.get('/', async (req, res, next) => {
     try {
-
+        // Check if MongoDB is connected
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(503).json({
+                success: false,
+                message: 'Database connection is not available. Please try again later.',
+                data: []
+            });
+        }
         
         const categories = await Category.find().sort({ name: 1 });
         res.json(categories);

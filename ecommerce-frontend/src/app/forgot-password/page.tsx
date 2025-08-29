@@ -15,8 +15,9 @@ export default function ForgotPasswordPage() {
       await authAPI.forgotPassword(email);
       toast.success("If an account with that email exists, a reset link has been sent.");
       setSent(true);
-    } catch (err: any) {
-      toast.error(err?.message || "Failed to send reset email.");
+    } catch (err: unknown) {
+      const errorMessage = err && typeof err === 'object' && 'message' in err ? String(err.message) : "Failed to send reset email.";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

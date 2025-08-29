@@ -4,7 +4,8 @@ import toast from "react-hot-toast";
 import { useStore } from "@/store/useStore";
 import { useRouter } from "next/navigation";
 import { categoriesAPI } from "@/components/services/api";
-import { useRef } from "react";
+import Image from "next/image";
+
 import DragAndDropImage from '@/app/components/ui/DragAndDropImage';
 
 interface Category {
@@ -28,7 +29,7 @@ export default function AdminCategoriesPage() {
   const [deleting, setDeleting] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageUploading, setImageUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+
 
   // Check if user is admin
   useEffect(() => {
@@ -44,7 +45,7 @@ export default function AdminCategoriesPage() {
     try {
       const data = await categoriesAPI.getAll();
       setCategories(data);
-    } catch (error) {
+    } catch {
       toast.error('Failed to load categories');
     } finally {
       setLoading(false);
@@ -78,8 +79,9 @@ export default function AdminCategoriesPage() {
       setAdding(false);
       setAddForm({ name: '', description: '', image: '' });
       fetchCategories();
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to add category');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to add category';
+      toast.error(errorMessage);
     } finally {
       setAddLoading(false);
     }
@@ -106,8 +108,9 @@ export default function AdminCategoriesPage() {
       toast.success('Category updated successfully');
       setEditing(null);
       fetchCategories();
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to update category');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update category';
+      toast.error(errorMessage);
     } finally {
       setEditLoading(false);
     }
@@ -122,40 +125,15 @@ export default function AdminCategoriesPage() {
       
       toast.success('Category deleted successfully');
       fetchCategories();
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to delete category');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete category';
+      toast.error(errorMessage);
     } finally {
       setDeleting(null);
     }
   };
 
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>, mode: 'add' | 'edit') => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setImageUploading(true);
-    const formData = new FormData();
-    formData.append('file', file);
-    try {
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
-      });
-      const data = await res.json();
-      if (data.success && data.data.url) {
-        if (mode === 'add') setAddForm(f => ({ ...f, image: data.data.url }));
-        if (mode === 'edit') setEditForm(f => ({ ...f, image: data.data.url }));
-        setImageFile(file);
-        toast.success('Image uploaded!');
-      } else {
-        toast.error('Image upload failed');
-      }
-    } catch (err) {
-      toast.error('Image upload failed');
-    } finally {
-      setImageUploading(false);
-    }
-  };
+
 
   // Show loading if not authenticated or not admin
   if (!auth.isAuthenticated || auth.user?.role !== 'admin') {
@@ -207,7 +185,7 @@ export default function AdminCategoriesPage() {
                     <td className="px-4 py-2 font-semibold">{cat.name}</td>
                     <td className="px-4 py-2">{cat.description}</td>
                     <td className="px-4 py-2">
-                      {cat.image ? <img src={cat.image} alt={cat.name} className="w-12 h-12 object-cover rounded" /> : <span className="text-gray-400">No image</span>}
+                      {cat.image ? <Image src={cat.image} alt={cat.name} className="w-12 h-12 object-cover rounded" width={48} height={48} /> : <span className="text-gray-400">No image</span>}
                     </td>
                     <td className="px-4 py-2 space-x-2">
                       <button className="bg-yellow-400 text-white px-3 py-1 rounded hover:bg-yellow-500 text-sm" onClick={() => openEdit(cat)}>Edit</button>
@@ -255,7 +233,7 @@ export default function AdminCategoriesPage() {
                     } else {
                       toast.error('Image upload failed');
                     }
-                  } catch (err) {
+                  } catch {
                     toast.error('Image upload failed');
                   } finally {
                     setImageUploading(false);
@@ -304,7 +282,7 @@ export default function AdminCategoriesPage() {
                     } else {
                       toast.error('Image upload failed');
                     }
-                  } catch (err) {
+                  } catch {
                     toast.error('Image upload failed');
                   } finally {
                     setImageUploading(false);

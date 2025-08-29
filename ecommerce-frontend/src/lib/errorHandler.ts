@@ -4,7 +4,7 @@ export interface ApiError {
   message: string;
   statusCode?: number;
   code?: string;
-  details?: any;
+  details?: unknown;
 }
 
 export interface ValidationError {
@@ -31,9 +31,9 @@ export interface ErrorResponse {
 export class CustomError extends Error {
   public statusCode: number;
   public code?: string;
-  public details?: any;
+  public details?: unknown;
 
-  constructor(message: string, statusCode: number = 500, code?: string, details?: any) {
+  constructor(message: string, statusCode: number = 500, code?: string, details?: unknown) {
     super(message);
     this.name = 'CustomError';
     this.statusCode = statusCode;
@@ -43,12 +43,12 @@ export class CustomError extends Error {
 }
 
 // Error handler function
-export const handleApiError = (error: any): never => {
+export const handleApiError = (error: unknown): never => {
   let customError: CustomError;
 
   // Axios error
-  if (error.response) {
-    const { status, data } = error.response;
+  if (error && typeof error === 'object' && 'response' in error && error.response) {
+    const { status, data } = error.response as any;
     
     // Handle different status codes
     switch (status) {
@@ -149,7 +149,7 @@ export const handleApiError = (error: any): never => {
     }
   }
   // Network error
-  else if (error.request) {
+  else if (error && typeof error === 'object' && 'request' in error && error.request) {
     customError = new CustomError(
       'Network error. Please check your connection.',
       0,
@@ -160,11 +160,11 @@ export const handleApiError = (error: any): never => {
   // Other errors
   else {
     customError = new CustomError(
-      error.message || 'An unexpected error occurred',
+      (error && typeof error === 'object' && 'message' in error ? String(error.message) : null) || 'An unexpected error occurred',
       500,
       'UNKNOWN_ERROR'
     );
-    toast.error(error.message || 'An unexpected error occurred');
+    toast.error((error && typeof error === 'object' && 'message' in error ? String(error.message) : null) || 'An unexpected error occurred');
   }
 
   // Log error in development
@@ -199,17 +199,20 @@ export const showWarnToast = (message: string) => {
 };
 
 // Error boundary helper
-export const getErrorMessage = (error: any): string => {
+export const getErrorMessage = (error: unknown): string => {
   if (error instanceof CustomError) {
     return error.message;
   }
   
-  if (error?.response?.data?.error?.message) {
-    return error.response.data.error.message;
+  if (error && typeof error === 'object' && 'response' in error && error.response && 
+      typeof error.response === 'object' && 'data' in error.response && error.response.data &&
+      typeof error.response.data === 'object' && 'error' in error.response.data && error.response.data.error &&
+      typeof error.response.data.error === 'object' && 'message' in error.response.data.error) {
+    return String(error.response.data.error.message);
   }
   
-  if (error?.message) {
-    return error.message;
+  if (error && typeof error === 'object' && 'message' in error && error.message) {
+    return String(error.message);
   }
   
   return 'An unexpected error occurred';
@@ -221,7 +224,7 @@ export const retryRequest = async <T>(
   maxRetries: number = 3,
   delay: number = 1000
 ): Promise<T> => {
-  let lastError: any;
+  let lastError: unknown;
   
   for (let i = 0; i < maxRetries; i++) {
     try {
@@ -248,7 +251,7 @@ export const retryRequest = async <T>(
 };
 
 // Error reporting (for production)
-export const reportError = (error: any, context?: any) => {
+export const reportError = (error: unknown, context?: unknown) => {
   if (process.env.NODE_ENV === 'production') {
     // Send error to your error reporting service (Sentry, LogRocket, etc.)
     console.error('Error reported:', { error, context });

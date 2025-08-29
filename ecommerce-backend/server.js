@@ -143,7 +143,7 @@ const mongooseOptions = {
     serverSelectionTimeoutMS: 5000, // 5 seconds timeout
     socketTimeoutMS: 45000, // 45 seconds socket timeout
     bufferCommands: true, // Enable mongoose buffering for better compatibility
-    maxPoolSize: 10, // Maximum number of connections in the pool
+    maxPoolSize: 5, // Reduced from 10 to 5 for better memory management
     minPoolSize: 1, // Minimum number of connections in the pool
     maxIdleTimeMS: 30000, // Close connections after 30 seconds of inactivity
     connectTimeoutMS: 10000, // 10 seconds connection timeout
@@ -151,6 +151,7 @@ const mongooseOptions = {
     w: 'majority'
 };
 
+// Try to connect to MongoDB, but don't fail if it's not available
 mongoose.connect(mongoUri, mongooseOptions)
     .then(() => {
         console.log('✅ Connected to MongoDB');
@@ -163,6 +164,9 @@ mongoose.connect(mongoUri, mongooseOptions)
         console.log('   2. Use MongoDB Atlas (free): https://www.mongodb.com/atlas');
         console.log('   3. Update MONGODB_URI in .env file');
         console.log('🔄 Server will continue without database connection...');
+        
+        // Set up a mock database connection for development
+        mongoose.connection.readyState = 0; // disconnected
     });
 
 // Handle MongoDB connection events

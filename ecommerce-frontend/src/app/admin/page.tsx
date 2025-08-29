@@ -2,13 +2,12 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Users, ShoppingBag, BarChart3, Tag, Settings, Plus, Edit, Trash2, X, Star } from 'lucide-react';
+import Image from 'next/image';
+import { Users, ShoppingBag, BarChart3, Tag, Settings, Plus, Edit, Trash2, X, Star } from 'lucide-react';
 import { FiPackage } from 'react-icons/fi';
-import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { productsAPI, categoriesAPI, uploadAPI } from "@/components/services/api";
 import { getOptimizedImageUrl } from "@/lib/imageUtils";
-import { FiMenu, FiX } from 'react-icons/fi';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import { motion } from 'framer-motion';
@@ -28,7 +27,7 @@ interface Product {
   stock: number;
   isFeatured?: boolean;
   images?: Array<{ url: string; alt?: string }>;
-  [key: string]: any;
+
 }
 
 interface Category {
@@ -49,11 +48,9 @@ export default function AdminPage() {
   const router = useRouter();
   const [isAdmin, setIsAdmin] = useState(false);
   const [activeSection, setActiveSection] = useState('overview');
-  const [navOpen, setNavOpen] = useState(false);
 
   // Product Management States
   const [products, setProducts] = useState<Product[]>([]);
-  const [productLoading, setProductLoading] = useState(false);
   const [productDeleting, setProductDeleting] = useState<string | null>(null);
   const [productEditing, setProductEditing] = useState<Product | null>(null);
   const [productEditLoading, setProductEditLoading] = useState(false);
@@ -66,7 +63,6 @@ export default function AdminPage() {
 
   // Category Management States
   const [categories, setCategories] = useState<Category[]>([]);
-  const [categoryLoading, setCategoryLoading] = useState(false);
   const [categoryAdding, setCategoryAdding] = useState(false);
   const [categoryAddForm, setCategoryAddForm] = useState({ name: '', description: '', image: '' });
   const [categoryAddLoading, setCategoryAddLoading] = useState(false);
@@ -78,10 +74,65 @@ export default function AdminPage() {
   const [categoryImageUploading, setCategoryImageUploading] = useState(false);
 
   // Order Management States
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<Array<{
+    _id: string;
+    orderStatus: string;
+    isPaid: boolean;
+    createdAt: string;
+    orderItems: Array<{
+      name: string;
+      quantity: number;
+      price: number;
+    }>;
+    negotiationNotes?: string;
+    user?: {
+      name: string;
+      email: string;
+    };
+    shippingAddress?: {
+      fullName: string;
+      address: string;
+      city: string;
+      state: string;
+      postalCode: string;
+      country: string;
+      phone: string;
+    };
+    paymentMethod?: string;
+  }>>([]);
   const [orderLoading, setOrderLoading] = useState(false);
-  const [orderStats, setOrderStats] = useState<any>(null);
-  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [orderStats, setOrderStats] = useState<{
+    totalOrders: number;
+    totalRevenue: number;
+    pendingOrders: number;
+    deliveredOrders: number;
+  } | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<{
+    _id: string;
+    orderStatus: string;
+    isPaid: boolean;
+    createdAt: string;
+    orderItems: Array<{
+      name: string;
+      quantity: number;
+      price: number;
+    }>;
+    negotiationNotes?: string;
+    user?: {
+      name: string;
+      email: string;
+    };
+    shippingAddress?: {
+      fullName: string;
+      address: string;
+      city: string;
+      state: string;
+      postalCode: string;
+      country: string;
+      phone: string;
+    };
+    paymentMethod?: string;
+  } | null>(null);
   const [orderStatusUpdating, setOrderStatusUpdating] = useState<string | null>(null);
   const [negotiationNotes, setNegotiationNotes] = useState('');
   const [updatingNotes, setUpdatingNotes] = useState(false);
@@ -105,7 +156,7 @@ export default function AdminPage() {
           return;
         }
       }
-    } catch (e) {
+    } catch {
       // ignore
     }
     router.push('/');
@@ -120,8 +171,7 @@ export default function AdminPage() {
       const { ordersAPI } = await import('@/components/services/api');
       const response = await ordersAPI.getAll(orderFilters);
       setOrders(response.orders || []);
-    } catch (error) {
-      console.error('Error fetching orders:', error);
+    } catch {
       toast.error('Failed to fetch orders');
     } finally {
       setOrderLoading(false);
@@ -145,8 +195,8 @@ export default function AdminPage() {
       const { ordersAPI } = await import('@/components/services/api');
       const stats = await ordersAPI.getStats();
       setOrderStats(stats);
-    } catch (error) {
-      console.error('Error fetching order stats:', error);
+    } catch {
+      // Error handled silently
     }
   };
 
@@ -157,8 +207,7 @@ export default function AdminPage() {
       await ordersAPI.updateStatus(orderId, newStatus);
       toast.success('Order status updated successfully');
       fetchOrders(); // Refresh orders
-    } catch (error) {
-      console.error('Error updating order status:', error);
+    } catch {
       toast.error('Failed to update order status');
     } finally {
       setOrderStatusUpdating(null);
@@ -174,8 +223,7 @@ export default function AdminPage() {
       setNegotiationNotes('');
       setSelectedOrder(null);
       fetchOrders(); // Refresh orders
-    } catch (error) {
-      console.error('Error updating negotiation notes:', error);
+    } catch {
       toast.error('Failed to update negotiation notes');
     } finally {
       setUpdatingNotes(false);
@@ -189,15 +237,39 @@ export default function AdminPage() {
       await ordersAPI.updatePaymentStatus(orderId, isPaid);
       toast.success(`Payment status updated to ${isPaid ? 'Paid' : 'Unpaid'}`);
       fetchOrders(); // Refresh orders
-    } catch (error) {
-      console.error('Error updating payment status:', error);
+    } catch {
       toast.error('Failed to update payment status');
     } finally {
       setPaymentStatusUpdating(null);
     }
   };
 
-  const openOrderDetails = (order: any) => {
+  const openOrderDetails = (order: {
+    _id: string;
+    orderStatus: string;
+    isPaid: boolean;
+    createdAt: string;
+    orderItems: Array<{
+      name: string;
+      quantity: number;
+      price: number;
+    }>;
+    negotiationNotes?: string;
+    user?: {
+      name: string;
+      email: string;
+    };
+    shippingAddress?: {
+      fullName: string;
+      address: string;
+      city: string;
+      state: string;
+      postalCode: string;
+      country: string;
+      phone: string;
+    };
+    paymentMethod?: string;
+  }) => {
     setSelectedOrder(order);
     setNegotiationNotes(order.negotiationNotes || '');
   };
@@ -235,7 +307,6 @@ export default function AdminPage() {
   };
 
   const fetchProducts = async () => {
-    setProductLoading(true);
     try {
       const data = await productsAPI.getAll();
       let productsArray = [];
@@ -247,23 +318,18 @@ export default function AdminPage() {
         productsArray = data.data.products;
       }
       setProducts(productsArray);
-    } catch (error) {
+    } catch {
       toast.error("Failed to load products");
       setProducts([]);
-    } finally {
-      setProductLoading(false);
     }
   };
 
   const fetchCategories = async () => {
-    setCategoryLoading(true);
     try {
       const data = await categoriesAPI.getAll();
       setCategories(data);
-    } catch (error) {
+    } catch {
       toast.error('Failed to load categories');
-    } finally {
-      setCategoryLoading(false);
     }
   };
 
@@ -275,7 +341,7 @@ export default function AdminPage() {
       await productsAPI.delete(id);
       toast.success("Product deleted successfully");
       fetchProducts();
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete product");
     } finally {
       setProductDeleting(null);
@@ -287,7 +353,7 @@ export default function AdminPage() {
       await productsAPI.toggleFeatured(id);
       toast.success("Featured status updated successfully");
       fetchProducts();
-    } catch (error) {
+    } catch {
       toast.error("Failed to update featured status");
     }
   };
@@ -295,8 +361,8 @@ export default function AdminPage() {
   const openProductEdit = (product: Product) => {
     setProductEditing(product);
     let categoryId = product.category;
-    if (typeof product.category === 'object' && product.category !== null && '_id' in (product.category as any)) {
-      categoryId = (product.category as any)._id;
+    if (typeof product.category === 'object' && product.category !== null && '_id' in (product.category as { _id: string; name: string })) {
+      categoryId = (product.category as { _id: string; name: string })._id;
     }
     setProductEditForm({
       name: product.name,
@@ -329,19 +395,28 @@ export default function AdminPage() {
       formData.append('price', productEditForm.price);
       formData.append('stock', productEditForm.stock);
       
-      // Add multiple images
+      // Handle images: send both existing URLs and new files
       editSelectedImages.forEach((imageItem) => {
         if (imageItem.file) {
+          // New file
           formData.append('images', imageItem.file);
+        } else if (imageItem.url) {
+          // Existing image URL - send as string
+          formData.append('existingImages', imageItem.url);
         }
       });
+      
+      // Send the order of images (use URLs for existing images, IDs for new ones)
+      const imageOrder = editSelectedImages.map(img => img.url || img.id);
+      formData.append('imageOrder', JSON.stringify(imageOrder));
       
       await productsAPI.update(productEditing._id, formData);
       toast.success('Product updated successfully');
       setProductEditing(null);
       fetchProducts();
-    } catch (error: any) {
-      toast.error(error?.message || 'Failed to update product');
+    } catch (error: unknown) {
+      const errorMessage = error && typeof error === 'object' && 'message' in error ? String(error.message) : 'Failed to update product';
+      toast.error(errorMessage);
     } finally {
       setProductEditLoading(false);
     }
@@ -393,8 +468,9 @@ export default function AdminPage() {
       setProductAddForm({ name: '', description: '', category: '', price: '', stock: '', sku: '' });
       setSelectedImages([]);
       fetchProducts();
-    } catch (error: any) {
-      toast.error(error?.message || 'Failed to add product');
+    } catch (error: unknown) {
+      const errorMessage = error && typeof error === 'object' && 'message' in error ? String(error.message) : 'Failed to add product';
+      toast.error(errorMessage);
     } finally {
       setProductAddLoading(false);
     }
@@ -424,8 +500,9 @@ export default function AdminPage() {
       setCategoryAddForm({ name: '', description: '', image: '' });
       setCategoryImageFile(null);
       fetchCategories();
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to add category');
+    } catch (error: unknown) {
+      const errorMessage = error && typeof error === 'object' && 'message' in error ? String(error.message) : 'Failed to add category';
+      toast.error(errorMessage);
     } finally {
       setCategoryAddLoading(false);
     }
@@ -455,8 +532,9 @@ export default function AdminPage() {
       setCategoryEditing(null);
       setCategoryImageFile(null);
       fetchCategories();
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to update category');
+    } catch (error: unknown) {
+      const errorMessage = error && typeof error === 'object' && 'message' in error ? String(error.message) : 'Failed to update category';
+      toast.error(errorMessage);
     } finally {
       setCategoryEditLoading(false);
     }
@@ -471,8 +549,9 @@ export default function AdminPage() {
       
       toast.success('Category deleted successfully');
       fetchCategories();
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to delete category');
+    } catch (error: unknown) {
+      const errorMessage = error && typeof error === 'object' && 'message' in error ? String(error.message) : 'Failed to delete category';
+      toast.error(errorMessage);
     } finally {
       setCategoryDeleting(null);
     }
@@ -811,7 +890,7 @@ export default function AdminPage() {
             {productEditing && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
                 <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
-                  <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-xl">
+                  <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-xl z-10">
                     <div className="flex justify-between items-center">
                       <h3 className="text-xl font-semibold text-gray-800">Edit Product</h3>
                       <button 
@@ -823,7 +902,7 @@ export default function AdminPage() {
                     </div>
                   </div>
                   
-                  <div className="p-6 space-y-6 overflow-y-auto flex-1">
+                  <div className="p-6 space-y-6 overflow-y-auto flex-1 scrollbar-hide">
                     {/* Product Images Section */}
                     <div className="space-y-3">
                       <MultipleImageUpload
@@ -979,10 +1058,12 @@ export default function AdminPage() {
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center">
                                 <div className="h-10 w-10 flex-shrink-0">
-                                  <img
+                                  <Image
                                     className="h-10 w-10 rounded-full object-cover"
                                     src={product.images?.[0]?.url ? getOptimizedImageUrl(product.images[0].url) : '/placeholder.png'}
                                     alt={product.name}
+                                    width={40}
+                                    height={40}
                                   />
                                 </div>
                                 <div className="ml-4">
@@ -992,7 +1073,7 @@ export default function AdminPage() {
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                               {typeof product.category === 'object' && product.category !== null 
-                                ? (product.category as any).name 
+                                ? (product.category as { _id: string; name: string }).name 
                                 : categories.find(cat => cat._id === product.category)?.name || 'Unknown'}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${product.price}</td>
@@ -1047,12 +1128,12 @@ export default function AdminPage() {
                 products.map(product => (
                   <div key={product._id} className="bg-white rounded-lg shadow-md border border-gray-200 p-4 flex flex-col gap-2">
                     <div className="flex items-center gap-4">
-                      <img src={product.images?.[0]?.url ? getOptimizedImageUrl(product.images[0].url) : '/placeholder.png'} alt={product.name} className="w-16 h-16 object-cover rounded" />
+                      <Image src={product.images?.[0]?.url ? getOptimizedImageUrl(product.images[0].url) : '/placeholder.png'} alt={product.name} className="w-16 h-16 object-cover rounded" width={64} height={64} />
                       <div>
                         <div className="font-semibold text-gray-900">{product.name}</div>
                         <div className="text-xs text-gray-500">
                           {typeof product.category === 'object' && product.category !== null 
-                            ? (product.category as any).name 
+                            ? (product.category as { _id: string; name: string }).name 
                             : categories.find(cat => cat._id === product.category)?.name || 'Unknown'}
                         </div>
                       </div>
@@ -1170,7 +1251,7 @@ export default function AdminPage() {
                                   } else {
                                     toast.error('Image upload failed');
                                   }
-                                } catch (err) {
+                                } catch {
                                   toast.error('Image upload failed');
                                 } finally {
                                   setCategoryImageUploading(false);
@@ -1182,7 +1263,7 @@ export default function AdminPage() {
                         </div>
                         {categoryAddForm.image && (
                           <div className="relative">
-                            <img src={categoryAddForm.image} alt="Preview" className="w-20 h-20 object-cover rounded-lg border-2 border-gray-200" />
+                            <Image src={categoryAddForm.image} alt="Preview" className="w-20 h-20 object-cover rounded-lg border-2 border-gray-200" width={80} height={80} />
                             <button
                               onClick={() => {
                                 setCategoryImageFile(null);
@@ -1296,7 +1377,7 @@ export default function AdminPage() {
                                   } else {
                                     toast.error('Image upload failed');
                                   }
-                                } catch (err) {
+                                } catch {
                                   toast.error('Image upload failed');
                                 } finally {
                                   setCategoryImageUploading(false);
@@ -1308,7 +1389,7 @@ export default function AdminPage() {
                         </div>
                         {categoryEditForm.image && (
                           <div className="relative">
-                            <img src={categoryEditForm.image} alt="Preview" className="w-20 h-20 object-cover rounded-lg border-2 border-gray-200" />
+                            <Image src={categoryEditForm.image} alt="Preview" className="w-20 h-20 object-cover rounded-lg border-2 border-gray-200" width={80} height={80} />
                             <button
                               onClick={() => {
                                 setCategoryImageFile(null);
@@ -1716,11 +1797,16 @@ export default function AdminPage() {
                   <div>
                     <h4 className="text-md font-semibold text-gray-900 mb-3">Order Items</h4>
                     <div className="space-y-3">
-                      {selectedOrder.orderItems?.map((item: any, index: number) => (
+                      {selectedOrder.orderItems?.map((item: {
+                        name: string;
+                        quantity: number;
+                        price: number;
+                        image?: string;
+                      }, index: number) => (
                         <div key={index} className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
                           <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
                             {item.image ? (
-                              <img src={item.image} alt={item.name} className="w-full h-full object-cover rounded-lg" />
+                              <Image src={item.image} alt={item.name} className="w-full h-full object-cover rounded-lg" width={48} height={48} />
                             ) : (
                               <FiPackage className="h-6 w-6 text-gray-400" />
                             )}

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import Image from "next/image";
+
 import { productsAPI, categoriesAPI } from "@/components/services/api";
 import Link from "next/link";
 import toast from "react-hot-toast";
@@ -18,7 +19,7 @@ interface Product {
   stock: number;
   isFeatured?: boolean;
   images?: Array<{ url: string; alt?: string }>;
-  [key: string]: any;
+
 }
 
 interface Category {
@@ -34,7 +35,7 @@ interface ImageItem {
 }
 
 export default function AdminProductsPage() {
-  const router = useRouter();
+
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
@@ -47,17 +48,7 @@ export default function AdminProductsPage() {
     price: '', 
     stock: '' 
   });
-  const [adding, setAdding] = useState(false);
-  const [addForm, setAddForm] = useState({ 
-    name: '', 
-    description: '', 
-    category: '', 
-    price: '', 
-    stock: '', 
-    sku: '' 
-  });
-  const [addLoading, setAddLoading] = useState(false);
-  const [selectedImages, setSelectedImages] = useState<ImageItem[]>([]);
+
   const [editSelectedImages, setEditSelectedImages] = useState<ImageItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -67,7 +58,7 @@ export default function AdminProductsPage() {
       await productsAPI.toggleFeatured(id);
       toast.success("Featured status updated successfully");
       fetchProducts();
-    } catch (error) {
+    } catch {
       toast.error("Failed to update featured status");
     }
   };
@@ -85,7 +76,7 @@ export default function AdminProductsPage() {
         productsArray = data.data.products;
       }
       setProducts(productsArray);
-    } catch (error) {
+    } catch {
       toast.error("Failed to load products");
       setProducts([]);
     } finally {
@@ -97,7 +88,7 @@ export default function AdminProductsPage() {
     try {
       const data = await categoriesAPI.getAll();
       setCategories(data);
-    } catch (error) {
+    } catch {
       toast.error('Failed to load categories');
     }
   };
@@ -114,7 +105,7 @@ export default function AdminProductsPage() {
       await productsAPI.delete(id);
       toast.success("Product deleted successfully");
       fetchProducts();
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete product");
     } finally {
       setDeleting(null);
@@ -171,8 +162,9 @@ export default function AdminProductsPage() {
       toast.success('Product updated successfully');
       setEditing(null);
       fetchProducts();
-    } catch (error: any) {
-      toast.error(error?.message || 'Failed to update product');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update product';
+      toast.error(errorMessage);
     } finally {
       setEditLoading(false);
       setUploadingImage(false);
@@ -223,10 +215,12 @@ export default function AdminProductsPage() {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="h-10 w-10 flex-shrink-0">
-                              <img
+                              <Image
                                 className="h-10 w-10 rounded-full object-cover"
                                 src={product.images?.[0]?.url ? getOptimizedImageUrl(product.images[0].url) : '/placeholder.png'}
                                 alt={product.name}
+                                width={40}
+                                height={40}
                               />
                             </div>
                             <div className="ml-4">

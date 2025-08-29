@@ -204,8 +204,8 @@ export default function Header() {
             </div>
 
             {/* Mobile Menu Button & Cart */}
-            <div className="flex lg:hidden items-center space-x-1 sm:space-x-2">
-              <Link href="/cart" className="p-1 sm:p-2 relative">
+            <div className="flex lg:hidden items-center space-x-2 sm:space-x-3">
+              <Link href="/cart" className="p-2 relative">
                 <FiShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 text-text-primary" />
                 {mounted && cart.totalItems > 0 && (
                   <span className="absolute -top-1 -right-1 bg-accent-500 text-white text-xs w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center rounded-full">
@@ -215,7 +215,7 @@ export default function Header() {
               </Link>
               <button
                 onClick={() => setMobileMenuOpen(true)}
-                className="p-1 sm:p-2"
+                className="p-2"
               >
                 <FiMenu className="w-5 h-5 sm:w-6 sm:h-6 text-text-primary" />
               </button>
@@ -225,15 +225,15 @@ export default function Header() {
           {/* Mobile Search */}
           <div className="lg:hidden px-3 sm:px-4 pb-3">
             <form onSubmit={handleSearch} className="relative">
-                             <input
-                 type="text"
-                 value={search}
-                 onChange={(e) => setSearch(e.target.value)}
-                 placeholder="Search products..."
-                 className="w-full pl-3 sm:pl-4 pr-10 py-2 text-sm rounded-lg border border-heritage-200 focus:outline-none focus:ring-2 focus:ring-accent-500 bg-white/50"
-                 suppressHydrationWarning
-               />
-              <button type="submit" className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2">
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search products..."
+                className="w-full pl-3 sm:pl-4 pr-10 py-2.5 text-sm rounded-lg border border-heritage-200 focus:outline-none focus:ring-2 focus:ring-accent-500 bg-white/50"
+                suppressHydrationWarning
+              />
+              <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2">
                 <FiSearch className="w-4 h-4 sm:w-5 sm:h-5 text-text-muted" />
               </button>
             </form>

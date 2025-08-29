@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useStore } from '@/store/useStore';
 import { authAPI } from '@/components/services/api';
-import { ArrowLeft, User, Mail, Phone, MapPin, ShoppingCart } from 'lucide-react';
+import { User, Mail, Phone, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { Dialog } from '@headlessui/react';
@@ -13,8 +13,21 @@ import { Dialog } from '@headlessui/react';
 export default function ProfilePage() {
   const router = useRouter();
   const { auth, hydrated, setHydrated } = useStore();
-  const [loading, setLoading] = useState(true);
-  const [profile, setProfile] = useState<any>(null);
+
+  const [profile, setProfile] = useState<{
+    name: string;
+    email: string;
+    phone?: string;
+    role?: string;
+    createdAt?: string;
+    address?: {
+      street: string;
+      city: string;
+      state: string;
+      zipCode: string;
+      country: string;
+    };
+  } | null>(null);
   // Modal and form state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form, setForm] = useState({
@@ -50,24 +63,22 @@ export default function ProfilePage() {
     const fetchProfile = async () => {
       try {
         const response = await authAPI.getProfile();
-        setProfile(response.user);
+        setProfile(response);
         // Pre-fill form
         setForm({
-          name: response.user.name || '',
-          phone: response.user.phone || '',
+          name: response.name || '',
+          phone: response.phone || '',
           address: {
-            street: response.user.address?.street || '',
-            city: response.user.address?.city || '',
-            state: response.user.address?.state || '',
-            zipCode: response.user.address?.zipCode || '',
-            country: response.user.address?.country || '',
+            street: response.address?.street || '',
+            city: response.address?.city || '',
+            state: response.address?.state || '',
+            zipCode: response.address?.zipCode || '',
+            country: response.address?.country || '',
           },
         });
       } catch (error) {
         console.error('Error fetching profile:', error);
         toast.error('Failed to load profile');
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -246,9 +257,9 @@ export default function ProfilePage() {
                     setIsModalOpen(false);
                     // Refresh profile info
                     const response = await authAPI.getProfile();
-                    setProfile(response.user);
-                  } catch (err) {
-                    toast.error('Failed to update profile');
+                    setProfile(response);
+                                     } catch {
+                     toast.error('Failed to update profile');
                   } finally {
                     setSaving(false);
                   }
@@ -370,8 +381,9 @@ export default function ProfilePage() {
                     setCurrentPassword("");
                     setNewPassword("");
                     setConfirmPassword("");
-                  } catch (err: any) {
-                    toast.error(err?.message || 'Failed to change password.');
+                  } catch (err: unknown) {
+                    const errorMessage = err && typeof err === 'object' && 'message' in err ? String(err.message) : 'Failed to change password.';
+                    toast.error(errorMessage);
                   } finally {
                     setChanging(false);
                   }

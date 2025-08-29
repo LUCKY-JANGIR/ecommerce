@@ -5,7 +5,7 @@ import { useAsync, useFormSubmit } from '@/hooks/useAsync';
 import { productsAPI } from '@/components/services/api';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ErrorMessage from '@/components/ui/ErrorMessage';
-import { CustomError } from '@/lib/errorHandler';
+
 
 export default function ErrorHandlingExample() {
   const [shouldThrowError, setShouldThrowError] = useState(false);
@@ -18,19 +18,19 @@ export default function ErrorHandlingExample() {
 
   // Example 2: Form submission with error handling
   const { handleSubmit, loading: submitLoading, error: submitError } = useFormSubmit(
-    async (formData: any) => {
+    async (...args: unknown[]) => {
+      const formData = args[0] as { shouldFail: boolean };
       // Simulate an API call that might fail
       if (formData.shouldFail) {
         throw new Error('This is a simulated error');
       }
       return { success: true, message: 'Form submitted successfully!' };
     },
-    (result) => {
-      console.log('Success:', result);
+    () => {
       alert('Form submitted successfully!');
     },
-    (error: CustomError) => {
-      console.log('Form error:', error);
+    () => {
+      // Error handled silently
     }
   );
 

@@ -43,13 +43,13 @@ export default function CategoryPage() {
       setLoading(true);
       setError(null);
       try {
-        console.log('Fetching products for category:', decodedCategory);
+    
         const response = await productsAPI.getAll({ 
           category: decodedCategory,
           limit: 50 // Get more products for category pages
         });
         
-        console.log('API Response:', response);
+
         
         // Handle different response structures
         let productsArray = [];
@@ -61,7 +61,7 @@ export default function CategoryPage() {
           productsArray = response;
         }
         
-        console.log('Products array:', productsArray);
+
         setProducts(productsArray);
       } catch (error) {
         console.error('Error fetching category products:', error);

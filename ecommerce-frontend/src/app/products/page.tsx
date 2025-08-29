@@ -6,6 +6,8 @@ import dynamic from 'next/dynamic';
 import { productsAPI, categoriesAPI } from '@/components/services/api';
 import { Product } from '@/store/useStore';
 import { useStore } from '@/store/useStore';
+import { getOptimizedImageUrl } from '@/lib/imageUtils';
+import Link from 'next/link';
 import { 
   Filter, 
   Grid, 
@@ -14,13 +16,6 @@ import {
 } from 'lucide-react';
 import { useDebounce } from '@/hooks/useDebounce';
 import { motion } from 'framer-motion';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination, Autoplay } from 'swiper/modules';
-
-// Import Swiper styles
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
 
 // Dynamic import for ProductCard to reduce initial bundle
 const ProductCard = dynamic(() => import('@/components/ProductCard'), {
@@ -62,7 +57,6 @@ function ProductsPage() {
   const observer = useRef<IntersectionObserver | undefined>(undefined);
   const [searchInput, setSearchInput] = useState(filters.search);
   const debouncedSearch = useDebounce(searchInput, 700);
-
   const sortOptions = [
     { value: 'newest', label: 'Newest First' },
     { value: 'oldest', label: 'Oldest First' },
@@ -80,7 +74,15 @@ function ProductsPage() {
     setLoadingMore(true);
     try {
       const nextPage = pagination.currentPage + 1;
-      const params: any = {
+      const params: {
+        page: number;
+        limit: number;
+        sortBy: string;
+        category?: string;
+        search?: string;
+        minPrice?: number;
+        maxPrice?: number;
+      } = {
         page: nextPage,
         limit: 12,
         sortBy: filters.sortBy,
@@ -88,13 +90,13 @@ function ProductsPage() {
 
       if (filters.category) params.category = filters.category;
       if (filters.search) params.search = filters.search;
-      if (filters.minPrice) params.minPrice = filters.minPrice;
-      if (filters.maxPrice) params.maxPrice = filters.maxPrice;
+      if (filters.minPrice) params.minPrice = Number(filters.minPrice);
+      if (filters.maxPrice) params.maxPrice = Number(filters.maxPrice);
 
       const response = await productsAPI.getAll(params);
       if (response.products && response.products.length > 0) {
-        setProducts(prev => [...prev, ...response.products]);
-        setPagination(prev => ({
+        setProducts(prevProducts => [...prevProducts, ...response.products]);
+        setPagination(() => ({
           ...response.pagination,
           currentPage: nextPage,
         }));
@@ -126,7 +128,7 @@ function ProductsPage() {
     const fetchCategories = async () => {
       try {
         const data = await categoriesAPI.getAll();
-        setCategories(data.map((cat: any) => cat.name));
+        setCategories(data.map((cat: { name: string }) => cat.name));
       } catch (error) {
         console.error('Error fetching categories:', error);
         setCategories([]);
@@ -155,7 +157,15 @@ function ProductsPage() {
     }
     
     try {
-      const params: any = {
+      const params: {
+        page: number;
+        limit: number;
+        sortBy: string;
+        category?: string;
+        search?: string;
+        minPrice?: number;
+        maxPrice?: number;
+      } = {
         page,
         limit: 12,
         sortBy: filters.sortBy,
@@ -163,14 +173,14 @@ function ProductsPage() {
 
       if (filters.category) params.category = filters.category;
       if (filters.search) params.search = filters.search;
-      if (filters.minPrice) params.minPrice = filters.minPrice;
-      if (filters.maxPrice) params.maxPrice = filters.maxPrice;
+      if (filters.minPrice) params.minPrice = Number(filters.minPrice);
+      if (filters.maxPrice) params.maxPrice = Number(filters.maxPrice);
 
       const response = await productsAPI.getAll(params);
       if (reset) {
         setProducts(response.products || []);
       } else {
-        setProducts(prev => [...prev, ...(response.products || [])]);
+        setProducts(prevProducts => [...prevProducts, ...(response.products || [])]);
       }
       setPagination(response.pagination || {
         currentPage: 1,
@@ -189,7 +199,6 @@ function ProductsPage() {
   useEffect(() => {
     setFilters(prev => ({ ...prev, search: debouncedSearch }));
     // Only update filter when debounced value changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch]);
 
   useEffect(() => {
@@ -246,7 +255,7 @@ function ProductsPage() {
           </div>
         </motion.div>
 
-        {/* Featured Products Carousel */}
+        {/* Featured Products Grid */}
         {featuredProducts.length > 0 && (
           <motion.div 
             className="mb-16"
@@ -260,64 +269,17 @@ function ProductsPage() {
               <p className="text-gray-600">Handpicked collection of our finest items</p>
             </div>
             
-            <div className="relative">
-              <Swiper
-                modules={[Navigation, Pagination, Autoplay]}
-                spaceBetween={24}
-                slidesPerView={1}
-                navigation={{
-                  nextEl: '.featured-products-next',
-                  prevEl: '.featured-products-prev',
-                }}
-                pagination={{
-                  clickable: true,
-                  dynamicBullets: true,
-                }}
-                autoplay={{
-                  delay: 4000,
-                  disableOnInteraction: false,
-                }}
-                breakpoints={{
-                  640: {
-                    slidesPerView: 2,
-                    spaceBetween: 20,
-                  },
-                  768: {
-                    slidesPerView: 3,
-                    spaceBetween: 24,
-                  },
-                  1024: {
-                    slidesPerView: 4,
-                    spaceBetween: 24,
-                  },
-                }}
-                className="featured-products-swiper"
-              >
-                {featuredProducts.map((product, index) => (
-                  <SwiperSlide key={product._id}>
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.5, delay: index * 0.1 }}
-                    >
-                      <ProductCard product={product} viewMode="grid" />
-                    </motion.div>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-              
-              {/* Custom Navigation Buttons */}
-              <div className="featured-products-prev absolute left-4 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
-                <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </div>
-              <div className="featured-products-next absolute right-4 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
-                <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featuredProducts.map((product, index) => (
+                <motion.div
+                  key={product._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                >
+                  <ProductCard product={product} viewMode="grid" />
+                </motion.div>
+              ))}
             </div>
           </motion.div>
         )}
@@ -506,5 +468,7 @@ function ProductsPage() {
         </div>
       </div>
     </div>
+
+
   );
 } 
