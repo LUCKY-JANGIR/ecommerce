@@ -151,7 +151,7 @@ export default function RegisterPage() {
             <h2 className="text-2xl font-serif font-bold text-primary mb-4">Welcome!</h2>
             <p className="text-muted mb-6">Registration successful. Don&apos;t forget to set up your profile for a better experience!</p>
             <button
-              className="bg-primary text-white px-8 py-3 rounded-xl font-semibold hover:bg-accent transition-colors shadow-lg"
+              className="bg-primary-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-primary-700 transition-colors shadow-lg border border-primary-700"
               onClick={() => { setShowProfileReminder(false); router.push('/products'); }}
             >
               Go to Products
@@ -230,7 +230,7 @@ export default function RegisterPage() {
                   <button
                     type="button"
                     onClick={() => sendOtp(emailRef.current?.value || '')}
-                    className="bg-primary text-white font-semibold rounded-xl px-6 py-4 transition-colors disabled:opacity-50 shadow-lg hover:bg-accent"
+                    className="bg-primary-600 text-white font-semibold rounded-xl px-6 py-4 transition-colors disabled:opacity-50 shadow-lg hover:bg-primary-700 border border-primary-700"
                     disabled={otpLoading || otpSent || otpVerified}
                   >
                     {otpLoading ? 'Sending...' : otpSent ? 'OTP Sent' : 'Send OTP'}
@@ -263,7 +263,7 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => verifyOtp(emailRef.current?.value || '', otp)}
-                  className="bg-green-600 text-white font-semibold rounded-xl px-6 py-4 mb-1 transition-colors disabled:opacity-50 shadow-lg hover:bg-green-700"
+                  className="bg-green-600 text-white font-semibold rounded-xl px-6 py-4 mb-1 transition-colors disabled:opacity-50 shadow-lg hover:bg-green-700 border border-green-700"
                   disabled={otpLoading || !otpSent || otpVerified || otp.length !== 6}
                 >
                   {otpLoading ? 'Verifying...' : otpVerified ? 'Verified' : 'Verify OTP'}
@@ -349,7 +349,7 @@ export default function RegisterPage() {
                 <button
                   type="submit"
                   disabled={isLoading || !otpVerified}
-                  className="bg-accent text-white hover:bg-primary font-semibold rounded-xl px-6 py-4 transition-colors w-full mt-6 disabled:opacity-50 shadow-lg"
+                  className="bg-accent-600 text-white hover:bg-accent-700 font-semibold rounded-xl px-6 py-4 transition-colors w-full mt-6 disabled:opacity-50 shadow-lg border border-accent-700"
                 >
                   {isLoading ? (
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mx-auto"></div>
