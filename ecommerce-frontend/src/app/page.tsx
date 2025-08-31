@@ -14,6 +14,13 @@ import {
   Truck,
   RefreshCw
 } from 'lucide-react';
+import { 
+  HeroSkeleton, 
+  FeaturedProductsSkeleton, 
+  CategoriesSkeleton, 
+  FeaturesSkeleton,
+  ReviewsSkeleton
+} from '@/components/ui/Skeleton';
 import { productsAPI, categoriesAPI } from '@/components/services/api';
 import { getOptimizedImageUrl } from '@/lib/imageUtils';
 import { Product } from '@/store/useStore';
@@ -134,11 +141,9 @@ export default function Home() {
         // Fetch categories with products
         const categoriesData = await categoriesAPI.getAll();
         if (categoriesData && Array.isArray(categoriesData)) {
-          // Randomly shuffle categories and take 4
-          const shuffledCategories = [...categoriesData].sort(() => Math.random() - 0.5);
-          
+          // First, get all categories with their product counts
           const categoriesWithProducts = await Promise.all(
-            shuffledCategories.slice(0, 4).map(async (category) => {
+            categoriesData.map(async (category) => {
               try {
                 const productsResponse = await productsAPI.getAll({
                   category: category._id,
@@ -151,14 +156,24 @@ export default function Home() {
                 
                 return {
                   ...category,
-                  products: shuffledProducts.slice(0, 2) // Take only 2 random products
+                  products: shuffledProducts.slice(0, 2), // Take only 2 random products
+                  totalProducts: availableProducts.length // Keep track of total products
                 };
               } catch (error) {
-                return { ...category, products: [] };
+                return { ...category, products: [], totalProducts: 0 };
               }
             })
           );
-          setCategories(categoriesWithProducts.filter(cat => cat.products.length >= 2));
+          
+          // Filter categories that have at least 2 products, then randomly select 4
+          const validCategories = categoriesWithProducts.filter(cat => cat.totalProducts >= 2);
+          const shuffledValidCategories = [...validCategories].sort(() => Math.random() - 0.5);
+          
+          // Take up to 4 categories, or all available if less than 4
+          const selectedCategories = shuffledValidCategories.slice(0, Math.min(4, shuffledValidCategories.length));
+          
+          console.log(`Categories with products: ${categoriesWithProducts.length}, Valid categories (≥2 products): ${validCategories.length}, Selected: ${selectedCategories.length}`);
+          setCategories(selectedCategories);
         }
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -181,7 +196,10 @@ export default function Home() {
   return (
     <main className="min-h-screen w-full overflow-x-hidden">
       {/* Hero Section */}
-      <section className="relative h-screen min-h-[600px] max-h-[900px] overflow-hidden">
+      {loading ? (
+        <HeroSkeleton />
+      ) : (
+        <section className="relative h-screen min-h-[600px] max-h-[900px] overflow-hidden">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentSlide}
@@ -277,7 +295,8 @@ export default function Home() {
         >
           <ChevronRight className="h-6 w-6" />
         </button>
-      </section>
+        </section>
+      )}
 
 
 
@@ -363,8 +382,36 @@ export default function Home() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {categories.map((category, index) => (
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="bg-gray-50 rounded-3xl overflow-hidden">
+                  <div className="p-8">
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="space-y-2">
+                        <div className="h-8 w-32 bg-gray-200 rounded animate-pulse" />
+                        <div className="h-4 w-48 bg-gray-200 rounded animate-pulse" />
+                      </div>
+                      <div className="h-12 w-24 bg-gray-200 rounded-full animate-pulse" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      {[...Array(2)].map((_, j) => (
+                        <div key={j} className="bg-white rounded-2xl overflow-hidden">
+                          <div className="aspect-square w-full bg-gray-200 animate-pulse" />
+                          <div className="p-3 space-y-2">
+                            <div className="h-3 w-full bg-gray-200 rounded animate-pulse" />
+                            <div className="h-3 w-2/3 bg-gray-200 rounded animate-pulse" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {categories.map((category, index) => (
               <motion.div
                 key={category._id}
                 initial={{ opacity: 0, y: 20 }}
@@ -420,8 +467,9 @@ export default function Home() {
                   </div>
                 </div>
               </motion.div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { useDebounce } from '@/hooks/useDebounce';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ProductsGridSkeleton } from '@/components/ui/Skeleton';
 
 // Dynamic import for ProductCard
 const ProductCard = dynamic(() => import('@/components/ProductCard'), {
@@ -41,6 +42,61 @@ interface Category {
   description: string;
 }
 
+function ProductsPageSkeleton() {
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header Skeleton */}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div className="space-y-2">
+              <div className="h-8 w-32 bg-gray-200 rounded animate-pulse" />
+              <div className="h-4 w-48 bg-gray-200 rounded animate-pulse" />
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="h-10 w-64 bg-gray-200 rounded-full animate-pulse" />
+              <div className="h-10 w-24 bg-gray-200 rounded animate-pulse" />
+              <div className="h-10 w-20 bg-gray-200 rounded animate-pulse" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Content Skeleton */}
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Filters Sidebar Skeleton */}
+          <div className="lg:w-64 space-y-6">
+            <div className="bg-white rounded-2xl p-6 space-y-4">
+              <div className="h-6 w-20 bg-gray-200 rounded animate-pulse" />
+              <div className="space-y-3">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="flex items-center space-x-3">
+                    <div className="w-4 h-4 bg-gray-200 rounded animate-pulse" />
+                    <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl p-6 space-y-4">
+              <div className="h-6 w-16 bg-gray-200 rounded animate-pulse" />
+              <div className="space-y-2">
+                <div className="h-4 w-full bg-gray-200 rounded animate-pulse" />
+                <div className="h-4 w-3/4 bg-gray-200 rounded animate-pulse" />
+              </div>
+            </div>
+          </div>
+
+          {/* Products Grid Skeleton */}
+          <div className="flex-1">
+            <ProductsGridSkeleton count={12} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function ProductsPageWrapper() {
   return (
     <Suspense fallback={<ProductsPageSkeleton />}>
@@ -49,27 +105,7 @@ export default function ProductsPageWrapper() {
   );
 }
 
-function ProductsPageSkeleton() {
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 pt-20 pb-8">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/3 mx-auto mb-4" />
-          <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto mb-8" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {[...Array(12)].map((_, i) => (
-              <div key={i} className="bg-white rounded-2xl p-4">
-                <div className="aspect-square bg-gray-200 rounded-xl mb-4" />
-                <div className="h-4 bg-gray-200 rounded mb-2" />
-                <div className="h-4 bg-gray-200 rounded w-2/3" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+
 
 function ProductsPage() {
   const searchParams = useSearchParams();

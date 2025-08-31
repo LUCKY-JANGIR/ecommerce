@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import ProductCard from '@/components/ProductCard';
 import { Product } from '@/store/useStore';
 import { categoriesAPI, productsAPI } from '@/components/services/api';
+import { CategoriesGridSkeleton } from '@/components/ui/Skeleton';
 
 interface Category {
   _id: string;
@@ -71,10 +72,13 @@ export default function CategoriesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-gray-800 text-lg">Loading categories...</p>
+      <div className="min-h-screen bg-white">
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center mb-12 space-y-4">
+            <div className="h-10 w-48 bg-gray-200 rounded animate-pulse mx-auto" />
+            <div className="h-6 w-80 bg-gray-200 rounded animate-pulse mx-auto" />
+          </div>
+          <CategoriesGridSkeleton count={6} />
         </div>
       </div>
     );

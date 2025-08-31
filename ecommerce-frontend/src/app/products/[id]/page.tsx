@@ -26,6 +26,7 @@ import Link from "next/link";
 import ReviewModal from "@/components/ReviewModal";
 import ImageModal from "@/components/ImageModal";
 import RecommendedProducts from "@/components/RecommendedProducts";
+import { ProductDetailsSkeleton } from "@/components/ui/Skeleton";
 
 
 
@@ -136,11 +137,7 @@ export default function ProductDetailsPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background-cream flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-accent-500 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+    return <ProductDetailsSkeleton />;
   }
 
   if (error || !product) {
