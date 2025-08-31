@@ -1,7 +1,7 @@
 'use client';
 
 import React, { Suspense, useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -13,11 +13,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { 
-  HeroSkeleton, 
-  FeaturedProductsSkeleton, 
-  CategoriesSkeleton, 
-  FeaturesSkeleton,
-  ReviewsSkeleton
+  HeroSkeleton
 } from '@/components/ui/Skeleton';
 import { productsAPI, categoriesAPI } from '@/components/services/api';
 import { getOptimizedImageUrl } from '@/lib/imageUtils';
@@ -181,9 +177,9 @@ export default function Home() {
                   products: shuffledProducts.slice(0, 2), // Take only 2 random products
                   totalProducts: availableProducts.length // Keep track of total products
                 };
-              } catch (error) {
-                return { ...category, products: [], totalProducts: 0 };
-              }
+                             } catch {
+                 return { ...category, products: [], totalProducts: 0 };
+               }
             })
           );
           
@@ -458,7 +454,7 @@ export default function Home() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    {category.products?.slice(0, 2).map((product, productIndex) => (
+                                         {category.products?.slice(0, 2).map((product) => (
                       <Link
                         key={product._id}
                         href={`/products/${product._id}`}
@@ -520,7 +516,7 @@ export default function Home() {
               Why Choose Us
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              We're committed to providing the best shopping experience
+                             We&apos;re committed to providing the best shopping experience
             </p>
           </motion.div>
 

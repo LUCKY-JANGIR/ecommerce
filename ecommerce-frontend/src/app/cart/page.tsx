@@ -42,9 +42,7 @@ export default function CartPage() {
     router.push('/checkout');
   };
 
-  const renderNegotiable = () => (
-    <span className="text-lg font-serif font-bold text-accent-600">Negotiable</span>
-  );
+
 
   if (cart.items.length === 0) {
     return (

@@ -71,7 +71,7 @@ export default function AdminPage() {
   const [categoryEditLoading, setCategoryEditLoading] = useState(false);
   const [categoryDeleting, setCategoryDeleting] = useState<string | null>(null);
   const [categoryImageFile, setCategoryImageFile] = useState<File | null>(null);
-  const [categoryImageUploading, setCategoryImageUploading] = useState(false);
+
 
   // Body scroll lock for modals
   useEffect(() => {
