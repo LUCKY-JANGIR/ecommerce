@@ -73,6 +73,27 @@ export default function AdminPage() {
   const [categoryImageFile, setCategoryImageFile] = useState<File | null>(null);
   const [categoryImageUploading, setCategoryImageUploading] = useState(false);
 
+  // Body scroll lock for modals
+  useEffect(() => {
+    const isAnyModalOpen = productAdding || productEditing || categoryAdding || categoryEditing;
+    
+    if (isAnyModalOpen) {
+      // Lock body scroll
+      document.body.style.overflow = 'hidden';
+      document.body.style.paddingRight = '15px'; // Prevent layout shift from scrollbar
+    } else {
+      // Unlock body scroll
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+    };
+  }, [productAdding, productEditing, categoryAdding, categoryEditing]);
+
   // Order Management States
   const [orders, setOrders] = useState<Array<{
     _id: string;
@@ -726,8 +747,19 @@ export default function AdminPage() {
 
             {/* Add Product Modal */}
             {productAdding && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+              <div 
+                className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto"
+                onClick={(e) => {
+                  if (e.target === e.currentTarget) {
+                    setProductAdding(false);
+                  }
+                }}
+                onWheel={(e) => e.stopPropagation()}
+              >
+                <div 
+                  className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col my-8"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-xl">
                     <div className="flex justify-between items-center">
                       <h3 className="text-xl font-semibold text-gray-800">Add New Product</h3>
@@ -888,8 +920,19 @@ export default function AdminPage() {
 
             {/* Edit Product Modal */}
             {productEditing && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+              <div 
+                className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto"
+                onClick={(e) => {
+                  if (e.target === e.currentTarget) {
+                    setProductEditing(null);
+                  }
+                }}
+                onWheel={(e) => e.stopPropagation()}
+              >
+                <div 
+                  className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col my-8"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-xl z-10">
                     <div className="flex justify-between items-center">
                       <h3 className="text-xl font-semibold text-gray-800">Edit Product</h3>
@@ -1185,8 +1228,19 @@ export default function AdminPage() {
 
             {/* Add Category Modal */}
             {categoryAdding && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
+              <div 
+                className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto"
+                onClick={(e) => {
+                  if (e.target === e.currentTarget) {
+                    setCategoryAdding(false);
+                  }
+                }}
+                onWheel={(e) => e.stopPropagation()}
+              >
+                <div 
+                  className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col my-8"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-xl">
                     <div className="flex justify-between items-center">
                       <h3 className="text-xl font-semibold text-gray-800">Add New Category</h3>
@@ -1311,8 +1365,19 @@ export default function AdminPage() {
 
             {/* Edit Category Modal */}
             {categoryEditing && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
+              <div 
+                className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto"
+                onClick={(e) => {
+                  if (e.target === e.currentTarget) {
+                    setCategoryEditing(null);
+                  }
+                }}
+                onWheel={(e) => e.stopPropagation()}
+              >
+                <div 
+                  className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col my-8"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-xl">
                     <div className="flex justify-between items-center">
                       <h3 className="text-xl font-semibold text-gray-800">Edit Category</h3>
