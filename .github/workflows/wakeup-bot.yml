@@ -1,12 +1,13 @@
 name: Wake-Up Bot
 
-# This GitHub Actions workflow pings your production server every 8 minutes
+# This GitHub Actions workflow pings your production server every 14 minutes
 # to prevent it from sleeping due to inactivity
 
 on:
   schedule:
-    # Runs every 8 minutes (cron format: minute hour day month day-of-week)
-    - cron: '*/8 * * * *'
+    # Runs every 14 minutes to stay within free tier limits and reduce spam
+    # This ensures server stays awake while minimizing unnecessary requests
+    - cron: '*/14 * * * *'
   workflow_dispatch: # Allows manual triggering
 
 jobs:
@@ -18,43 +19,81 @@ jobs:
       run: |
         echo "🚀 Pinging production server..."
         
+        # Set error handling to continue even if commands fail
+        set +e
+        
         # Ping the health endpoint
         response=$(curl -s -o /dev/null -w "%{http_code}" \
           -H "User-Agent: GitHub-Actions-WakeUp-Bot/1.0" \
           -H "Accept: application/json" \
           --max-time 30 \
-          "${{ secrets.PRODUCTION_URL }}/api/health")
+          "${{ secrets.PRODUCTION_URL }}/api/health" 2>/dev/null || echo "000")
         
         timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
         
         if [ "$response" = "200" ]; then
           echo "✅ [$timestamp] Server wake-up successful (HTTP $response)"
+          exit_code=0
         else
-          echo "⚠️ [$timestamp] Server wake-up failed (HTTP $response)"
-          # Don't fail the workflow - just log the issue
+          echo "⚠️ [$timestamp] Server response: HTTP $response"
+          # Don't fail - server might just be starting up
+          exit_code=0
         fi
         
-        # Optional: Ping multiple endpoints for redundancy
-        echo "🔄 Pinging additional endpoints..."
-        
-        # Ping system health
-        curl -s -o /dev/null -w "System Health: %{http_code}\n" \
+        # Try additional endpoint
+        echo "🔄 Checking main endpoint..."
+        main_response=$(curl -s -o /dev/null -w "%{http_code}" \
           -H "User-Agent: GitHub-Actions-WakeUp-Bot/1.0" \
-          --max-time 15 \
-          "${{ secrets.PRODUCTION_URL }}/api/system-health" || echo "System health ping failed"
+          --max-time 20 \
+          "${{ secrets.PRODUCTION_URL }}/" 2>/dev/null || echo "000")
+        
+        if [ "$main_response" = "200" ] || [ "$main_response" = "302" ] || [ "$main_response" = "301" ]; then
+          echo "✅ [$timestamp] Main endpoint responsive (HTTP $main_response)"
+        else
+          echo "⚠️ [$timestamp] Main endpoint response: HTTP $main_response"
+        fi
         
         echo "🎯 Wake-up sequence completed"
+        # Always exit successfully unless there's a critical error
+        exit 0
 
-  # Optional: Send notification if server is consistently down
+  # Health check - runs independently to verify server status
   check-server-health:
     runs-on: ubuntu-latest
-    needs: ping-server
-    if: failure()
     
     steps:
-    - name: 🚨 Server Health Alert
+    - name: 🔍 Verify server health
       run: |
-        echo "⚠️ Server health check failed multiple times"
-        echo "Consider checking your production server status"
-        # You can add webhook notifications here if needed
-        # curl -X POST "${{ secrets.DISCORD_WEBHOOK }}" -d "Server may be down"
+        echo "🔍 Performing independent health check..."
+        
+        # Set error handling
+        set +e
+        
+        # Check if server is responding
+        health_response=$(curl -s -o /dev/null -w "%{http_code}" \
+          -H "User-Agent: GitHub-Actions-HealthCheck/1.0" \
+          --max-time 30 \
+          "${{ secrets.PRODUCTION_URL }}/api/health" 2>/dev/null || echo "000")
+        
+        timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        
+        if [ "$health_response" = "200" ]; then
+          echo "✅ [$timestamp] Health check passed (HTTP $health_response)"
+        else
+          echo "⚠️ [$timestamp] Health check response: HTTP $health_response"
+          
+          # Try main endpoint as fallback
+          main_response=$(curl -s -o /dev/null -w "%{http_code}" \
+            --max-time 20 \
+            "${{ secrets.PRODUCTION_URL }}/" 2>/dev/null || echo "000")
+          
+          if [ "$main_response" = "200" ] || [ "$main_response" = "302" ] || [ "$main_response" = "301" ]; then
+            echo "✅ [$timestamp] Main endpoint healthy (HTTP $main_response)"
+          else
+            echo "❌ [$timestamp] Server may be down - all endpoints unresponsive"
+          fi
+        fi
+        
+        echo "🎯 Health check completed"
+        # Always succeed to avoid notification spam
+        exit 0
