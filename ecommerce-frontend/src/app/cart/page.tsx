@@ -104,19 +104,31 @@ export default function CartPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
       <div className="container mx-auto px-4 py-8">
+        {/* Header */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center mb-12"
+          className="flex items-center justify-between mb-8 pt-8"
         >
-          <Link
-            href="/"
-            className="text-text-muted hover:text-primary-700 mr-4 transition-colors"
+          <div className="flex items-center">
+            <Link
+              href="/"
+              className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all mr-4 group"
+            >
+              <ArrowLeft className="h-5 w-5 text-gray-600 group-hover:text-blue-600 group-hover:-translate-x-0.5 transition-all" />
+            </Link>
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Shopping Cart</h1>
+              <p className="text-gray-600 mt-1">{cart.totalItems} {cart.totalItems === 1 ? 'item' : 'items'} in your cart</p>
+            </div>
+          </div>
+          
+          <button
+            onClick={handleClearCart}
+            className="bg-red-50 text-red-600 px-4 py-2 rounded-full hover:bg-red-100 transition-colors font-medium text-sm border border-red-200"
           >
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
-          <h1 className="text-4xl md:text-5xl font-serif font-bold text-primary-700">Shopping Cart</h1>
-          <span className="ml-6 text-text-muted font-medium">({cart.totalItems} items)</span>
+            Clear All
+          </button>
         </motion.div>
 
         <div className="grid lg:grid-cols-3 gap-12">
@@ -127,87 +139,88 @@ export default function CartPage() {
             transition={{ duration: 0.6 }}
             className="lg:col-span-2"
           >
-            <div className="bg-white border border-heritage-200 rounded-2xl shadow-lg">
-              <div className="p-8 border-b border-heritage-200">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-serif font-bold text-primary-700">Cart Items</h2>
-                  <button
-                    onClick={handleClearCart}
-                    className="bg-red-500 text-white px-6 py-3 rounded-xl hover:bg-red-600 text-sm transition-colors font-semibold shadow-lg"
-                  >
-                    Clear Cart
-                  </button>
-                </div>
+            <div className="bg-white rounded-3xl shadow-lg border border-gray-100">
+              <div className="p-6 border-b border-gray-100">
+                <h2 className="text-xl font-bold text-gray-900">Your Items</h2>
               </div>
 
-              <div className="divide-y divide-heritage-200">
+              <div className="divide-y divide-gray-100">
                 {cart.items.map((item, index) => (
                   <motion.div 
                     key={item.product._id} 
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="p-8"
+                    className="p-6 hover:bg-gray-50 transition-colors"
                   >
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-6 sm:space-y-0 sm:space-x-8">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
                       {/* Product Image */}
                       <div className="flex-shrink-0">
-                        <Image
-                          src={
-                            typeof item.product.images?.[0] === 'string'
-                              ? item.product.images[0]
-                              : item.product.images?.[0]?.url || '/placeholder-product.svg'
-                          }
-                          alt={item.product.name}
-                          width={120}
-                          height={120}
-                          className="rounded-2xl object-cover border-2 border-heritage-200 shadow-lg"
-                        />
+                        <div className="relative">
+                          <Image
+                            src={
+                              typeof item.product.images?.[0] === 'string'
+                                ? item.product.images[0]
+                                : item.product.images?.[0]?.url || '/placeholder-product.svg'
+                            }
+                            alt={item.product.name}
+                            width={100}
+                            height={100}
+                            className="rounded-2xl object-cover shadow-md"
+                          />
+                        </div>
                       </div>
 
                       {/* Product Details */}
                       <div className="flex-1 min-w-0">
                         <Link
                           href={`/products/${item.product._id}`}
-                          className="text-xl font-serif font-bold text-primary-700 hover:text-accent-600 transition-colors"
+                          className="text-lg font-bold text-gray-900 hover:text-blue-600 transition-colors line-clamp-2"
                         >
                           {item.product.name}
                         </Link>
-                        <p className="text-text-secondary mt-2">
+                        <p className="text-gray-500 mt-1 text-sm">
                           {typeof item.product.category === 'object' && item.product.category !== null
                             ? item.product.category.name
                             : item.product.category}
                         </p>
-                        <p className="text-lg font-serif font-bold text-accent-600 mt-4">
-                          {renderNegotiable()}
-                        </p>
+                        <div className="mt-3">
+                          <span className="text-lg font-bold text-blue-600">
+                            ₹{item.product.price}
+                          </span>
+                          {item.quantity > 1 && (
+                            <span className="text-sm text-gray-500 ml-2">
+                              × {item.quantity} = ₹{(item.product.price * item.quantity).toFixed(2)}
+                            </span>
+                          )}
+                        </div>
                       </div>
 
                       {/* Quantity Controls */}
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-3">
                         <button
                           onClick={() => handleQuantityChange(item.product._id, item.quantity - 1)}
-                          className="w-12 h-12 rounded-xl bg-heritage-100 border-2 border-heritage-200 text-primary-700 flex items-center justify-center hover:bg-accent-500 hover:text-white hover:border-accent-500 transition-colors shadow-lg"
+                          className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
                         >
-                          <Minus className="h-5 w-5" />
+                          <Minus className="h-4 w-4 text-gray-600" />
                         </button>
-                        <span className="w-16 text-center font-bold text-lg select-none text-primary-700">{item.quantity}</span>
+                        <span className="w-12 text-center font-semibold text-gray-900">{item.quantity}</span>
                         <button
                           onClick={() => handleQuantityChange(item.product._id, item.quantity + 1)}
                           disabled={item.quantity >= item.product.stock}
-                          className="w-12 h-12 rounded-xl bg-heritage-100 border-2 border-heritage-200 text-primary-700 flex items-center justify-center hover:bg-accent-500 hover:text-white hover:border-accent-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                          className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          <Plus className="h-5 w-5" />
+                          <Plus className="h-4 w-4 text-gray-600" />
                         </button>
                       </div>
 
                       {/* Remove Button */}
                       <button
                         onClick={() => handleRemoveItem(item.product._id)}
-                        className="bg-red-500 text-white p-4 rounded-xl hover:bg-red-600 transition-colors flex items-center justify-center shadow-lg"
-                        title="Remove"
+                        className="w-10 h-10 rounded-full bg-red-50 hover:bg-red-100 text-red-600 flex items-center justify-center transition-colors"
+                        title="Remove item"
                       >
-                        <Trash2 className="h-5 w-5" />
+                        <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
                   </motion.div>
@@ -223,70 +236,68 @@ export default function CartPage() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="lg:col-span-1"
           >
-            <div className="bg-white border border-heritage-200 rounded-2xl shadow-lg p-8 sticky top-24">
-              <h2 className="text-2xl font-serif font-bold text-primary-700 mb-8">Order Summary</h2>
+            <div className="bg-white rounded-3xl shadow-lg border border-gray-100 p-6 sticky top-24">
+              <h2 className="text-xl font-bold text-gray-900 mb-6">Order Summary</h2>
               
-              <div className="space-y-6">
-                <div className="flex justify-between">
-                  <span className="text-text-secondary font-medium">Subtotal ({cart.totalItems} items)</span>
-                  <span className="font-serif font-bold text-accent-600">{renderNegotiable()}</span>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Subtotal ({cart.totalItems} {cart.totalItems === 1 ? 'item' : 'items'})</span>
+                  <span className="font-bold text-gray-900">₹{cart.totalPrice.toFixed(2)}</span>
                 </div>
                 
-                <div className="flex justify-between">
-                  <span className="text-text-secondary font-medium">Shipping</span>
-                  <span className="font-serif font-bold text-green-600">
-                    Free
-                  </span>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Shipping</span>
+                  <span className="font-semibold text-green-600">Free</span>
                 </div>
                 
-                <div className="flex justify-between">
-                  <span className="text-text-secondary font-medium">Tax</span>
-                  <span className="font-serif font-bold text-accent-600">
-                    {renderNegotiable()}
-                  </span>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Tax</span>
+                  <span className="font-semibold text-gray-900">Included</span>
                 </div>
                 
-                <hr className="border-heritage-200" />
+                <hr className="border-gray-200" />
                 
-                <div className="flex justify-between text-xl font-serif font-bold">
-                  <span className="text-primary-700">Total</span>
-                  <span className="text-accent-600">
-                    {renderNegotiable()}
-                  </span>
+                <div className="flex justify-between items-center text-lg">
+                  <span className="font-bold text-gray-900">Total</span>
+                  <span className="font-bold text-blue-600">₹{cart.totalPrice.toFixed(2)}</span>
                 </div>
               </div>
 
               <button
                 onClick={handleCheckout}
                 disabled={isLoading || cart.items.length === 0}
-                className="w-full bg-accent-500 text-white py-4 px-8 rounded-2xl font-semibold hover:bg-accent-600 transition-colors mt-8 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-blue-600 text-white py-4 px-6 rounded-full font-semibold hover:bg-blue-700 transition-colors mt-6 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               >
                 {isLoading ? (
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mx-auto"></div>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                 ) : (
-                  'Proceed to Checkout'
+                  <>
+                    <ShoppingBag className="h-5 w-5 mr-2" />
+                    Proceed to Checkout
+                  </>
                 )}
               </button>
-
-              <div className="mt-8 text-center">
+              
+              {/* Additional Actions */}
+              <div className="mt-4 space-y-2">
                 <Link
                   href="/products"
-                  className="text-primary-700 hover:text-accent-600 font-medium transition-colors"
+                  className="w-full bg-gray-100 text-gray-700 py-3 px-6 rounded-full font-medium hover:bg-gray-200 transition-colors flex items-center justify-center"
                 >
                   Continue Shopping
                 </Link>
               </div>
 
               {/* Promo Code */}
-              <div className="mt-8 pt-8 border-t border-heritage-200">
-                <h3 className="text-lg font-serif font-bold text-primary-700 mb-4">Promo Code</h3>
-                <div className="flex">
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <h3 className="text-sm font-semibold text-gray-900 mb-3">Have a promo code?</h3>
+                <div className="flex gap-2">
                   <input
                     type="text"
                     placeholder="Enter code"
-                    className="flex-1 px-4 py-3 border border-heritage-200 rounded-l-2xl focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent bg-background-cream text-primary-700 placeholder-text-muted"
+                    className="flex-1 px-4 py-2 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                   />
-                  <button className="bg-accent-500 text-white px-6 py-3 rounded-r-2xl hover:bg-accent-600 transition-colors font-semibold shadow-lg">
+                  <button className="bg-gray-900 text-white px-4 py-2 rounded-full hover:bg-gray-800 transition-colors font-medium text-sm">
                     Apply
                   </button>
                 </div>
