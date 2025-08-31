@@ -35,23 +35,20 @@ export default function CategoriesSection() {
         const categoriesData = await categoriesAPI.getAll();
         
         if (categoriesData && Array.isArray(categoriesData)) {
-          // Take first 3 categories to reduce API calls
-          const selectedCategories = categoriesData.slice(0, 3);
-          
-          // Fetch products for selected categories only
+          // Fetch products for all categories to check which have 4+ products
           const categoriesWithProducts = await Promise.all(
-            selectedCategories.map(async (category) => {
+            categoriesData.map(async (category) => {
               try {
                 const productsData = await productsAPI.getAll({ 
                   category: category._id, 
-                  limit: 4 // Only fetch 4 products per category
+                  limit: 10 // Fetch more to check if category has enough products
                 });
                 
                 const products = productsData?.products || [];
                 
                 return {
                   ...category,
-                  products: products
+                  products: products.slice(0, 4) // Only show first 4 products in UI
                 };
               } catch (error) {
                 console.error(`Error fetching products for category ${category._id}:`, error);
@@ -63,10 +60,13 @@ export default function CategoriesSection() {
             })
           );
           
-          // Filter categories that have at least 2 products (reduced requirement)
-          const validCategories = categoriesWithProducts.filter(category => category.products.length >= 2);
+          // Filter categories that have at least 4 products
+          const validCategories = categoriesWithProducts.filter(category => category.products.length >= 4);
           
-          setCategories(validCategories);
+          // Take first 3 valid categories for display
+          const selectedCategories = validCategories.slice(0, 3);
+          
+          setCategories(selectedCategories);
         }
       } catch (error) {
         console.error('Error fetching categories:', error);
@@ -120,7 +120,7 @@ export default function CategoriesSection() {
         </motion.div>
 
         {categories.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
             {categories.map((category, categoryIndex) => (
               <motion.div
                 key={category._id}
@@ -145,9 +145,9 @@ export default function CategoriesSection() {
                 </div>
 
                 {/* Products Grid */}
-                <div className="p-4 sm:p-6">
+                <div className="p-3 sm:p-4 md:p-6">
                   {category.products.length > 0 ? (
-                    <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                    <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
                       {category.products.map((product, productIndex) => (
                         <motion.div
                           key={product._id}
@@ -158,19 +158,19 @@ export default function CategoriesSection() {
                           className="group"
                         >
                           <Link href={`/products/${product._id}`}>
-                            <div className="bg-gray-50 rounded-lg overflow-hidden hover:bg-gray-100 transition-colors">
-                              <div className="relative h-24 sm:h-32 overflow-hidden">
+                            <div className="bg-gray-50 rounded-lg overflow-hidden hover:bg-gray-100 transition-all duration-300 hover:shadow-md">
+                              <div className="relative h-20 xs:h-24 sm:h-28 md:h-32 lg:h-36 overflow-hidden">
                                 <img
                                   src={product.images?.[0]?.url ? getOptimizedImageUrl(product.images[0].url) : '/placeholder-product.svg'}
                                   alt={product.name}
-                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                                 />
                               </div>
                               <div className="p-2 sm:p-3">
-                                <h4 className="font-semibold text-gray-900 text-xs sm:text-sm mb-1 truncate group-hover:text-orange-600 transition-colors">
+                                <h4 className="font-semibold text-gray-900 text-xs sm:text-sm md:text-base mb-1 group-hover:text-orange-600 transition-colors leading-tight overflow-hidden" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
                                   {product.name}
                                 </h4>
-                                <p className="text-orange-600 font-bold text-xs sm:text-sm">
+                                <p className="text-orange-600 font-bold text-xs sm:text-sm md:text-base">
                                   ${product.price}
                                 </p>
                               </div>
