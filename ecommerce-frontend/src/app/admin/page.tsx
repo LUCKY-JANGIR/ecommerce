@@ -1720,7 +1720,7 @@ export default function AdminPage() {
               <button
                 key={link.key}
                 onClick={() => setActiveSection(link.key)}
-                className={`flex flex-col items-center justify-center p-4 rounded-lg font-semibold transition-colors border-2 shadow-md ${activeSection === link.key ? 'bg-white text-primary border-primary hover:bg-primary hover:text-white shadow-lg' : 'bg-primary text-white border-primary hover:bg-primary-600 hover:text-white shadow-lg'}`}
+                className={`flex flex-col items-center justify-center p-4 rounded-lg font-semibold transition-colors border-2 shadow-md ${activeSection === link.key ? 'bg-white text-primary-700 border-primary-600 hover:bg-primary-600 hover:text-white shadow-lg' : 'bg-primary-600 text-white border-primary-600 hover:bg-primary-700 hover:text-white shadow-lg'}`}
               >
                 {link.icon}
                 <span className="mt-2 text-xs font-medium">{link.label}</span>
@@ -1734,7 +1734,7 @@ export default function AdminPage() {
                 <button
                 key={link.key}
                 onClick={() => setActiveSection(link.key)}
-                className={`flex-shrink-0 flex items-center gap-1 px-3 py-1.5 rounded font-semibold text-sm transition-colors shadow-sm ${activeSection === link.key ? 'bg-primary text-white border border-primary hover:bg-primary-600 shadow-md' : 'bg-white text-primary border border-primary/30 hover:bg-primary hover:text-white shadow-md'}`}
+                className={`flex-shrink-0 flex items-center gap-1 px-3 py-1.5 rounded font-semibold text-sm transition-colors shadow-sm ${activeSection === link.key ? 'bg-primary-600 text-white border border-primary-600 hover:bg-primary-700 shadow-md' : 'bg-white text-primary-700 border border-primary-300 hover:bg-primary-600 hover:text-white shadow-md'}`}
               >
                 {link.icon}
                 {link.label}
