@@ -7,8 +7,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { 
   ArrowRight, 
-  ChevronLeft,
-  ChevronRight,
   Play,
   Shield,
   Truck,
@@ -117,14 +115,38 @@ export default function Home() {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
+
+  // Preload hero images
+  useEffect(() => {
+    const imagePromises = heroSlides.map((slide) => {
+      return new Promise((resolve, reject) => {
+        const img = new window.Image();
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = slide.image;
+      });
+    });
+
+    Promise.all(imagePromises)
+      .then(() => {
+        setImagesLoaded(true);
+      })
+      .catch((error) => {
+        console.error('Error preloading images:', error);
+        setImagesLoaded(true); // Continue anyway
+      });
+  }, []);
 
   // Auto-advance hero slides
   useEffect(() => {
+    if (!imagesLoaded) return;
+    
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
     }, 6000);
     return () => clearInterval(interval);
-  }, []);
+  }, [imagesLoaded]);
 
   // Fetch data
   useEffect(() => {
@@ -185,40 +207,44 @@ export default function Home() {
     fetchData();
   }, []);
 
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
-  };
 
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
-  };
 
   return (
     <main className="min-h-screen w-full overflow-x-hidden">
       {/* Hero Section */}
-      {loading ? (
+      {loading || !imagesLoaded ? (
         <HeroSkeleton />
       ) : (
-        <section className="relative h-screen min-h-[600px] max-h-[900px] overflow-hidden">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentSlide}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8 }}
-            className="absolute inset-0"
-          >
-            <div className="absolute inset-0 bg-black/40 z-10" />
-            <Image
-              src={heroSlides[currentSlide].image}
-              alt={heroSlides[currentSlide].title}
-              fill
-              className="object-cover"
-              priority
-            />
-          </motion.div>
-        </AnimatePresence>
+        <section className="relative h-screen min-h-[600px] max-h-[900px] overflow-hidden bg-gray-900" style={{ transform: 'translateZ(0)' }}>
+          {/* Background Images - All loaded but only current one visible */}
+          {heroSlides.map((slide, index) => (
+            <motion.div
+              key={index}
+              className="absolute inset-0"
+              style={{ willChange: 'opacity, transform' }}
+              initial={false}
+              animate={{
+                opacity: index === currentSlide ? 1 : 0,
+                scale: index === currentSlide ? 1 : 1.05,
+              }}
+              transition={{
+                opacity: { duration: 1, ease: [0.4, 0, 0.2, 1] },
+                scale: { duration: 8, ease: "linear" }
+              }}
+            >
+              <Image
+                src={slide.image}
+                alt={slide.title}
+                fill
+                className="object-cover"
+                priority={index === 0}
+                sizes="100vw"
+              />
+            </motion.div>
+          ))}
+          
+          {/* Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent z-10" />
 
         {/* Hero Content */}
         <div className="relative z-20 h-full flex items-center">
@@ -226,9 +252,14 @@ export default function Home() {
             <div className="max-w-4xl">
               <motion.div
                 key={`content-${currentSlide}`}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ 
+                  duration: 0.6, 
+                  ease: "easeOut",
+                  delay: 0.3 
+                }}
                 className="text-white"
               >
                 <div className="inline-block bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 mb-6">
@@ -281,20 +312,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Arrow Navigation */}
-        <button
-          onClick={prevSlide}
-          className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 p-3 bg-white/20 backdrop-blur-sm rounded-full text-white hover:bg-white/30 transition-colors"
-        >
-          <ChevronLeft className="h-6 w-6" />
-        </button>
-        
-        <button
-          onClick={nextSlide}
-          className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 p-3 bg-white/20 backdrop-blur-sm rounded-full text-white hover:bg-white/30 transition-colors"
-        >
-          <ChevronRight className="h-6 w-6" />
-        </button>
+
         </section>
       )}
 
