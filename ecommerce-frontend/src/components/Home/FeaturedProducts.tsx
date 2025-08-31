@@ -18,7 +18,18 @@ export default function FeaturedProducts() {
         setLoading(true);
         const data = await productsAPI.getFeatured();
         if (data && Array.isArray(data)) {
-          setProducts(data.slice(0, 8)); // Show 8 featured products
+          // Randomly select up to 8 products from all featured products using Fisher-Yates shuffle
+          const shuffleArray = (array: Product[]) => {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+          };
+          
+          const randomProducts = shuffleArray(data).slice(0, 8);
+          setProducts(randomProducts);
         } else {
           setError('Failed to load featured products');
         }
