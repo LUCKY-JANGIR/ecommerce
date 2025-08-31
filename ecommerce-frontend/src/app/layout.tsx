@@ -14,6 +14,21 @@ import { Toaster } from 'react-hot-toast';
 export const metadata: Metadata = {
   title: 'Indian Handloom - Your Online Shop',
   description: 'A modern ecommerce experience',
+  icons: {
+    icon: [
+      {
+        url: '/favicon.ico',
+        sizes: '32x32',
+        type: 'image/x-icon',
+      },
+      {
+        url: '/file.svg',
+        type: 'image/svg+xml',
+      },
+    ],
+    shortcut: '/favicon.ico',
+    apple: '/favicon.ico',
+  },
 };
 
 export const viewport = {

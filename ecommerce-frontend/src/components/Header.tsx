@@ -211,7 +211,7 @@ export default function Header() {
             </div>
 
             {/* Desktop Search */}
-            <div className="hidden lg:flex flex-1 max-w-md mx-4 xl:mx-8" ref={searchRef}>
+            <div className="hidden lg:flex flex-1 max-w-md mx-4 xl:mx-8 search-container" ref={searchRef}>
               <form onSubmit={handleSearch} className="w-full">
                 <div className="relative">
                   <input
@@ -240,7 +240,7 @@ export default function Header() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                         transition={{ duration: 0.2 }}
-                        className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-[9999] max-h-80 overflow-y-auto"
+                        className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl z-[99999] max-h-80 overflow-y-auto search-suggestions-dropdown"
                       >
                         {searchSuggestions.map((suggestion, index) => (
                           <button
