@@ -1,0 +1,60 @@
+name: Wake-Up Bot
+
+# This GitHub Actions workflow pings your production server every 8 minutes
+# to prevent it from sleeping due to inactivity
+
+on:
+  schedule:
+    # Runs every 8 minutes (cron format: minute hour day month day-of-week)
+    - cron: '*/8 * * * *'
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  ping-server:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 🤖 Wake up production server
+      run: |
+        echo "🚀 Pinging production server..."
+        
+        # Ping the health endpoint
+        response=$(curl -s -o /dev/null -w "%{http_code}" \
+          -H "User-Agent: GitHub-Actions-WakeUp-Bot/1.0" \
+          -H "Accept: application/json" \
+          --max-time 30 \
+          "${{ secrets.PRODUCTION_URL }}/api/health")
+        
+        timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        
+        if [ "$response" = "200" ]; then
+          echo "✅ [$timestamp] Server wake-up successful (HTTP $response)"
+        else
+          echo "⚠️ [$timestamp] Server wake-up failed (HTTP $response)"
+          # Don't fail the workflow - just log the issue
+        fi
+        
+        # Optional: Ping multiple endpoints for redundancy
+        echo "🔄 Pinging additional endpoints..."
+        
+        # Ping system health
+        curl -s -o /dev/null -w "System Health: %{http_code}\n" \
+          -H "User-Agent: GitHub-Actions-WakeUp-Bot/1.0" \
+          --max-time 15 \
+          "${{ secrets.PRODUCTION_URL }}/api/system-health" || echo "System health ping failed"
+        
+        echo "🎯 Wake-up sequence completed"
+
+  # Optional: Send notification if server is consistently down
+  check-server-health:
+    runs-on: ubuntu-latest
+    needs: ping-server
+    if: failure()
+    
+    steps:
+    - name: 🚨 Server Health Alert
+      run: |
+        echo "⚠️ Server health check failed multiple times"
+        echo "Consider checking your production server status"
+        # You can add webhook notifications here if needed
+        # curl -X POST "${{ secrets.DISCORD_WEBHOOK }}" -d "Server may be down"

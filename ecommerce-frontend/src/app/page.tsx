@@ -298,14 +298,16 @@ export default function Home() {
         </div>
 
         {/* Navigation */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
-          <div className="flex space-x-2">
+        <div className="absolute bottom-6 sm:bottom-8 left-1/2 transform -translate-x-1/2 z-20">
+          <div className="flex gap-2 sm:gap-3">
             {heroSlides.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentSlide(index)}
-                className={`w-3 h-3 rounded-full transition-colors ${
-                  index === currentSlide ? 'bg-white' : 'bg-white/50'
+                className={`hero-dot ${
+                  index === currentSlide 
+                    ? 'bg-white hero-dot-active' 
+                    : 'bg-white/50 hover:bg-white/70'
                 }`}
               />
             ))}
@@ -433,8 +435,8 @@ export default function Home() {
               <motion.div
                 key={category._id}
                 initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 className="bg-gray-50 rounded-3xl overflow-hidden hover:shadow-lg transition-shadow"
               >
@@ -509,8 +511,8 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
@@ -527,8 +529,8 @@ export default function Home() {
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 className="text-center"
               >
@@ -551,7 +553,7 @@ export default function Home() {
 
       {/* Footer */}
       <Suspense fallback={<div className="py-12 bg-gray-100 animate-pulse" />}>
-        <Footer />
+          <Footer />
       </Suspense>
     </main>
   );

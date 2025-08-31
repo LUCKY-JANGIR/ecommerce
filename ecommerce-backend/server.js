@@ -207,6 +207,33 @@ process.on('uncaughtException', (err) => {
 });
 
 const PORT = process.env.PORT;
+
+// Wake-up bot - Self-ping to prevent server sleep
+const startWakeUpBot = () => {
+    const PRODUCTION_URL = process.env.PRODUCTION_URL; // Add this to your .env
+    
+    if (process.env.NODE_ENV === 'production' && PRODUCTION_URL) {
+        console.log('🤖 Wake-up bot started - Server will ping itself every 8 minutes');
+        
+        setInterval(async () => {
+            try {
+                const response = await fetch(`${PRODUCTION_URL}/api/health`);
+                const timestamp = new Date().toISOString();
+                
+                if (response.ok) {
+                    console.log(`✅ [${timestamp}] Wake-up ping successful - Server is alive`);
+                } else {
+                    console.log(`⚠️ [${timestamp}] Wake-up ping failed with status: ${response.status}`);
+                }
+            } catch (error) {
+                const timestamp = new Date().toISOString();
+                console.log(`❌ [${timestamp}] Wake-up ping error:`, error.message);
+            }
+        }, 8 * 60 * 1000); // Ping every 8 minutes (before 10-minute sleep)
+    }
+};
+
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+    startWakeUpBot(); // Start the wake-up bot after server starts
 }); 

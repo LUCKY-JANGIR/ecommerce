@@ -188,6 +188,29 @@ main::-webkit-scrollbar {
 .h-responsive-md { @apply h-40 sm:h-48 md:h-56; }
 .h-responsive-lg { @apply h-48 sm:h-56 md:h-64; }
 
+/* Hero slider dots - mobile-first responsive sizing */
+.hero-dot {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50% !important;
+  transition: all 0.3s ease !important;
+}
+
+.hero-dot-active {
+  transform: scale(1.25) !important;
+}
+
+@media (min-width: 640px) {
+  .hero-dot {
+    width: 12px !important;
+    height: 12px !important;
+  }
+  
+  .hero-dot-active {
+    transform: scale(1.1) !important;
+  }
+}
+
 /* Responsive flex utilities */
 .flex-responsive-col { @apply flex flex-col sm:flex-row; }
 .flex-responsive-row { @apply flex flex-row sm:flex-col md:flex-row; }
