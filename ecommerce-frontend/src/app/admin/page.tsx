@@ -12,6 +12,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import { motion } from 'framer-motion';
 import MultipleImageUpload from "@/app/components/ui/MultipleImageUpload";
+import { AdminPageSkeleton } from "@/components/ui/Skeleton";
 
 // Import Swiper styles
 import 'swiper/css';
@@ -48,6 +49,7 @@ export default function AdminPage() {
   const router = useRouter();
   const [isAdmin, setIsAdmin] = useState(false);
   const [activeSection, setActiveSection] = useState('overview');
+  const [initialLoading, setInitialLoading] = useState(true);
 
   // Product Management States
   const [products, setProducts] = useState<Product[]>([]);
@@ -201,15 +203,23 @@ export default function AdminPage() {
   }, [orderFilters]);
 
   useEffect(() => {
-    if (activeSection === 'products') {
-      fetchProducts();
-      fetchCategories();
-    } else if (activeSection === 'categories') {
-      fetchCategories();
-    } else if (activeSection === 'orders') {
-      fetchOrders();
-      fetchOrderStats();
-    }
+    const loadInitialData = async () => {
+      try {
+        if (activeSection === 'products') {
+          await fetchProducts();
+          await fetchCategories();
+        } else if (activeSection === 'categories') {
+          await fetchCategories();
+        } else if (activeSection === 'orders') {
+          await fetchOrders();
+          await fetchOrderStats();
+        }
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+
+    loadInitialData();
   }, [activeSection, orderFilters, fetchOrders]);
 
   const fetchOrderStats = async () => {
@@ -578,6 +588,10 @@ export default function AdminPage() {
       setCategoryDeleting(null);
     }
   };
+
+  if (initialLoading) {
+    return <AdminPageSkeleton />;
+  }
 
   if (!isAdmin) {
     return null;

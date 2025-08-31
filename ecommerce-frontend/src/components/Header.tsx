@@ -20,11 +20,12 @@ export default function Header() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedSuggestion, setSelectedSuggestion] = useState(-1);
   const [mobileSearchMode, setMobileSearchMode] = useState(false);
+  const [isSearchLoading, setIsSearchLoading] = useState(false);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
   
-  // Debounce search input for API calls
-  const debouncedSearch = useDebounce(search, 300);
+  // Debounce search input for API calls - increased delay for better UX
+  const debouncedSearch = useDebounce(search, 500);
 
   useEffect(() => {
     setMounted(true);
@@ -41,27 +42,32 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [mounted]);
 
-  // Fetch search suggestions
+  // Fetch search suggestions with loading state
   useEffect(() => {
     if (!mounted || !debouncedSearch.trim()) {
       setSearchSuggestions([]);
       setShowSuggestions(false);
+      setIsSearchLoading(false);
       return;
     }
 
     const fetchSuggestions = async () => {
+      setIsSearchLoading(true);
+      setShowSuggestions(true); // Show dropdown immediately with loading skeleton
+      
       try {
         const response = await productsAPI.getAll({
           search: debouncedSearch,
           limit: 5
         });
         setSearchSuggestions(response.products || []);
-        setShowSuggestions(true);
         setSelectedSuggestion(-1);
       } catch (error) {
         console.error('Error fetching search suggestions:', error);
         setSearchSuggestions([]);
         setShowSuggestions(false);
+      } finally {
+        setIsSearchLoading(false);
       }
     };
 
@@ -217,10 +223,18 @@ export default function Header() {
                   <input
                     type="text"
                     value={search}
-                    onChange={(e) => setSearch(e.target.value)}
+                    onChange={(e) => {
+                      setSearch(e.target.value);
+                      if (e.target.value.trim()) {
+                        setIsSearchLoading(true);
+                      } else {
+                        setIsSearchLoading(false);
+                        setShowSuggestions(false);
+                      }
+                    }}
                     onKeyDown={handleKeyDown}
                     onFocus={() => {
-                      if (searchSuggestions.length > 0) {
+                      if (searchSuggestions.length > 0 || isSearchLoading) {
                         setShowSuggestions(true);
                       }
                     }}
@@ -234,7 +248,7 @@ export default function Header() {
                   
                   {/* Search Suggestions Dropdown */}
                   <AnimatePresence>
-                    {showSuggestions && searchSuggestions.length > 0 && (
+                    {showSuggestions && (isSearchLoading || searchSuggestions.length > 0 || (search.trim() && !isSearchLoading)) && (
                       <motion.div
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -242,7 +256,30 @@ export default function Header() {
                         transition={{ duration: 0.2 }}
                         className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl z-[99999] max-h-80 overflow-y-auto search-suggestions-dropdown"
                       >
-                        {searchSuggestions.map((suggestion, index) => (
+                        {isSearchLoading ? (
+                          // Enhanced loading skeleton
+                          <>
+                            {[...Array(3)].map((_, index) => (
+                              <div key={`skeleton-${index}`} className="px-4 py-3 border-b border-gray-100 last:border-b-0">
+                                <div className="flex items-center space-x-3">
+                                  <div className="relative w-8 h-8 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded overflow-hidden">
+                                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+                                  </div>
+                                  <div className="flex-1 min-w-0 space-y-2">
+                                    <div className="relative h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded overflow-hidden">
+                                      <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+                                    </div>
+                                    <div className="relative h-3 w-16 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded overflow-hidden">
+                                      <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </>
+                        ) : (
+                          // Actual results
+                          searchSuggestions.map((suggestion, index) => (
                           <button
                             key={suggestion._id}
                             type="button"
@@ -269,9 +306,20 @@ export default function Header() {
                               </div>
                             </div>
                           </button>
-                        ))}
+                          ))
+                        )}
                         
-                        {search.trim() && (
+                        {/* No results message */}
+                        {!isSearchLoading && searchSuggestions.length === 0 && search.trim() && (
+                          <div className="px-4 py-8 text-center text-gray-500">
+                            <FiSearch className="w-8 h-8 mx-auto mb-3 text-gray-300" />
+                            <p className="text-sm">No products found for "{search}"</p>
+                            <p className="text-xs text-gray-400 mt-1">Try searching with different keywords</p>
+                          </div>
+                        )}
+                        
+                        {/* Always show "Search for" option when there's text and not loading */}
+                        {search.trim() && !isSearchLoading && (
                           <button
                             type="button"
                             onClick={() => {
@@ -457,7 +505,14 @@ export default function Header() {
                         <input
                           type="text"
                           value={search}
-                          onChange={(e) => setSearch(e.target.value)}
+                          onChange={(e) => {
+                            setSearch(e.target.value);
+                            if (e.target.value.trim()) {
+                              setIsSearchLoading(true);
+                            } else {
+                              setIsSearchLoading(false);
+                            }
+                          }}
                           onKeyDown={handleKeyDown}
                           placeholder="Search products..."
                           className="w-full pl-4 pr-12 py-3 text-sm rounded-lg border border-heritage-200 focus:outline-none focus:ring-2 focus:ring-accent-500 bg-white"
@@ -472,7 +527,28 @@ export default function Header() {
 
                     {/* Search Results */}
                     <div className="flex-1 overflow-y-auto">
-                      {searchSuggestions.length > 0 ? (
+                      {isSearchLoading ? (
+                        // Enhanced loading skeleton for mobile
+                        <div className="p-2">
+                          {[...Array(4)].map((_, index) => (
+                            <div key={`mobile-skeleton-${index}`} className="p-4 border-b border-gray-100 last:border-b-0">
+                              <div className="flex items-center space-x-3">
+                                <div className="relative w-12 h-12 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded overflow-hidden">
+                                  <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+                                </div>
+                                <div className="flex-1 min-w-0 space-y-2">
+                                  <div className="relative h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded overflow-hidden">
+                                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+                                  </div>
+                                  <div className="relative h-3 w-20 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded overflow-hidden">
+                                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : searchSuggestions.length > 0 ? (
                         <div className="p-2">
                           {searchSuggestions.map((suggestion, index) => (
                             <button
@@ -507,7 +583,7 @@ export default function Header() {
                             </button>
                           ))}
                           
-                          {search.trim() && (
+                          {search.trim() && !isSearchLoading && (
                             <button
                               type="button"
                               onClick={() => {
@@ -525,26 +601,44 @@ export default function Header() {
                             </button>
                           )}
                         </div>
-                      ) : search.trim() ? (
-                        <div className="p-8 text-center text-gray-500">
-                          <FiSearch className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                          <p>No products found for "{search}"</p>
-                          <button
-                            onClick={() => {
-                              router.push(`/products?search=${encodeURIComponent(search.trim())}`);
-                              setMobileMenuOpen(false);
-                              setMobileSearchMode(false);
-                              setSearch("");
-                            }}
-                            className="mt-4 px-4 py-2 bg-accent-500 text-white rounded-lg hover:bg-accent-600 transition-colors"
-                          >
-                            View all results
-                          </button>
-                        </div>
                       ) : (
-                        <div className="p-8 text-center text-gray-500">
-                          <FiSearch className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                          <p>Start typing to search products...</p>
+                        <div className="flex flex-col h-full">
+                          {/* No results message */}
+                          {search.trim() && searchSuggestions.length === 0 && (
+                            <div className="p-8 text-center text-gray-500 flex-1 flex flex-col justify-center">
+                              <FiSearch className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                              <p className="mb-1">No products found for "{search}"</p>
+                              <p className="text-sm text-gray-400">Try searching with different keywords</p>
+                            </div>
+                          )}
+                          
+                          {/* Empty state */}
+                          {!search.trim() && (
+                            <div className="p-8 text-center text-gray-400 flex-1 flex flex-col justify-center">
+                              <FiSearch className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                              <p>Start typing to search products...</p>
+                            </div>
+                          )}
+                          
+                          {/* Always show "Search for" option at bottom when there's text */}
+                          {search.trim() && (
+                            <div className="border-t border-gray-200 p-2">
+                              <button
+                                onClick={() => {
+                                  router.push(`/products?search=${encodeURIComponent(search.trim())}`);
+                                  setMobileMenuOpen(false);
+                                  setMobileSearchMode(false);
+                                  setSearch("");
+                                }}
+                                className="w-full text-left p-4 hover:bg-gray-50 text-blue-600 font-medium rounded-lg"
+                              >
+                                <div className="flex items-center space-x-2">
+                                  <FiSearch className="w-4 h-4" />
+                                  <span>Search for "<span className="text-accent-500 font-semibold">{search}</span>"</span>
+                                </div>
+                              </button>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>

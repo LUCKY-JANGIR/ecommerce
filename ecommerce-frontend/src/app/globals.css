@@ -439,6 +439,16 @@ header .search-container .search-dropdown {
   margin-top: 0.5rem;
 }
 
+/* Shimmer animation for skeleton loaders */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 /* Mobile-specific header styles */
 @media (max-width: 1024px) {
   header nav {
