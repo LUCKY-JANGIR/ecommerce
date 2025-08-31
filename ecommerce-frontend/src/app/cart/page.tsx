@@ -14,6 +14,13 @@ export default function CartPage() {
   const { cart, removeFromCart, updateCartItemQuantity, clearCart } = useStore();
   const [isLoading, setIsLoading] = useState(false);
 
+  const renderPrice = (price: number) => {
+    if (price === 0) {
+      return <span className="text-orange-600 font-semibold">Negotiable</span>;
+    }
+    return <span>₹{price}</span>;
+  };
+
   const handleQuantityChange = (productId: string, newQuantity: number) => {
     if (newQuantity < 1) {
       removeFromCart(productId);
@@ -184,9 +191,9 @@ export default function CartPage() {
                         </p>
                         <div className="mt-3">
                           <span className="text-lg font-bold text-blue-600">
-                            ₹{item.product.price}
+                            {renderPrice(item.product.price)}
                           </span>
-                          {item.quantity > 1 && (
+                          {item.quantity > 1 && item.product.price > 0 && (
                             <span className="text-sm text-gray-500 ml-2">
                               × {item.quantity} = ₹{(item.product.price * item.quantity).toFixed(2)}
                             </span>
@@ -240,7 +247,13 @@ export default function CartPage() {
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600">Subtotal ({cart.totalItems} {cart.totalItems === 1 ? 'item' : 'items'})</span>
-                  <span className="font-bold text-gray-900">₹{cart.totalPrice.toFixed(2)}</span>
+                  <span className="font-bold text-gray-900">
+                    {cart.items.some(item => item.product.price === 0) ? (
+                      <span className="text-orange-600">Contains Negotiable Items</span>
+                    ) : (
+                      `₹${cart.totalPrice.toFixed(2)}`
+                    )}
+                  </span>
                 </div>
                 
                 <div className="flex justify-between items-center">
@@ -257,7 +270,13 @@ export default function CartPage() {
                 
                 <div className="flex justify-between items-center text-lg">
                   <span className="font-bold text-gray-900">Total</span>
-                  <span className="font-bold text-blue-600">₹{cart.totalPrice.toFixed(2)}</span>
+                  <span className="font-bold text-blue-600">
+                    {cart.items.some(item => item.product.price === 0) ? (
+                      <span className="text-orange-600">Contact for Price</span>
+                    ) : (
+                      `₹${cart.totalPrice.toFixed(2)}`
+                    )}
+                  </span>
                 </div>
               </div>
 

@@ -301,7 +301,11 @@ export default function Header() {
                                   {highlightText(suggestion.name, search)}
                                 </p>
                                 <p className="text-xs text-gray-500">
-                                  ₹{suggestion.price}
+                                  {suggestion.price === 0 ? (
+                                    <span className="text-orange-600 font-semibold">Negotiable</span>
+                                  ) : (
+                                    `₹${suggestion.price}`
+                                  )}
                                 </p>
                               </div>
                             </div>
@@ -576,7 +580,11 @@ export default function Header() {
                                     {highlightText(suggestion.name, search)}
                                   </p>
                                   <p className="text-sm text-gray-500">
-                                    ₹{suggestion.price}
+                                    {suggestion.price === 0 ? (
+                                      <span className="text-orange-600 font-semibold">Negotiable</span>
+                                    ) : (
+                                      `₹${suggestion.price}`
+                                    )}
                                   </p>
                                 </div>
                               </div>

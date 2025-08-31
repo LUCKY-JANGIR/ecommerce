@@ -9,6 +9,7 @@ import { User, Mail, Phone, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { Dialog } from '@headlessui/react';
+import { ProfilePageSkeleton } from '@/components/ui/Skeleton';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -28,6 +29,7 @@ export default function ProfilePage() {
       country: string;
     };
   } | null>(null);
+  const [loading, setLoading] = useState(true);
   // Modal and form state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form, setForm] = useState({
@@ -61,6 +63,7 @@ export default function ProfilePage() {
     }
 
     const fetchProfile = async () => {
+      setLoading(true);
       try {
         const response = await authAPI.getProfile();
         setProfile(response);
@@ -79,6 +82,8 @@ export default function ProfilePage() {
       } catch (error) {
         console.error('Error fetching profile:', error);
         toast.error('Failed to load profile');
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -94,6 +99,10 @@ export default function ProfilePage() {
   if (!hydrated) return null; // Don't render until hydrated
   if (!auth.isAuthenticated) {
     return null;
+  }
+  
+  if (loading) {
+    return <ProfilePageSkeleton />;
   }
 
   return (

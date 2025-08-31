@@ -121,10 +121,6 @@ export default function ProductDetailsPage() {
     setIsImageModalOpen(true);
   };
 
-  const renderNegotiable = () => (
-    <span className="text-3xl font-serif font-bold text-accent-600 mb-6">Negotiable</span>
-  );
-
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
       <StarIcon
@@ -134,6 +130,21 @@ export default function ProductDetailsPage() {
         }`}
       />
     ));
+  };
+
+  const renderNegotiable = () => {
+    if (product?.price === 0) {
+      return (
+        <div className="text-3xl font-bold text-orange-600 mb-4">
+          Negotiable
+        </div>
+      );
+    }
+    return (
+      <div className="text-3xl font-bold text-primary-700 mb-4">
+        ₹{product?.price}
+      </div>
+    );
   };
 
   if (loading) {

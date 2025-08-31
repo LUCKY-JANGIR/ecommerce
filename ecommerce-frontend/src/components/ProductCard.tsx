@@ -28,9 +28,9 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
 
   const renderPrice = () => {
     if (product.price === 0) {
-      return <span className="text-lg font-semibold text-gray-900">Negotiable</span>;
+      return <span className="text-lg font-semibold text-orange-600">Negotiable</span>;
     }
-    return <span className="text-lg font-semibold text-gray-900">${product.price}</span>;
+    return <span className="text-lg font-semibold text-gray-900">₹{product.price}</span>;
   };
 
   const renderStars = (rating: number) => {
