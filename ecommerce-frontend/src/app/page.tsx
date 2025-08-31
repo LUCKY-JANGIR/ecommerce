@@ -134,16 +134,24 @@ export default function Home() {
         // Fetch categories with products
         const categoriesData = await categoriesAPI.getAll();
         if (categoriesData && Array.isArray(categoriesData)) {
+          // Randomly shuffle categories and take 4
+          const shuffledCategories = [...categoriesData].sort(() => Math.random() - 0.5);
+          
           const categoriesWithProducts = await Promise.all(
-            categoriesData.slice(0, 4).map(async (category) => {
+            shuffledCategories.slice(0, 4).map(async (category) => {
               try {
                 const productsResponse = await productsAPI.getAll({
                   category: category._id,
-                  limit: 4
+                  limit: 10 // Get more products to have options for randomization
                 });
+                
+                // Randomly select 2 products from the available products
+                const availableProducts = productsResponse.products || [];
+                const shuffledProducts = [...availableProducts].sort(() => Math.random() - 0.5);
+                
                 return {
                   ...category,
-                  products: productsResponse.products || []
+                  products: shuffledProducts.slice(0, 2) // Take only 2 random products
                 };
               } catch (error) {
                 return { ...category, products: [] };
@@ -383,7 +391,7 @@ export default function Home() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    {category.products?.slice(0, 4).map((product, productIndex) => (
+                    {category.products?.slice(0, 2).map((product, productIndex) => (
                       <Link
                         key={product._id}
                         href={`/products/${product._id}`}
@@ -403,7 +411,7 @@ export default function Home() {
                               {product.name}
                             </h4>
                             <p className="text-blue-600 font-bold text-sm">
-                              ${product.price}
+                              ₹{product.price}
                             </p>
                           </div>
                         </div>
