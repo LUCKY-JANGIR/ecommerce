@@ -382,3 +382,75 @@ form::-webkit-scrollbar {
   width: 0 !important;
   height: 0 !important;
 }
+
+/* Mobile header improvements */
+header {
+  position: fixed !important;
+  top: 0 !important;
+  z-index: 50 !important;
+  width: 100% !important;
+}
+
+header nav {
+  max-width: 100vw;
+  overflow: hidden;
+}
+
+/* Mobile-specific header styles */
+@media (max-width: 1024px) {
+  header nav {
+    min-height: 4rem;
+    align-items: center;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  
+  header nav h1 {
+    font-size: 1.125rem !important;
+    line-height: 1.3 !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+    font-weight: 700 !important;
+  }
+  
+  @media (min-width: 640px) {
+    header nav {
+      min-height: 4.5rem;
+      padding-left: 1.5rem !important;
+      padding-right: 1.5rem !important;
+    }
+    
+    header nav h1 {
+      font-size: 1.25rem !important;
+      max-width: 250px;
+    }
+  }
+  
+  @media (min-width: 768px) {
+    header nav {
+      min-height: 5rem;
+    }
+    
+    header nav h1 {
+      font-size: 1.5rem !important;
+      max-width: none;
+    }
+  }
+  
+  /* Mobile button improvements */
+  header nav .flex.lg\\:hidden {
+    gap: 0.5rem;
+  }
+  
+  header nav .flex.lg\\:hidden > * {
+    padding: 0.75rem !important;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s ease;
+  }
+  
+  header nav .flex.lg\\:hidden > *:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+}
