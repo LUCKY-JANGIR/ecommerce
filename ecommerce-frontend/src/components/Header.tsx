@@ -174,7 +174,7 @@ export default function Header() {
             <nav className="flex items-center justify-between h-16 sm:h-18 md:h-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
               <div className="flex-shrink-0 min-w-0 flex-1">
                 <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-serif font-bold text-gray-900 truncate max-w-[200px] sm:max-w-[250px] md:max-w-none">
-                  Indian Handlooms
+                  Hastkari
                 </h1>
               </div>
               <div className="flex lg:hidden items-center space-x-2 flex-shrink-0">
