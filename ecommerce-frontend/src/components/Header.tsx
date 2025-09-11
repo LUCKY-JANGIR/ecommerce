@@ -205,7 +205,7 @@ export default function Header() {
             {/* Logo */}
             <Link href="/" className="flex-shrink-0 min-w-0 flex-1">
               <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-serif font-bold text-gray-900 truncate max-w-[200px] sm:max-w-[250px] md:max-w-none">
-                Indian Handlooms
+                Hastkari
               </h1>
             </Link>
 
