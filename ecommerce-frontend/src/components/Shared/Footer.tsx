@@ -163,15 +163,15 @@ export default function Footer() {
                 <div className="space-y-3">
                   <div className="flex items-center space-x-3 text-gray-400">
                     <MapPin className="h-5 w-5 text-accent-500" />
-                    <span className="text-sm">Mumbai, Maharashtra, India</span>
+                    <span className="text-sm">Jaipur, Rajasthan, India</span>
                   </div>
                   <div className="flex items-center space-x-3 text-gray-400">
                     <Phone className="h-5 w-5 text-accent-500" />
-                    <span className="text-sm">+91 98765 43210</span>
+                    <span className="text-sm">+91 98298 05795, +91 83024 64912</span>
                   </div>
                   <div className="flex items-center space-x-3 text-gray-400">
                     <Mail className="h-5 w-5 text-accent-500" />
-                    <span className="text-sm">hello@indianhandlooms.com</span>
+                    <span className="text-sm">hastkari.in@gmail.com</span>
                   </div>
                 </div>
 
@@ -248,7 +248,7 @@ export default function Footer() {
         >
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-gray-400 text-sm text-center md:text-left">
-              © 2024 Indian Handlooms. All rights reserved. Made with ❤️ for artisans.
+              © 2024 Hastkari. All rights reserved. Made with ❤️ for artisans.
             </p>
             <div className="flex flex-wrap justify-center md:justify-end space-x-6 text-sm">
               <Link href="/privacy" className="text-gray-400 hover:text-accent-400 transition-colors">
