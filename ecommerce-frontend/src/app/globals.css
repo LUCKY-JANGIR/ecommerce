@@ -1,7 +1,18 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+@font-face {
+  font-family: 'Samarkan'; /* This is the name you'll use in your CSS */
+  src: 
+       url('../../public/fonts/SAMARN__.TTF') format('truetype');
+  font-weight: normal; /* Adjust if the font has different weights */
+  font-style: normal;  /* Adjust if the font has different styles */
+}
+.font-samarkan {
+  font-family: 'Samarkan', serif;
+  font-weight: normal;
+  font-style: normal;
+}
 /* Prevent horizontal overflow and hide all scrollbars */
 html, body {
   overflow-x: hidden;

@@ -149,9 +149,9 @@ export default function Footer() {
               >
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-accent-600 rounded-full flex items-center justify-center">
-                    <span className="text-white font-serif font-bold text-lg">HK</span>
+                    <span className="text-white font-samarkan font-bold text-lg">HK</span>
                   </div>
-                  <span className="text-2xl font-serif font-bold text-white">Hastkari</span>
+                  <span className="text-2xl font-samarkan font-bold text-white">Hastkari</span>
                 </div>
                 
                 <p className="text-gray-400 leading-relaxed max-w-md">
