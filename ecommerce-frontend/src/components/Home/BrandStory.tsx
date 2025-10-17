@@ -15,31 +15,24 @@ import 'swiper/css/effect-fade';
 const brandImages = [
   {
     id: 1,
-    src: '/IMG-20250805-WA0008.jpg',
+    src: '/img1.jpg',
     alt: 'Traditional Weaving',
     title: 'Traditional Weaving',
     description: 'Preserving age-old techniques'
   },
   {
     id: 2,
-    src: '/IMG-20250805-WA0007.jpg',
+    src: '/img2.jpg',
     alt: 'Handloom Products',
     title: 'Handloom Products',
     description: 'Authentic craftsmanship'
   },
   {
     id: 3,
-    src: '/IMG-20250805-WA0006.jpg',
+    src: '/img3.jpg',
     alt: 'Artisan Craftsmanship',
     title: 'Artisan Craftsmanship',
     description: 'Skilled hands at work'
-  },
-  {
-    id: 4,
-    src: '/IMG-20250805-WA0005.jpg',
-    alt: 'Heritage Textiles',
-    title: 'Heritage Textiles',
-    description: 'Timeless beauty'
   }
 ];
 

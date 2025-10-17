@@ -1,12 +1,15 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiUser, FiShoppingCart, FiLogIn, FiChevronDown, FiSearch, FiMenu, FiX } from "react-icons/fi";
 import { useStore } from '@/store/useStore';
 import { productsAPI } from '@/components/services/api';
 import { useDebounce } from '@/hooks/useDebounce';
+import { getImagePreset } from '@/lib/cloudinary';
+import { getBlurPlaceholder } from '@/lib/imageUtils';
 
 export default function Header() {
   const { auth, cart, logout, hydrated } = useStore();
@@ -105,10 +108,10 @@ export default function Header() {
     } else if (search.trim()) {
       router.push(`/products?search=${encodeURIComponent(search.trim())}`);
     }
-    setSearch("");
+      setSearch("");
     setShowSuggestions(false);
     setSelectedSuggestion(-1);
-    setMobileMenuOpen(false);
+      setMobileMenuOpen(false);
   };
 
   const handleSuggestionClick = (suggestion: any) => {
@@ -168,26 +171,40 @@ export default function Header() {
   if (!hydrated || !mounted) {
     return (
       <>
-        <header className="fixed top-0 left-0 right-0 z-50 w-full">
-          <div className="absolute inset-0 bg-white/80 backdrop-blur-md" />
+      <header className="fixed top-0 left-0 right-0 z-50 w-full">
+          <div className="absolute inset-0 bg-dark-bg-primary/80 backdrop-blur-md" />
           <div className="relative w-full">
             <nav className="flex items-center justify-between h-16 sm:h-18 md:h-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-              <div className="flex-shrink-0 min-w-0 flex-1">
-                <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-serif font-bold text-gray-900 truncate max-w-[200px] sm:max-w-[250px] md:max-w-none">
-                  Hastkari
-                </h1>
-              </div>
+              {/* Mobile Logo */}
+              <Link href="/" className="flex-shrink-0 lg:hidden">
+                <h1 className="text-lg sm:text-xl md:text-2xl font-sans font-bold text-dark-text-primary bg-gradient-to-r from-accent-500 to-primary-500 bg-clip-text text-transparent">
+                  hastkari
+                  <span className="block text-xs sm:text-sm font-handcrafted text-dark-text-secondary -mt-1">
+                    Handwoven Stories
+                  </span>
+              </h1>
+              </Link>
+              
+              {/* Mobile Menu Button & Cart */}
               <div className="flex lg:hidden items-center space-x-2 flex-shrink-0">
-                <div className="p-3 opacity-50">
-                  <FiShoppingCart className="w-6 h-6 text-gray-700" />
-                </div>
-                <div className="p-3 opacity-50">
-                  <FiMenu className="w-6 h-6 text-gray-700" />
-                </div>
-              </div>
-            </nav>
-          </div>
-        </header>
+                <Link href="/cart" className="p-3 relative hover:bg-dark-bg-hover rounded-lg transition-colors">
+                  <FiShoppingCart className="w-6 h-6 text-dark-text-secondary" />
+                  {mounted && cart.totalItems > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-accent-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full font-medium">
+                      {cart.totalItems}
+                    </span>
+                  )}
+                </Link>
+                <button
+                  onClick={() => setMobileMenuOpen(true)}
+                  className="p-3 hover:bg-dark-bg-hover rounded-lg transition-colors"
+                >
+                  <FiMenu className="w-6 h-6 text-dark-text-secondary" />
+                </button>
+            </div>
+          </nav>
+        </div>
+      </header>
         <div className="h-16 sm:h-18 md:h-20" />
       </>
     );
@@ -197,27 +214,39 @@ export default function Header() {
     <>
       <header className="fixed top-0 left-0 right-0 z-50 w-full">
         <div className={`absolute inset-0 transition-all duration-300 ${
-          scrolled ? 'bg-white shadow-lg' : 'bg-white/80 backdrop-blur-md'
+          scrolled ? 'bg-dark-bg-primary shadow-lg shadow-black/20' : 'bg-dark-bg-primary/80 backdrop-blur-md'
         }`} />
         
         <div className="relative w-full">
-          <nav className="flex items-center justify-between h-16 sm:h-18 md:h-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-            {/* Logo */}
-            <Link href="/" className="flex-shrink-0 min-w-0 flex-1">
-              <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-samarkan font-bold text-gray-900 truncate max-w-[200px] sm:max-w-[250px] md:max-w-none">
-                Hastkari
-              </h1>
-            </Link>
-
-            {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-6 xl:space-x-8">
-              <Link href="/" className="nav-link text-sm xl:text-base">Home</Link>
-              <Link href="/categories" className="nav-link text-sm xl:text-base">Categories</Link>
-              <Link href="/products" className="nav-link text-sm xl:text-base">Shop</Link>
+          <nav className="flex items-center h-16 sm:h-18 md:h-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+            {/* Desktop Navigation - Left */}
+            <div className="hidden lg:flex items-center space-x-8 xl:space-x-10 flex-1">
+              
+              <Link href="/categories" className="nav-link text-sm xl:text-base font-medium hover:text-accent-500 transition-colors duration-200 relative group">
+                Traditional Crafts
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-accent-500 transition-all duration-300 group-hover:w-full"></span>
+              </Link>
+              <Link href="/products" className="nav-link text-sm xl:text-base font-medium hover:text-accent-500 transition-colors duration-200 relative group">
+                Our Collection
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-accent-500 transition-all duration-300 group-hover:w-full"></span>
+              </Link>
             </div>
 
-            {/* Desktop Search */}
-            <div className="hidden lg:flex flex-1 max-w-md mx-4 xl:mx-8 search-container" ref={searchRef}>
+            {/* Centered Logo */}
+            <div className="flex-1 flex justify-center">
+              <Link href="/" className="flex-shrink-0">
+                <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-samarkan font-bold text-dark-text-primary bg-gradient-to-r from-accent-500 to-primary-500 bg-clip-text text-transparent">
+                  hastkari
+                  <span className="block text-xs sm:text-sm font-handcrafted text-dark-text-secondary -mt-1">
+                    Handwoven Stories
+                  </span>
+                </h1>
+              </Link>
+            </div>
+
+            {/* Desktop Search & Actions - Right */}
+            <div className="hidden lg:flex items-center space-x-4 xl:space-x-6 flex-1 justify-end">
+              <div className="max-w-md search-container" ref={searchRef}>
               <form onSubmit={handleSearch} className="w-full">
                 <div className="relative">
                   <input
@@ -238,12 +267,12 @@ export default function Header() {
                         setShowSuggestions(true);
                       }
                     }}
-                    placeholder="Search products..."
-                    className="w-full pl-3 sm:pl-4 pr-10 py-2 text-sm rounded-lg border border-heritage-200 focus:outline-none focus:ring-2 focus:ring-accent-500 bg-white/50"
+                    placeholder="Search handcrafted treasures..."
+                    className="w-full pl-4 pr-10 py-2.5 text-sm rounded-xl border border-dark-border-primary focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500 bg-gradient-to-r from-dark-bg-primary/50 to-dark-bg-secondary/50 text-dark-text-primary placeholder-dark-text-muted backdrop-blur-sm transition-all duration-300"
                     suppressHydrationWarning
                   />
                   <button type="submit" className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2">
-                    <FiSearch className="w-4 h-4 sm:w-5 sm:h-5 text-text-muted hover:text-accent-600" />
+                    <FiSearch className="w-4 h-4 sm:w-5 sm:h-5 text-dark-text-muted hover:text-accent-500" />
                   </button>
                   
                   {/* Search Suggestions Dropdown */}
@@ -254,23 +283,23 @@ export default function Header() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
                         transition={{ duration: 0.2 }}
-                        className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl z-[99999] max-h-80 overflow-y-auto search-suggestions-dropdown"
+                        className="absolute top-full left-0 right-0 mt-2 bg-dark-bg-primary border border-dark-border-primary rounded-lg shadow-xl z-[99999] max-h-80 overflow-y-auto search-suggestions-dropdown"
                       >
                         {isSearchLoading ? (
                           // Enhanced loading skeleton
                           <>
                             {[...Array(3)].map((_, index) => (
-                              <div key={`skeleton-${index}`} className="px-4 py-3 border-b border-gray-100 last:border-b-0">
+                              <div key={`skeleton-${index}`} className="px-4 py-3 border-b border-dark-border-primary last:border-b-0">
                                 <div className="flex items-center space-x-3">
-                                  <div className="relative w-8 h-8 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded overflow-hidden">
-                                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+                                  <div className="relative w-8 h-8 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
+                                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                                   </div>
                                   <div className="flex-1 min-w-0 space-y-2">
-                                    <div className="relative h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded overflow-hidden">
-                                      <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+                                    <div className="relative h-4 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
+                                      <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                                     </div>
-                                    <div className="relative h-3 w-16 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded overflow-hidden">
-                                      <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+                                    <div className="relative h-3 w-16 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
+                                      <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                                     </div>
                                   </div>
                                 </div>
@@ -284,23 +313,28 @@ export default function Header() {
                             key={suggestion._id}
                             type="button"
                             onClick={() => handleSuggestionClick(suggestion)}
-                            className={`w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0 transition-colors ${
-                              index === selectedSuggestion ? 'bg-blue-50 border-blue-200' : ''
+                            className={`w-full text-left px-4 py-3 hover:bg-dark-bg-hover border-b border-dark-border-primary last:border-b-0 transition-colors ${
+                              index === selectedSuggestion ? 'bg-dark-bg-hover border-accent-500' : ''
                             }`}
                           >
                             <div className="flex items-center space-x-3">
                               {suggestion.images?.[0]?.url && (
-                                <img
-                                  src={suggestion.images[0].url}
+                                <Image
+                                  src={getImagePreset(suggestion.images[0].url, 'thumbnail')}
                                   alt={suggestion.name}
+                                  width={32}
+                                  height={32}
                                   className="w-8 h-8 object-cover rounded"
+                                  quality={80}
+                                  placeholder="blur"
+                                  blurDataURL={getBlurPlaceholder(8, 8)}
                                 />
                               )}
                               <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-gray-900 truncate">
+                                <p className="text-sm font-medium text-dark-text-primary truncate">
                                   {highlightText(suggestion.name, search)}
                                 </p>
-                                <p className="text-xs text-gray-500">
+                                <p className="text-xs text-dark-text-muted">
                                   {suggestion.price === 0 ? (
                                     <span className="text-orange-600 font-semibold">Negotiable</span>
                                   ) : (
@@ -315,10 +349,10 @@ export default function Header() {
                         
                         {/* No results message */}
                         {!isSearchLoading && searchSuggestions.length === 0 && search.trim() && (
-                          <div className="px-4 py-8 text-center text-gray-500">
-                            <FiSearch className="w-8 h-8 mx-auto mb-3 text-gray-300" />
+                          <div className="px-4 py-8 text-center text-dark-text-muted">
+                            <FiSearch className="w-8 h-8 mx-auto mb-3 text-dark-text-muted" />
                             <p className="text-sm">No products found for "{search}"</p>
-                            <p className="text-xs text-gray-400 mt-1">Try searching with different keywords</p>
+                            <p className="text-xs text-dark-text-muted mt-1">Try searching with different keywords</p>
                           </div>
                         )}
                         
@@ -331,26 +365,26 @@ export default function Header() {
                               setShowSuggestions(false);
                               setSearch("");
                             }}
-                            className="w-full text-left px-4 py-3 hover:bg-gray-50 border-t border-gray-200 text-blue-600 font-medium"
+                            className="w-full text-left px-4 py-3 hover:bg-dark-bg-hover border-t border-dark-border-primary text-accent-500 font-medium"
                           >
                             <div className="flex items-center space-x-2">
                               <FiSearch className="w-4 h-4" />
                               <span>Search for "<span className="text-accent-500 font-semibold">{search}</span>"</span>
                             </div>
-                          </button>
+                  </button>
                         )}
                       </motion.div>
                     )}
                   </AnimatePresence>
                 </div>
               </form>
-            </div>
+              </div>
 
-            {/* Desktop Actions */}
-            <div className="hidden lg:flex items-center space-x-2 xl:space-x-4">
+              {/* Desktop Actions */}
+              <div className="flex items-center space-x-2 xl:space-x-4">
 
               <Link href="/cart" className="p-2 relative">
-                <FiShoppingCart className="w-5 h-5 xl:w-6 xl:h-6 text-text-primary hover:text-accent-600" />
+                <FiShoppingCart className="w-5 h-5 xl:w-6 xl:h-6 text-dark-text-primary hover:text-accent-500" />
                 {mounted && cart.totalItems > 0 && (
                   <span className="absolute -top-1 -right-1 bg-accent-500 text-white text-xs w-4 h-4 xl:w-5 xl:h-5 flex items-center justify-center rounded-full">
                     {cart.totalItems}
@@ -362,9 +396,9 @@ export default function Header() {
                 <div className="relative" ref={profileDropdownRef}>
                   <button
                     onClick={handleProfileToggle}
-                    className="flex items-center space-x-1 p-2 hover:bg-gray-50 rounded-lg transition-colors"
+                    className="flex items-center space-x-1 p-2 hover:bg-dark-bg-hover rounded-lg transition-colors"
                   >
-                    <FiUser className="w-5 h-5 xl:w-6 xl:h-6 text-text-primary" />
+                    <FiUser className="w-5 h-5 xl:w-6 xl:h-6 text-dark-text-primary" />
                     <FiChevronDown className={`w-3 h-3 xl:w-4 xl:h-4 transition-transform duration-200 ${profileDropdownOpen ? 'rotate-180' : ''}`} />
                   </button>
 
@@ -375,18 +409,18 @@ export default function Header() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                         transition={{ duration: 0.2 }}
-                        className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-[9999]"
+                        className="absolute right-0 mt-2 w-48 bg-dark-bg-primary rounded-xl shadow-xl border border-dark-border-primary py-2 z-[9999]"
                       >
                         <Link 
                           href="/profile" 
-                          className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                          className="block px-4 py-3 text-sm text-dark-text-secondary hover:bg-dark-bg-hover transition-colors"
                           onClick={() => setProfileDropdownOpen(false)}
                         >
                           Profile
                         </Link>
                         <Link 
                           href="/orders" 
-                          className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                          className="block px-4 py-3 text-sm text-dark-text-secondary hover:bg-dark-bg-hover transition-colors"
                           onClick={() => setProfileDropdownOpen(false)}
                         >
                           Orders
@@ -394,20 +428,20 @@ export default function Header() {
                         {auth.user?.role === 'admin' && (
                           <Link 
                             href="/admin" 
-                            className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                            className="block px-4 py-3 text-sm text-dark-text-secondary hover:bg-dark-bg-hover transition-colors"
                             onClick={() => setProfileDropdownOpen(false)}
                           >
                             Admin Panel
                           </Link>
                         )}
-                        <div className="border-t border-gray-100 my-1"></div>
+                        <div className="border-t border-dark-border-primary my-1"></div>
                         <button
                           onClick={() => {
                             logout();
                             setProfileDropdownOpen(false);
                             router.push('/');
                           }}
-                          className="block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                          className="block w-full text-left px-4 py-3 text-sm text-red-400 hover:bg-red-900/20 transition-colors"
                         >
                           Logout
                         </button>
@@ -421,12 +455,13 @@ export default function Header() {
                   <span>Login</span>
                 </Link>
               )}
+              </div>
             </div>
 
             {/* Mobile Menu Button & Cart */}
             <div className="flex lg:hidden items-center space-x-2 flex-shrink-0">
-              <Link href="/cart" className="p-3 relative hover:bg-gray-100 rounded-lg transition-colors">
-                <FiShoppingCart className="w-6 h-6 text-gray-700" />
+              <Link href="/cart" className="p-3 relative hover:bg-dark-bg-hover rounded-lg transition-colors">
+                <FiShoppingCart className="w-6 h-6 text-dark-text-secondary" />
                 {mounted && cart.totalItems > 0 && (
                   <span className="absolute -top-1 -right-1 bg-accent-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full font-medium">
                     {cart.totalItems}
@@ -435,9 +470,9 @@ export default function Header() {
               </Link>
               <button
                 onClick={() => setMobileMenuOpen(true)}
-                className="p-3 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-3 hover:bg-dark-bg-hover rounded-lg transition-colors"
               >
-                <FiMenu className="w-6 h-6 text-gray-700" />
+                <FiMenu className="w-6 h-6 text-dark-text-secondary" />
               </button>
             </div>
           </nav>
@@ -454,7 +489,7 @@ export default function Header() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40"
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
               onClick={() => {
                 setMobileMenuOpen(false);
                 setMobileSearchMode(false);
@@ -466,19 +501,19 @@ export default function Header() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="fixed top-0 right-0 h-full w-full bg-white z-50"
+              className="fixed top-0 right-0 h-full w-full bg-dark-bg-primary z-50"
             >
               <div className="flex flex-col h-full">
-                <div className="flex items-center justify-between p-4 border-b border-heritage-200">
-                  <h2 className="text-lg font-serif font-bold text-gray-900">
+                <div className="flex items-center justify-between p-4 border-b border-dark-border-primary">
+                  <h2 className="text-lg font-serif font-bold text-dark-text-primary">
                     {mobileSearchMode ? 'Search' : 'Menu'}
                   </h2>
                   <div className="flex items-center space-x-2">
                     <button 
                       onClick={() => setMobileSearchMode(!mobileSearchMode)}
-                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      className="p-2 hover:bg-dark-bg-hover rounded-lg transition-colors"
                     >
-                      <FiSearch className="w-5 h-5 text-gray-600" />
+                      <FiSearch className="w-5 h-5 text-dark-text-secondary" />
                     </button>
                     <button 
                       onClick={() => {
@@ -487,24 +522,24 @@ export default function Header() {
                         setSearch('');
                         setShowSuggestions(false);
                       }} 
-                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      className="p-2 hover:bg-dark-bg-hover rounded-lg transition-colors"
                     >
-                      <FiX className="w-5 h-5 text-gray-600" />
-                    </button>
-                  </div>
+                      <FiX className="w-5 h-5 text-dark-text-secondary" />
+                  </button>
+                </div>
                 </div>
 
                 {!mobileSearchMode && auth.isAuthenticated && (
-                  <div className="p-4 bg-heritage-50">
-                    <p className="font-medium text-gray-900">{auth.user?.name}</p>
-                    <p className="text-sm text-text-muted">{auth.user?.email}</p>
+                  <div className="p-4 bg-dark-bg-primary">
+                    <p className="font-medium text-dark-text-primary">{auth.user?.name}</p>
+                    <p className="text-sm text-dark-text-muted">{auth.user?.email}</p>
                   </div>
                 )}
 
                 {mobileSearchMode ? (
                   <div className="flex-1 flex flex-col">
                     {/* Mobile Search Input */}
-                    <div className="p-4 border-b border-gray-200">
+                    <div className="p-4 border-b border-dark-border-primary">
                       <form onSubmit={handleSearch} className="relative">
                         <input
                           type="text"
@@ -519,12 +554,12 @@ export default function Header() {
                           }}
                           onKeyDown={handleKeyDown}
                           placeholder="Search products..."
-                          className="w-full pl-4 pr-12 py-3 text-sm rounded-lg border border-heritage-200 focus:outline-none focus:ring-2 focus:ring-accent-500 bg-white"
+                          className="w-full pl-4 pr-12 py-3 text-sm rounded-lg border border-dark-border-primary focus:outline-none focus:ring-2 focus:ring-accent-500 bg-dark-bg-secondary text-dark-text-primary placeholder-dark-text-muted"
                           suppressHydrationWarning
                           autoFocus
                         />
                         <button type="submit" className="absolute right-4 top-1/2 -translate-y-1/2">
-                          <FiSearch className="w-4 h-4 text-text-muted hover:text-accent-600 transition-colors" />
+                          <FiSearch className="w-4 h-4 text-dark-text-muted hover:text-accent-500 transition-colors" />
                         </button>
                       </form>
                     </div>
@@ -535,17 +570,17 @@ export default function Header() {
                         // Enhanced loading skeleton for mobile
                         <div className="p-2">
                           {[...Array(4)].map((_, index) => (
-                            <div key={`mobile-skeleton-${index}`} className="p-4 border-b border-gray-100 last:border-b-0">
+                            <div key={`mobile-skeleton-${index}`} className="p-4 border-b border-dark-border-primary last:border-b-0">
                               <div className="flex items-center space-x-3">
-                                <div className="relative w-12 h-12 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded overflow-hidden">
-                                  <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+                                <div className="relative w-12 h-12 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
+                                  <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                                 </div>
                                 <div className="flex-1 min-w-0 space-y-2">
-                                  <div className="relative h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded overflow-hidden">
-                                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+                                  <div className="relative h-4 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
+                                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                                   </div>
-                                  <div className="relative h-3 w-20 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded overflow-hidden">
-                                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+                                  <div className="relative h-3 w-20 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
+                                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                                   </div>
                                 </div>
                               </div>
@@ -563,23 +598,28 @@ export default function Header() {
                                 setMobileMenuOpen(false);
                                 setMobileSearchMode(false);
                               }}
-                              className={`w-full text-left p-4 hover:bg-gray-50 border-b border-gray-100 last:border-b-0 transition-colors ${
-                                index === selectedSuggestion ? 'bg-blue-50 border-blue-200' : ''
+                              className={`w-full text-left p-4 hover:bg-dark-bg-hover border-b border-dark-border-primary last:border-b-0 transition-colors ${
+                                index === selectedSuggestion ? 'bg-dark-bg-hover border-accent-500' : ''
                               }`}
                             >
                               <div className="flex items-center space-x-3">
                                 {suggestion.images?.[0]?.url && (
-                                  <img
-                                    src={suggestion.images[0].url}
+                                  <Image
+                                    src={getImagePreset(suggestion.images[0].url, 'thumbnail')}
                                     alt={suggestion.name}
+                                    width={48}
+                                    height={48}
                                     className="w-12 h-12 object-cover rounded"
+                                    quality={80}
+                                    placeholder="blur"
+                                    blurDataURL={getBlurPlaceholder(12, 12)}
                                   />
                                 )}
                                 <div className="flex-1 min-w-0">
-                                  <p className="font-medium text-gray-900 truncate">
+                                  <p className="font-medium text-dark-text-primary truncate">
                                     {highlightText(suggestion.name, search)}
                                   </p>
-                                  <p className="text-sm text-gray-500">
+                                  <p className="text-sm text-dark-text-muted">
                                     {suggestion.price === 0 ? (
                                       <span className="text-orange-600 font-semibold">Negotiable</span>
                                     ) : (
@@ -600,7 +640,7 @@ export default function Header() {
                                 setMobileSearchMode(false);
                                 setSearch("");
                               }}
-                              className="w-full text-left p-4 hover:bg-gray-50 border-t border-gray-200 text-blue-600 font-medium"
+                              className="w-full text-left p-4 hover:bg-dark-bg-hover border-t border-dark-border-primary text-accent-500 font-medium"
                             >
                               <div className="flex items-center space-x-2">
                                 <FiSearch className="w-4 h-4" />
@@ -613,24 +653,24 @@ export default function Header() {
                         <div className="flex flex-col h-full">
                           {/* No results message */}
                           {search.trim() && searchSuggestions.length === 0 && (
-                            <div className="p-8 text-center text-gray-500 flex-1 flex flex-col justify-center">
-                              <FiSearch className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                            <div className="p-8 text-center text-dark-text-muted flex-1 flex flex-col justify-center">
+                              <FiSearch className="w-12 h-12 mx-auto mb-4 text-dark-text-muted" />
                               <p className="mb-1">No products found for "{search}"</p>
-                              <p className="text-sm text-gray-400">Try searching with different keywords</p>
+                              <p className="text-sm text-dark-text-muted">Try searching with different keywords</p>
                             </div>
                           )}
                           
                           {/* Empty state */}
                           {!search.trim() && (
-                            <div className="p-8 text-center text-gray-400 flex-1 flex flex-col justify-center">
-                              <FiSearch className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                            <div className="p-8 text-center text-dark-text-muted flex-1 flex flex-col justify-center">
+                              <FiSearch className="w-12 h-12 mx-auto mb-4 text-dark-text-muted" />
                               <p>Start typing to search products...</p>
-                            </div>
-                          )}
-                          
+                  </div>
+                )}
+
                           {/* Always show "Search for" option at bottom when there's text */}
                           {search.trim() && (
-                            <div className="border-t border-gray-200 p-2">
+                            <div className="border-t border-dark-border-primary p-2">
                               <button
                                 onClick={() => {
                                   router.push(`/products?search=${encodeURIComponent(search.trim())}`);
@@ -638,7 +678,7 @@ export default function Header() {
                                   setMobileSearchMode(false);
                                   setSearch("");
                                 }}
-                                className="w-full text-left p-4 hover:bg-gray-50 text-blue-600 font-medium rounded-lg"
+                                className="w-full text-left p-4 hover:bg-dark-bg-hover text-accent-500 font-medium rounded-lg"
                               >
                                 <div className="flex items-center space-x-2">
                                   <FiSearch className="w-4 h-4" />
@@ -655,7 +695,7 @@ export default function Header() {
                   <nav className="flex-1 p-4 space-y-1">
                   <Link
                     href="/"
-                    className="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-heritage-50 text-sm sm:text-base text-gray-900"
+                    className="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-dark-bg-primary text-sm sm:text-base text-dark-text-primary"
                     onClick={() => {
                       setMobileMenuOpen(false);
                       setMobileSearchMode(false);
@@ -665,7 +705,7 @@ export default function Header() {
                   </Link>
                   <Link
                     href="/categories"
-                    className="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-heritage-50 text-sm sm:text-base text-gray-900"
+                    className="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-dark-bg-primary text-sm sm:text-base text-dark-text-primary"
                     onClick={() => {
                       setMobileMenuOpen(false);
                       setMobileSearchMode(false);
@@ -675,7 +715,7 @@ export default function Header() {
                   </Link>
                   <Link
                     href="/products"
-                    className="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-heritage-50 text-sm sm:text-base text-gray-900"
+                    className="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-dark-bg-primary text-sm sm:text-base text-dark-text-primary"
                     onClick={() => {
                       setMobileMenuOpen(false);
                       setMobileSearchMode(false);
@@ -684,16 +724,16 @@ export default function Header() {
                     Shop
                   </Link>
 
-                  </nav>
+                </nav>
                 )}
 
                 {!mobileSearchMode && (
-                  <div className="p-4 border-t border-heritage-200">
+                  <div className="p-4 border-t border-dark-border-primary">
                   {auth.isAuthenticated ? (
                     <div className="space-y-1">
                       <Link
                         href="/profile"
-                        className="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-heritage-50 text-sm sm:text-base text-gray-900"
+                        className="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-dark-bg-primary text-sm sm:text-base text-dark-text-primary"
                         onClick={() => {
                       setMobileMenuOpen(false);
                       setMobileSearchMode(false);
@@ -703,7 +743,7 @@ export default function Header() {
                       </Link>
                       <Link
                         href="/orders"
-                        className="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-heritage-50 text-sm sm:text-base text-gray-900"
+                        className="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-dark-bg-primary text-sm sm:text-base text-dark-text-primary"
                         onClick={() => {
                       setMobileMenuOpen(false);
                       setMobileSearchMode(false);
@@ -714,7 +754,7 @@ export default function Header() {
                       {auth.user?.role === 'admin' && (
                         <Link
                           href="/admin"
-                          className="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-heritage-50 text-sm sm:text-base text-gray-900"
+                          className="block px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-dark-bg-primary text-sm sm:text-base text-dark-text-primary"
                           onClick={() => {
                       setMobileMenuOpen(false);
                       setMobileSearchMode(false);
@@ -729,7 +769,7 @@ export default function Header() {
                           setMobileMenuOpen(false);
                           router.push('/');
                         }}
-                        className="block w-full text-left px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-heritage-50 text-sm sm:text-base text-gray-900"
+                        className="block w-full text-left px-3 sm:px-4 py-2 sm:py-3 rounded-lg hover:bg-dark-bg-primary text-sm sm:text-base text-dark-text-primary"
                       >
                         Logout
                       </button>
@@ -737,7 +777,7 @@ export default function Header() {
                   ) : (
                     <Link
                       href="/login"
-                      className="flex items-center justify-center w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg bg-accent-600 text-white text-sm sm:text-base"
+                      className="flex items-center justify-center w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg bg-accent-500 text-white text-sm sm:text-base"
                       onClick={() => {
                       setMobileMenuOpen(false);
                       setMobileSearchMode(false);
@@ -747,7 +787,7 @@ export default function Header() {
                       Login
                     </Link>
                   )}
-                  </div>
+                </div>
                 )}
               </div>
             </motion.div>

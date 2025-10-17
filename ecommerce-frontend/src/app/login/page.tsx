@@ -58,7 +58,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background-light flex items-center justify-center">
+    <div className="min-h-screen bg-dark-bg-primary flex items-center justify-center">
       <div className="container mx-auto px-4 py-8">
         <motion.div 
           initial={{ opacity: 0, y: 40 }}
@@ -69,7 +69,7 @@ export default function LoginPage() {
           {/* Back to home */}
           <Link
             href="/"
-            className="inline-flex items-center text-muted hover:text-primary mb-8 transition-colors"
+            className="inline-flex items-center text-dark-text-secondary hover:text-dark-text-primary mb-8 transition-colors"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Home
@@ -80,26 +80,26 @@ export default function LoginPage() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="bg-card border border-accent rounded-2xl shadow-lg p-8 w-full max-w-md"
+            className="bg-dark-bg-secondary border border-dark-border-primary rounded-2xl shadow-lg p-8 w-full max-w-md"
           >
             <div className="text-center mb-8">
-              <h1 className="text-3xl font-serif font-bold text-primary mb-2">Welcome Back</h1>
-              <p className="text-muted">Sign in to your account</p>
+              <h1 className="text-3xl font-serif font-bold text-dark-text-primary mb-2">Welcome Back</h1>
+              <p className="text-dark-text-secondary">Sign in to your account</p>
             </div>
             
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               {/* Email */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-muted mb-2">
+                <label htmlFor="email" className="block text-sm font-medium text-dark-text-secondary mb-2">
                   Email Address
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted" />
+                  <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-dark-text-secondary" />
                   <input
                     {...register('email')}
                     type="email"
                     id="email"
-                    className="w-full pl-12 pr-4 py-4 border border-accent rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
+                    className="w-full pl-12 pr-4 py-4 border border-dark-border-primary rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent bg-dark-bg-secondary text-dark-text-primary placeholder-dark-text-secondary"
                     placeholder="Enter your email"
                   />
                 </div>
@@ -110,22 +110,22 @@ export default function LoginPage() {
 
               {/* Password */}
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-muted mb-2">
+                <label htmlFor="password" className="block text-sm font-medium text-dark-text-secondary mb-2">
                   Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted" />
+                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-dark-text-secondary" />
                   <input
                     {...register('password')}
                     type={showPassword ? 'text' : 'password'}
                     id="password"
-                    className="w-full pl-12 pr-12 py-4 border border-accent rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
+                    className="w-full pl-12 pr-12 py-4 border border-dark-border-primary rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent bg-dark-bg-secondary text-dark-text-primary placeholder-dark-text-secondary"
                     placeholder="Enter your password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-muted hover:text-primary transition-colors"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-dark-text-secondary hover:text-dark-text-primary transition-colors"
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
@@ -139,7 +139,7 @@ export default function LoginPage() {
               <div className="flex items-center justify-end">
                 <Link
                   href="/forgot-password"
-                  className="text-sm text-primary hover:text-accent transition-colors"
+                  className="text-sm text-dark-text-primary hover:text-primary-500 transition-colors"
                 >
                   Forgot your password?
                 </Link>
@@ -149,7 +149,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="bg-primary-600 text-white hover:bg-primary-700 font-semibold rounded-xl px-6 py-4 transition-colors w-full mt-6 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg border border-primary-700"
+                className="bg-accent-500 text-white hover:bg-accent-600 font-semibold rounded-xl px-6 py-4 transition-colors w-full mt-6 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg border border-accent-600"
               >
                 {isLoading ? (
                   <div className="flex items-center justify-center">
@@ -164,16 +164,16 @@ export default function LoginPage() {
 
             {/* Divider */}
             <div className="my-8 flex items-center">
-              <div className="flex-1 border-t border-accent"></div>
-              <span className="px-4 text-sm text-muted">or</span>
-              <div className="flex-1 border-t border-accent"></div>
+              <div className="flex-1 border-t border-dark-border-primary"></div>
+              <span className="px-4 text-sm text-dark-text-secondary">or</span>
+              <div className="flex-1 border-t border-dark-border-primary"></div>
             </div>
 
             {/* Register Link */}
             <div className="text-center">
-              <p className="text-muted">
+              <p className="text-dark-text-secondary">
                 Don&apos;t have an account?{' '}
-                <Link href="/register" className="text-primary hover:text-accent font-semibold transition-colors">
+                <Link href="/register" className="text-dark-text-primary hover:text-primary-500 font-semibold transition-colors">
                   Sign up
                 </Link>
               </p>

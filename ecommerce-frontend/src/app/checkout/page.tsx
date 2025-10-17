@@ -132,18 +132,18 @@ export default function CheckoutPage() {
 
   if (cart.items.length === 0) {
     return (
-      <div className="min-h-screen bg-background-light flex items-center justify-center">
+      <div className="min-h-screen bg-dark-bg-accent-500 flex items-center justify-center">
         <motion.div 
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="text-center"
         >
-          <h1 className="text-3xl font-serif font-bold text-primary mb-4">Your Cart is Empty</h1>
-          <p className="text-muted text-lg mb-6">Please add items to your cart before checkout.</p>
+          <h1 className="text-3xl font-serif font-bold text-dark-text-primary mb-4">Your Cart is Empty</h1>
+          <p className="text-dark-text-secondary text-lg mb-6">Please add items to your cart before checkout.</p>
           <Link
             href="/products"
-            className="bg-primary text-white px-8 py-3 rounded-xl hover:bg-accent transition-colors font-semibold"
+            className="bg-accent-500 text-white px-8 py-3 rounded-xl hover:bg-primary-500 transition-colors font-semibold"
           >
             Continue Shopping
           </Link>
@@ -153,7 +153,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background-light">
+    <div className="min-h-screen bg-dark-bg-accent-500">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <motion.div 
@@ -163,11 +163,11 @@ export default function CheckoutPage() {
         >
           <Link
             href="/cart"
-            className="text-muted hover:text-primary mr-4 transition-colors"
+            className="text-dark-text-secondary hover:text-dark-text-primary mr-4 transition-colors"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
-          <h1 className="text-4xl font-serif font-bold text-primary">Checkout</h1>
+          <h1 className="text-4xl font-serif font-bold text-dark-text-primary">Checkout</h1>
         </motion.div>
 
         <div className="grid lg:grid-cols-2 gap-10">
@@ -178,21 +178,21 @@ export default function CheckoutPage() {
             transition={{ duration: 0.6 }}
             className="lg:col-span-1"
           >
-            <div className="bg-card border border-accent rounded-2xl shadow-lg p-8">
-              <h2 className="text-2xl font-serif font-bold text-primary mb-8">Shipping Information</h2>
+            <div className="bg-dark-bg-secondary border border-dark-border-primary rounded-2xl shadow-lg p-8">
+              <h2 className="text-2xl font-serif font-bold text-dark-text-primary mb-8">Shipping Information</h2>
               
               {/* Profile Data Notice */}
               {auth.isAuthenticated && auth.user && (
                 <motion.div 
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mb-6 p-4 bg-primary/5 border border-primary/20 rounded-xl"
+                  className="mb-6 p-4 bg-accent-500/5 border border-primary/20 rounded-xl"
                 >
                   <div className="flex items-center gap-2 mb-2">
-                    <User className="h-5 w-5 text-primary" />
-                    <span className="text-sm font-semibold text-primary">Profile Data</span>
+                    <User className="h-5 w-5 text-dark-text-primary" />
+                    <span className="text-sm font-semibold text-dark-text-primary">Profile Data</span>
                   </div>
-                  <p className="text-sm text-muted">
+                  <p className="text-sm text-dark-text-secondary">
                     Your profile information has been automatically filled in. You can edit any field as needed.
                   </p>
                 </motion.div>
@@ -202,23 +202,23 @@ export default function CheckoutPage() {
                 {/* Personal Information */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="fullName" className="block text-sm font-medium text-muted mb-2">
+                    <label htmlFor="fullName" className="block text-sm font-medium text-dark-text-secondary mb-2">
                       Full Name *
                     </label>
                     <div className="relative">
-                      <User className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted" />
+                      <User className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-dark-text-secondary" />
                       <input
                         {...register('fullName')}
                         type="text"
                         id="fullName"
-                        className={`w-full pl-12 pr-4 py-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted ${
-                          isAutoFilled('fullName') ? 'border-primary/30 bg-primary/5' : 'border-accent'
+                        className={`w-full pl-12 pr-4 py-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent bg-card text-dark-text-primary placeholder-muted ${
+                          isAutoFilled('fullName') ? 'border-primary/30 bg-accent-500/5' : 'border-dark-border-primary'
                         }`}
                         placeholder="Enter your full name"
                       />
                       {isAutoFilled('fullName') && (
                         <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                          <span className="text-xs bg-primary text-white px-2 py-1 rounded-full">Auto-filled</span>
+                          <span className="text-xs bg-accent-500 text-white px-2 py-1 rounded-full">Auto-filled</span>
                         </div>
                       )}
                     </div>
@@ -228,23 +228,23 @@ export default function CheckoutPage() {
                   </div>
 
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-muted mb-2">
+                    <label htmlFor="email" className="block text-sm font-medium text-dark-text-secondary mb-2">
                       Email Address *
                     </label>
                     <div className="relative">
-                      <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted" />
+                      <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-dark-text-secondary" />
                       <input
                         {...register('email')}
                         type="email"
                         id="email"
-                        className={`w-full pl-12 pr-4 py-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted ${
-                          isAutoFilled('email') ? 'border-primary/30 bg-primary/5' : 'border-accent'
+                        className={`w-full pl-12 pr-4 py-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent bg-card text-dark-text-primary placeholder-muted ${
+                          isAutoFilled('email') ? 'border-primary/30 bg-accent-500/5' : 'border-dark-border-primary'
                         }`}
                         placeholder="Enter your email"
                       />
                       {isAutoFilled('email') && (
                         <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                          <span className="text-xs bg-primary text-white px-2 py-1 rounded-full">Auto-filled</span>
+                          <span className="text-xs bg-accent-500 text-white px-2 py-1 rounded-full">Auto-filled</span>
                         </div>
                       )}
                     </div>
@@ -255,23 +255,23 @@ export default function CheckoutPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-muted mb-2">
+                  <label htmlFor="phone" className="block text-sm font-medium text-dark-text-secondary mb-2">
                     Phone Number *
                   </label>
                   <div className="relative">
-                    <Phone className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted" />
+                    <Phone className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-dark-text-secondary" />
                     <input
                       {...register('phone')}
                       type="tel"
                       id="phone"
-                      className={`w-full pl-12 pr-4 py-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted ${
-                        isAutoFilled('phone') ? 'border-primary/30 bg-primary/5' : 'border-accent'
+                      className={`w-full pl-12 pr-4 py-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent bg-card text-dark-text-primary placeholder-muted ${
+                        isAutoFilled('phone') ? 'border-primary/30 bg-accent-500/5' : 'border-dark-border-primary'
                       }`}
                       placeholder="Enter your phone number"
                     />
                     {isAutoFilled('phone') && (
                       <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                        <span className="text-xs bg-primary text-white px-2 py-1 rounded-full">Auto-filled</span>
+                        <span className="text-xs bg-accent-500 text-white px-2 py-1 rounded-full">Auto-filled</span>
                       </div>
                     )}
                   </div>
@@ -282,23 +282,23 @@ export default function CheckoutPage() {
 
                 {/* Address */}
                 <div>
-                  <label htmlFor="address" className="block text-sm font-medium text-muted mb-2">
+                  <label htmlFor="address" className="block text-sm font-medium text-dark-text-secondary mb-2">
                     Street Address *
                   </label>
                   <div className="relative">
-                    <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted" />
+                    <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-dark-text-secondary" />
                     <input
                       {...register('address')}
                       type="text"
                       id="address"
-                      className={`w-full pl-12 pr-4 py-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted ${
-                        isAutoFilled('address') ? 'border-primary/30 bg-primary/5' : 'border-accent'
+                      className={`w-full pl-12 pr-4 py-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent bg-card text-dark-text-primary placeholder-muted ${
+                        isAutoFilled('address') ? 'border-primary/30 bg-accent-500/5' : 'border-dark-border-primary'
                       }`}
                       placeholder="Enter your street address"
                     />
                     {isAutoFilled('address') && (
                       <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                        <span className="text-xs bg-primary text-white px-2 py-1 rounded-full">Auto-filled</span>
+                        <span className="text-xs bg-accent-500 text-white px-2 py-1 rounded-full">Auto-filled</span>
                       </div>
                     )}
                   </div>
@@ -309,21 +309,21 @@ export default function CheckoutPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
-                    <label htmlFor="city" className="block text-sm font-medium text-muted mb-2">
+                    <label htmlFor="city" className="block text-sm font-medium text-dark-text-secondary mb-2">
                       City *
                     </label>
                     <input
                       {...register('city')}
                       type="text"
                       id="city"
-                      className={`w-full px-4 py-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted ${
-                        isAutoFilled('city') ? 'border-primary/30 bg-primary/5' : 'border-accent'
+                      className={`w-full px-4 py-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent bg-card text-dark-text-primary placeholder-muted ${
+                        isAutoFilled('city') ? 'border-primary/30 bg-accent-500/5' : 'border-dark-border-primary'
                       }`}
                       placeholder="City"
                     />
                     {isAutoFilled('city') && (
                       <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                        <span className="text-xs bg-primary text-white px-2 py-1 rounded-full">Auto-filled</span>
+                        <span className="text-xs bg-accent-500 text-white px-2 py-1 rounded-full">Auto-filled</span>
                       </div>
                     )}
                     {errors.city && (
@@ -332,21 +332,21 @@ export default function CheckoutPage() {
                   </div>
 
                   <div>
-                    <label htmlFor="state" className="block text-sm font-medium text-muted mb-2">
+                    <label htmlFor="state" className="block text-sm font-medium text-dark-text-secondary mb-2">
                       State *
                     </label>
                     <input
                       {...register('state')}
                       type="text"
                       id="state"
-                      className={`w-full px-4 py-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted ${
-                        isAutoFilled('state') ? 'border-primary/30 bg-primary/5' : 'border-accent'
+                      className={`w-full px-4 py-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent bg-card text-dark-text-primary placeholder-muted ${
+                        isAutoFilled('state') ? 'border-primary/30 bg-accent-500/5' : 'border-dark-border-primary'
                       }`}
                       placeholder="State"
                     />
                     {isAutoFilled('state') && (
                       <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                        <span className="text-xs bg-primary text-white px-2 py-1 rounded-full">Auto-filled</span>
+                        <span className="text-xs bg-accent-500 text-white px-2 py-1 rounded-full">Auto-filled</span>
                       </div>
                     )}
                     {errors.state && (
@@ -355,21 +355,21 @@ export default function CheckoutPage() {
                   </div>
 
                   <div>
-                    <label htmlFor="postalCode" className="block text-sm font-medium text-muted mb-2">
+                    <label htmlFor="postalCode" className="block text-sm font-medium text-dark-text-secondary mb-2">
                       Postal Code *
                     </label>
                     <input
                       {...register('postalCode')}
                       type="text"
                       id="postalCode"
-                      className={`w-full px-4 py-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted ${
-                        isAutoFilled('postalCode') ? 'border-primary/30 bg-primary/5' : 'border-accent'
+                      className={`w-full px-4 py-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent bg-card text-dark-text-primary placeholder-muted ${
+                        isAutoFilled('postalCode') ? 'border-primary/30 bg-accent-500/5' : 'border-dark-border-primary'
                       }`}
                       placeholder="Postal Code"
                     />
                     {isAutoFilled('postalCode') && (
                       <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                        <span className="text-xs bg-primary text-white px-2 py-1 rounded-full">Auto-filled</span>
+                        <span className="text-xs bg-accent-500 text-white px-2 py-1 rounded-full">Auto-filled</span>
                       </div>
                     )}
                     {errors.postalCode && (
@@ -379,21 +379,21 @@ export default function CheckoutPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="country" className="block text-sm font-medium text-muted mb-2">
+                  <label htmlFor="country" className="block text-sm font-medium text-dark-text-secondary mb-2">
                     Country *
                   </label>
                   <input
                     {...register('country')}
                     type="text"
                     id="country"
-                    className={`w-full px-4 py-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted ${
-                      isAutoFilled('country') ? 'border-primary/30 bg-primary/5' : 'border-accent'
+                    className={`w-full px-4 py-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent bg-card text-dark-text-primary placeholder-muted ${
+                      isAutoFilled('country') ? 'border-primary/30 bg-accent-500/5' : 'border-dark-border-primary'
                     }`}
                     placeholder="Country"
                   />
                   {isAutoFilled('country') && (
                     <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                      <span className="text-xs bg-primary text-white px-2 py-1 rounded-full">Auto-filled</span>
+                      <span className="text-xs bg-accent-500 text-white px-2 py-1 rounded-full">Auto-filled</span>
                     </div>
                   )}
                   {errors.country && (
@@ -402,12 +402,12 @@ export default function CheckoutPage() {
                 </div>
 
                 {/* Negotiation Notice */}
-                <div className="p-6 bg-accent/10 border border-accent rounded-xl">
+                <div className="p-6 bg-accent/10 border border-dark-border-primary rounded-xl">
                   <div className="flex items-center space-x-3 mb-3">
                     <Handshake className="h-6 w-6 text-accent" />
-                    <h3 className="text-lg font-serif font-bold text-primary">Price Negotiation</h3>
+                    <h3 className="text-lg font-serif font-bold text-dark-text-primary">Price Negotiation</h3>
                   </div>
-                  <p className="text-muted text-sm leading-relaxed">
+                  <p className="text-dark-text-secondary text-sm leading-relaxed">
                     All prices are negotiable. After placing your order, our team will contact you within 24 hours to discuss pricing and finalize payment arrangements.
                   </p>
                 </div>
@@ -416,7 +416,7 @@ export default function CheckoutPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-primary text-white py-4 px-8 rounded-xl font-semibold hover:bg-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg"
+                  className="w-full bg-accent-500 text-white py-4 px-8 rounded-xl font-semibold hover:bg-primary-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg"
                 >
                   {isLoading ? (
                     <div className="flex items-center">
@@ -438,8 +438,8 @@ export default function CheckoutPage() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="lg:col-span-1"
           >
-            <div className="bg-card border border-accent rounded-2xl shadow-lg p-8 sticky top-24">
-              <h2 className="text-2xl font-serif font-bold text-primary mb-8">Order Summary</h2>
+            <div className="bg-dark-bg-secondary border border-dark-border-primary rounded-2xl shadow-lg p-8 sticky top-24">
+              <h2 className="text-2xl font-serif font-bold text-dark-text-primary mb-8">Order Summary</h2>
               
               {/* Order Items */}
               <div className="space-y-6 mb-8">
@@ -452,12 +452,12 @@ export default function CheckoutPage() {
                     className="flex items-center justify-between"
                   >
                     <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
-                        <span className="text-sm font-bold text-primary">{item.quantity}</span>
+                      <div className="w-12 h-12 bg-accent-500/10 rounded-xl flex items-center justify-center">
+                        <span className="text-sm font-bold text-dark-text-primary">{item.quantity}</span>
                       </div>
                       <div>
-                        <p className="font-serif font-bold text-primary">{item.product.name}</p>
-                        <p className="text-sm text-muted">Qty: {item.quantity}</p>
+                        <p className="font-serif font-bold text-dark-text-primary">{item.product.name}</p>
+                        <p className="text-sm text-dark-text-secondary">Qty: {item.quantity}</p>
                       </div>
                     </div>
                     <p className="font-serif font-bold text-accent">
@@ -468,37 +468,37 @@ export default function CheckoutPage() {
               </div>
 
               {/* Price Breakdown */}
-              <div className="space-y-4 border-t border-accent pt-6">
+              <div className="space-y-4 border-t border-dark-border-primary pt-6">
                 <div className="flex justify-between">
-                  <span className="text-muted font-medium">Subtotal ({cart.totalItems} items)</span>
+                  <span className="text-dark-text-secondary font-medium">Subtotal ({cart.totalItems} items)</span>
                   <span className="font-serif font-bold text-accent">{renderNegotiable()}</span>
                 </div>
                 
                 <div className="flex justify-between">
-                  <span className="text-muted font-medium">Shipping</span>
+                  <span className="text-dark-text-secondary font-medium">Shipping</span>
                   <span className="font-serif font-bold text-green-600">Free</span>
                 </div>
                 
                 <div className="flex justify-between">
-                  <span className="text-muted font-medium">Tax</span>
+                  <span className="text-dark-text-secondary font-medium">Tax</span>
                   <span className="font-serif font-bold text-accent">{renderNegotiable()}</span>
                 </div>
                 
-                <hr className="border-accent" />
+                <hr className="border-dark-border-primary" />
                 
                 <div className="flex justify-between text-xl font-serif font-bold">
-                  <span className="text-primary">Total</span>
+                  <span className="text-dark-text-primary">Total</span>
                   <span className="text-accent">{renderNegotiable()}</span>
                 </div>
               </div>
 
               {/* Shipping Info */}
-              <div className="mt-8 p-6 bg-primary/5 border border-primary/20 rounded-xl">
+              <div className="mt-8 p-6 bg-accent-500/5 border border-primary/20 rounded-xl">
                 <div className="flex items-center space-x-3">
-                  <Truck className="h-6 w-6 text-primary" />
-                  <span className="text-lg font-serif font-bold text-primary">Free Shipping</span>
+                  <Truck className="h-6 w-6 text-dark-text-primary" />
+                  <span className="text-lg font-serif font-bold text-dark-text-primary">Free Shipping</span>
                 </div>
-                <p className="text-muted mt-2 leading-relaxed">
+                <p className="text-dark-text-secondary mt-2 leading-relaxed">
                   All orders include free shipping. Delivery typically takes 3-5 business days.
                 </p>
               </div>

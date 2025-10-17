@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
@@ -51,11 +51,29 @@ export default function RegisterPage() {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
+    trigger,
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
   });
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
+
+  // Effect to trigger email validation when OTP is sent
+  useEffect(() => {
+    if (otpSent && emailRef.current?.value) {
+      setValue('email', emailRef.current.value);
+      trigger('email');
+    }
+  }, [otpSent, setValue, trigger]);
+
+  // Effect to trigger email validation when OTP is verified
+  useEffect(() => {
+    if (otpVerified && emailRef.current?.value) {
+      setValue('email', emailRef.current.value);
+      trigger('email');
+    }
+  }, [otpVerified, setValue, trigger]);
 
   const sendOtp = async (email: string) => {
     setOtpLoading(true);
@@ -65,6 +83,8 @@ export default function RegisterPage() {
       await axios.post(`${API_BASE_URL}/auth/send-otp`, { email });
       setOtpSent(true);
       setOtpSuccess('OTP sent to your email.');
+      // Set the email value in the form
+      setValue('email', email);
       toast.success('OTP sent successfully! Check your email.');
     } catch (err: unknown) {
       const errorMessage = err && typeof err === 'object' && 'response' in err && 
@@ -87,6 +107,8 @@ export default function RegisterPage() {
       await axios.post(`${API_BASE_URL}/auth/verify-otp`, { email, otp });
       setOtpVerified(true);
       setOtpSuccess('Email verified! You can now register.');
+      // Ensure the email value is set in the form after verification
+      setValue('email', email);
       toast.success('Email verified successfully!');
     } catch (err: unknown) {
       const errorMessage = err && typeof err === 'object' && 'response' in err && 
@@ -106,6 +128,7 @@ export default function RegisterPage() {
       toast.error('Please verify your email with OTP before registering.');
       return;
     }
+    
     setIsLoading(true);
     try {
       const response = await authAPI.register({
@@ -135,7 +158,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background-light flex items-center justify-center">
+    <div className="min-h-screen bg-dark-bg-primary flex items-center justify-center">
       {/* Profile Setup Reminder Modal */}
       {showProfileReminder && (
         <motion.div 
@@ -146,12 +169,12 @@ export default function RegisterPage() {
           <motion.div 
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-card border border-accent rounded-2xl shadow-xl p-8 max-w-md w-full text-center"
+            className="bg-dark-bg-secondary border border-dark-border-primary rounded-2xl shadow-xl p-8 max-w-md w-full text-center"
           >
-            <h2 className="text-2xl font-serif font-bold text-primary mb-4">Welcome!</h2>
-            <p className="text-muted mb-6">Registration successful. Don&apos;t forget to set up your profile for a better experience!</p>
+            <h2 className="text-2xl font-serif font-bold text-dark-text-primary mb-4">Welcome!</h2>
+            <p className="text-dark-text-secondary mb-6">Registration successful. Don&apos;t forget to set up your profile for a better experience!</p>
             <button
-              className="bg-primary-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-primary-700 transition-colors shadow-lg border border-primary-700"
+              className="bg-accent-500 text-white px-8 py-3 rounded-xl font-semibold hover:bg-primary-500 transition-colors shadow-lg border border-accent-600"
               onClick={() => { setShowProfileReminder(false); router.push('/products'); }}
             >
               Go to Products
@@ -170,7 +193,7 @@ export default function RegisterPage() {
           {/* Back to home */}
           <Link
             href="/"
-            className="inline-flex items-center text-muted hover:text-primary mb-8 transition-colors"
+            className="inline-flex items-center text-dark-text-secondary hover:text-dark-text-primary mb-8 transition-colors"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Home
@@ -181,26 +204,26 @@ export default function RegisterPage() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="bg-card border border-accent rounded-2xl shadow-lg p-10 w-full max-w-2xl"
+            className="bg-dark-bg-secondary border border-dark-border-primary rounded-2xl shadow-lg p-10 w-full max-w-2xl"
           >
             <div className="text-center mb-8">
-              <h1 className="text-3xl font-serif font-bold text-primary mb-2">Create Account</h1>
-              <p className="text-muted">Join our community today</p>
+              <h1 className="text-3xl font-serif font-bold text-dark-text-primary mb-2">Create Account</h1>
+              <p className="text-dark-text-secondary">Join our community today</p>
             </div>
             
             <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Name */}
               <div className="col-span-1">
-                <label htmlFor="name" className="block text-sm font-medium text-muted mb-2">
+                <label htmlFor="name" className="block text-sm font-medium text-dark-text-secondary mb-2">
                   Full Name
                 </label>
                 <div className="relative">
-                  <User className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted" />
+                  <User className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-dark-text-secondary" />
                   <input
                     {...register('name')}
                     type="text"
                     id="name"
-                    className="w-full pl-12 pr-4 py-4 border border-accent rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
+                    className="w-full pl-12 pr-4 py-4 border border-dark-border-primary rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent bg-dark-bg-secondary text-dark-text-primary placeholder-dark-text-secondary"
                     placeholder="Enter your full name"
                   />
                 </div>
@@ -211,26 +234,26 @@ export default function RegisterPage() {
 
               {/* Email */}
               <div className="col-span-1 md:col-span-2">
-                <label htmlFor="email" className="block text-sm font-medium text-muted mb-2">
+                <label htmlFor="email" className="block text-sm font-medium text-dark-text-secondary mb-2">
                   Email Address
                 </label>
                 <div className="flex gap-3 items-center">
                   <div className="relative flex-1">
-                    <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted" />
+                    <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-dark-text-secondary" />
                     <input
                       {...register('email')}
                       type="email"
                       id="email"
                       ref={emailRef}
-                      className="w-full pl-12 pr-4 py-4 border border-accent rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
+                      className="w-full pl-12 pr-4 py-4 border border-dark-border-primary rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent bg-dark-bg-secondary text-dark-text-primary placeholder-dark-text-secondary"
                       placeholder="Enter your email"
-                      disabled={otpSent || otpVerified}
+                      readOnly={otpSent || otpVerified}
                     />
                   </div>
                   <button
                     type="button"
                     onClick={() => sendOtp(emailRef.current?.value || '')}
-                    className="bg-primary-600 text-white font-semibold rounded-xl px-6 py-4 transition-colors disabled:opacity-50 shadow-lg hover:bg-primary-700 border border-primary-700"
+                    className="bg-accent-500 text-white font-semibold rounded-xl px-6 py-4 transition-colors disabled:opacity-50 shadow-lg hover:bg-primary-500 border border-accent-600"
                     disabled={otpLoading || otpSent || otpVerified}
                   >
                     {otpLoading ? 'Sending...' : otpSent ? 'OTP Sent' : 'Send OTP'}
@@ -246,7 +269,7 @@ export default function RegisterPage() {
               {/* OTP Field */}
               <div className="col-span-1 md:col-span-2 flex gap-3 items-end">
                 <div className="flex-1">
-                  <label htmlFor="otp" className="block text-sm font-medium text-muted mb-2">
+                  <label htmlFor="otp" className="block text-sm font-medium text-dark-text-secondary mb-2">
                     Enter OTP
                   </label>
                   <input
@@ -254,7 +277,7 @@ export default function RegisterPage() {
                     id="otp"
                     value={otp}
                     onChange={e => setOtp(e.target.value)}
-                    className="w-full px-4 py-4 border border-accent rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
+                    className="w-full px-4 py-4 border border-dark-border-primary rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent bg-dark-bg-secondary text-dark-text-primary placeholder-dark-text-secondary"
                     placeholder="Enter the OTP sent to your email"
                     maxLength={6}
                     disabled={!otpSent || otpVerified}
@@ -272,22 +295,22 @@ export default function RegisterPage() {
 
               {/* Password */}
               <div className="col-span-1">
-                <label htmlFor="password" className="block text-sm font-medium text-muted mb-2">
+                <label htmlFor="password" className="block text-sm font-medium text-dark-text-secondary mb-2">
                   Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted" />
+                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-dark-text-secondary" />
                   <input
                     {...register('password')}
                     type={showPassword ? 'text' : 'password'}
                     id="password"
-                    className="w-full pl-12 pr-12 py-4 border border-accent rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
+                    className="w-full pl-12 pr-12 py-4 border border-dark-border-primary rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent bg-dark-bg-secondary text-dark-text-primary placeholder-dark-text-secondary"
                     placeholder="Create a password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-muted hover:text-primary transition-colors"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-dark-text-secondary hover:text-dark-text-primary transition-colors"
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
@@ -299,22 +322,22 @@ export default function RegisterPage() {
 
               {/* Confirm Password */}
               <div className="col-span-1">
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-muted mb-2">
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-dark-text-secondary mb-2">
                   Confirm Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted" />
+                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-dark-text-secondary" />
                   <input
                     {...register('confirmPassword')}
                     type={showConfirmPassword ? 'text' : 'password'}
                     id="confirmPassword"
-                    className="w-full pl-12 pr-12 py-4 border border-accent rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-card text-primary placeholder-muted"
+                    className="w-full pl-12 pr-12 py-4 border border-dark-border-primary rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent bg-dark-bg-secondary text-dark-text-primary placeholder-dark-text-secondary"
                     placeholder="Confirm your password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-muted hover:text-primary transition-colors"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-dark-text-secondary hover:text-dark-text-primary transition-colors"
                   >
                     {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
@@ -329,16 +352,16 @@ export default function RegisterPage() {
                 <input
                   type="checkbox"
                   id="terms"
-                  className="mt-1 h-4 w-4 text-primary focus:ring-accent border-accent rounded"
+                  className="mt-1 h-4 w-4 text-dark-text-primary focus:ring-accent-500 border-dark-border-primary rounded"
                   required
                 />
-                <label htmlFor="terms" className="ml-3 text-sm text-muted">
+                <label htmlFor="terms" className="ml-3 text-sm text-dark-text-secondary">
                   I agree to the{' '}
-                  <Link href="/terms" className="text-primary hover:text-accent transition-colors">
+                  <Link href="/terms" className="text-dark-text-primary hover:text-accent transition-colors">
                     Terms of Service
                   </Link>{' '}
                   and{' '}
-                  <Link href="/privacy" className="text-primary hover:text-accent transition-colors">
+                  <Link href="/privacy" className="text-dark-text-primary hover:text-accent transition-colors">
                     Privacy Policy
                   </Link>
                 </label>
@@ -349,7 +372,7 @@ export default function RegisterPage() {
                 <button
                   type="submit"
                   disabled={isLoading || !otpVerified}
-                  className="bg-accent-600 text-white hover:bg-accent-700 font-semibold rounded-xl px-6 py-4 transition-colors w-full mt-6 disabled:opacity-50 shadow-lg border border-accent-700"
+                  className="bg-primary-500 text-white hover:bg-primary-600 font-semibold rounded-xl px-6 py-4 transition-colors w-full mt-6 disabled:opacity-50 shadow-lg border border-dark-border-accent-600"
                 >
                   {isLoading ? (
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mx-auto"></div>
@@ -361,22 +384,22 @@ export default function RegisterPage() {
             </form>
 
             {/* Disclaimer for contact info update */}
-            <div className="mt-8 p-6 bg-accent/10 border border-accent rounded-xl">
-              <strong className="text-primary">Important:</strong> After creating your account, please update your contact information (address and mobile number) in your profile. This is required for order delivery and communication.
+            <div className="mt-8 p-6 bg-accent/10 border border-dark-border-primary rounded-xl">
+              <strong className="text-dark-text-primary">Important:</strong> After creating your account, please update your contact information (address and mobile number) in your profile. This is required for order delivery and communication.
             </div>
 
             {/* Divider */}
             <div className="my-8 flex items-center">
-              <div className="flex-1 border-t border-accent"></div>
-              <span className="px-4 text-sm text-muted">or</span>
-              <div className="flex-1 border-t border-accent"></div>
+              <div className="flex-1 border-t border-dark-border-primary"></div>
+              <span className="px-4 text-sm text-dark-text-secondary">or</span>
+              <div className="flex-1 border-t border-dark-border-primary"></div>
             </div>
 
             {/* Login Link */}
             <div className="text-center">
-              <p className="text-muted">
+              <p className="text-dark-text-secondary">
                 Already have an account?{' '}
-                <Link href="/login" className="text-primary hover:text-accent font-semibold transition-colors">
+                <Link href="/login" className="text-dark-text-primary hover:text-accent font-semibold transition-colors">
                   Sign in
                 </Link>
               </p>

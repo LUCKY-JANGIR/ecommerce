@@ -1,104 +1,16 @@
+/**
+ * Hastkari Global State Store
+ * Manages authentication and shopping cart using Zustand
+ * Persists data to localStorage for session continuity
+ */
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { User, Product, CartItem } from '@/types';
 
-
-export interface User {
-  _id: string;
-  name: string;
-  email: string;
-  role: 'user' | 'admin';
-  phone?: string;
-  address?: {
-    street: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    country: string;
-  };
-  avatar?: string;
-  isEmailVerified?: boolean;
-}
-
-export interface Product {
-  _id: string;
-  name: string;
-  description: string;
-  price: number;
-  category: string | { _id: string; name: string };
-  subcategory?: string;
-  brand?: string;
-  sku: string;
-  images: Array<{
-    url: string;
-    alt?: string;
-  }>;
-  stock: number;
-  averageRating: number;
-  numReviews: number;
-  reviews: Review[];
-  specifications: Array<{
-    name: string;
-    value: string;
-  }>;
-  tags: string[];
-  isFeatured: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Review {
-  _id: string;
-  user: {
-    _id: string;
-    name: string;
-  };
-  rating: number;
-  comment: string;
-  createdAt: string;
-}
-
-export interface CartItem {
-  product: Product;
-  quantity: number;
-}
-
-export interface Order {
-  _id: string;
-  user: string;
-  orderItems: {
-    product: Product;
-    quantity: number;
-    price: number;
-  }[];
-  shippingAddress: {
-    fullName: string;
-    address: string;
-    city: string;
-    postalCode: string;
-    country: string;
-    phone: string;
-  };
-  paymentMethod: string;
-  paymentResult?: {
-    id: string;
-    status: string;
-    update_time: string;
-    email_address: string;
-  };
-  itemsPrice: number;
-  taxPrice: number;
-  shippingPrice: number;
-  totalPrice: number;
-  isPaid: boolean;
-  paidAt?: string;
-  isDelivered: boolean;
-  deliveredAt?: string;
-  orderStatus: 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled' | 'Refunded';
-  trackingNumber?: string;
-  notes?: string;
-  estimatedDelivery?: string;
-  createdAt: string;
-}
+// ============================================================================
+// INTERNAL STATE INTERFACES
+// ============================================================================
 
 interface AuthState {
   user: User | null;
@@ -131,17 +43,38 @@ interface AppState {
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
 
-  // Hydration
+  // Hydration (for SSR)
   hydrated: boolean;
   setHydrated: (hydrated: boolean) => void;
-
-
 }
+
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
+/**
+ * Calculate cart totals from items array
+ */
+const calculateCartTotals = (items: CartItem[]) => {
+  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+  const totalPrice = items.reduce(
+    (sum, item) => sum + item.product.price * item.quantity,
+    0
+  );
+  return { totalItems, totalPrice };
+};
+
+// ============================================================================
+// ZUSTAND STORE
+// ============================================================================
 
 export const useStore = create<AppState>()(
   persist(
     (set) => ({
-      // Auth state
+      // ========================================================================
+      // AUTH STATE & ACTIONS
+      // ========================================================================
+      
       auth: {
         user: null,
         token: null,
@@ -149,7 +82,10 @@ export const useStore = create<AppState>()(
         loading: false,
       },
       
-      login: async (user: User, token: string) => {
+      /**
+       * Login user and store token
+       */
+      login: (user: User, token: string) => {
         set((state) => ({
           auth: {
             ...state.auth,
@@ -159,13 +95,14 @@ export const useStore = create<AppState>()(
             loading: false,
           },
         }));
-
       },
       
-      logout: () =>
-        set((state) => ({
+      /**
+       * Logout user and clear all data
+       */
+      logout: () => {
+        set({
           auth: {
-            ...state.auth,
             user: null,
             token: null,
             isAuthenticated: false,
@@ -176,45 +113,55 @@ export const useStore = create<AppState>()(
             totalItems: 0,
             totalPrice: 0,
           },
-        })),
+        });
+      },
       
-      setLoading: (loading: boolean) =>
+      /**
+       * Set auth loading state
+       */
+      setLoading: (loading: boolean) => {
         set((state) => ({
           auth: {
             ...state.auth,
             loading,
           },
-        })),
+        }));
+      },
       
-      // Cart state
+      // ========================================================================
+      // CART STATE & ACTIONS
+      // ========================================================================
+      
       cart: {
         items: [],
         totalItems: 0,
         totalPrice: 0,
       },
       
-      addToCart: (product: Product, quantity = 1) =>
+      /**
+       * Add product to cart or increment quantity if already exists
+       */
+      addToCart: (product: Product, quantity = 1) => {
         set((state) => {
           const existingItem = state.cart.items.find(
             (item) => item.product._id === product._id
           );
           
           let newItems: CartItem[];
+          
           if (existingItem) {
+            // Increment quantity for existing item
             newItems = state.cart.items.map((item) =>
               item.product._id === product._id
                 ? { ...item, quantity: item.quantity + quantity }
                 : item
             );
           } else {
+            // Add new item to cart
             newItems = [...state.cart.items, { product, quantity }];
           }
           
-          const totalItems = newItems.reduce((sum, item) => sum + item.quantity, 0);
-          const totalPrice = newItems.reduce(
-            (sum, item) => sum + item.product.price * item.quantity,
-            0
-          );
+          const { totalItems, totalPrice } = calculateCartTotals(newItems);
           
           return {
             cart: {
@@ -223,18 +170,19 @@ export const useStore = create<AppState>()(
               totalPrice,
             },
           };
-        }),
+        });
+      },
       
-      removeFromCart: (productId: string) =>
+      /**
+       * Remove product from cart completely
+       */
+      removeFromCart: (productId: string) => {
         set((state) => {
           const newItems = state.cart.items.filter(
             (item) => item.product._id !== productId
           );
-          const totalItems = newItems.reduce((sum, item) => sum + item.quantity, 0);
-          const totalPrice = newItems.reduce(
-            (sum, item) => sum + item.product.price * item.quantity,
-            0
-          );
+          
+          const { totalItems, totalPrice } = calculateCartTotals(newItems);
           
           return {
             cart: {
@@ -243,18 +191,19 @@ export const useStore = create<AppState>()(
               totalPrice,
             },
           };
-        }),
+        });
+      },
       
-      updateCartItemQuantity: (productId: string, quantity: number) =>
+      /**
+       * Update quantity of a specific cart item
+       */
+      updateCartItemQuantity: (productId: string, quantity: number) => {
         set((state) => {
           const newItems = state.cart.items.map((item) =>
             item.product._id === productId ? { ...item, quantity } : item
           );
-          const totalItems = newItems.reduce((sum, item) => sum + item.quantity, 0);
-          const totalPrice = newItems.reduce(
-            (sum, item) => sum + item.product.price * item.quantity,
-            0
-          );
+          
+          const { totalItems, totalPrice } = calculateCartTotals(newItems);
           
           return {
             cart: {
@@ -263,38 +212,56 @@ export const useStore = create<AppState>()(
               totalPrice,
             },
           };
-        }),
+        });
+      },
       
-      clearCart: () =>
+      /**
+       * Clear all items from cart
+       */
+      clearCart: () => {
         set({
           cart: {
             items: [],
             totalItems: 0,
             totalPrice: 0,
           },
-        }),
+        });
+      },
       
-      // UI state
+      // ========================================================================
+      // UI STATE & ACTIONS
+      // ========================================================================
+      
       sidebarOpen: false,
+      
       setSidebarOpen: (open: boolean) => set({ sidebarOpen: open }),
-
-      // Hydration
+      
+      // ========================================================================
+      // HYDRATION (for SSR)
+      // ========================================================================
+      
       hydrated: false,
+      
       setHydrated: (hydrated: boolean) => set({ hydrated }),
-
-
     }),
     {
-      name: 'ecommerce-store',
+      name: 'hastkari-store', // localStorage key
       partialize: (state) => ({
+        // Only persist auth and cart, not UI state
         auth: {
           user: state.auth.user,
           token: state.auth.token,
           isAuthenticated: state.auth.isAuthenticated,
         },
         cart: state.cart,
-
       }),
     }
   )
-); 
+);
+
+// ============================================================================
+// EXPORTS
+// ============================================================================
+
+// Re-export types for convenience
+export type { User, Product, CartItem } from '@/types';

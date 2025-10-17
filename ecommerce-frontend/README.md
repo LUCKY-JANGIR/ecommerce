@@ -1,188 +1,232 @@
-# ShopEase - Ecommerce Frontend
+# 🛍️ Hastkari - Authentic Indian Handloom Ecommerce
 
-A modern, responsive ecommerce frontend built with Next.js 15, TypeScript, and Tailwind CSS.
+A modern, full-featured ecommerce platform celebrating authentic Indian handlooms and traditional crafts. Built with Next.js 14, TypeScript, and a focus on performance and user experience.
 
-## 🚀 Features
+## 🌟 Features
 
-### ✅ **FREE TOOLS USED (No Payment Required):**
-- **Next.js 15** - React framework with App Router
-- **TypeScript** - Type safety and better development experience
-- **Tailwind CSS** - Utility-first CSS framework
-- **Zustand** - Lightweight state management
-- **React Hook Form** - Form handling with validation
-- **Zod** - Schema validation
-- **Axios** - HTTP client for API communication
-- **Lucide React** - Beautiful icons
-- **React Hot Toast** - Toast notifications
+- **🎨 Beautiful Dark Theme**: Carefully crafted brand identity with Indian craft-inspired colors
+- **🔐 Authentication**: Secure user authentication with JWT tokens
+- **🛒 Shopping Cart**: Persistent cart with real-time updates
+- **📦 Product Management**: Browse, search, and filter products
+- **⭐ Reviews & Ratings**: Customer reviews for products and platform
+- **👤 User Profiles**: Manage account details and order history
+- **💳 Checkout Flow**: Streamlined checkout process
+- **📱 Responsive Design**: Mobile-first, works on all devices
+- **⚡ Performance Optimized**: Image optimization, lazy loading, code splitting
+- **♿ Accessible**: WCAG compliant with proper ARIA labels
 
-### ⚠️ **PAID TOOLS SKIPPED (Will Use Alternatives):**
-- **Stripe/PayPal** - Payment processing (using mock payment)
-- **AWS S3** - File storage (using local storage)
-- **SendGrid** - Email services (using console logs)
-- **Analytics tools** - Using basic console tracking
+## 🚀 Tech Stack
 
-## 🛠️ Tech Stack
-
-- **Framework**: Next.js 15 with App Router
+### Frontend
+- **Framework**: Next.js 14 (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
+- **Animations**: Framer Motion
 - **State Management**: Zustand
-- **Forms**: React Hook Form + Zod
-- **HTTP Client**: Axios
-- **Icons**: Lucide React
-- **Notifications**: React Hot Toast
+- **Image Optimization**: Cloudinary + Next.js Image
+- **Icons**: React Icons, Lucide React
+- **Forms**: React Hook Form + Zod validation
 
-## 📦 Installation
+### Backend Integration
+- **API Client**: Axios
+- **Authentication**: JWT tokens
+- **Data Persistence**: LocalStorage for cart/auth
 
-1. **Install dependencies:**
+## 📂 Project Structure
+
+```
+ecommerce-frontend/
+├── public/                 # Static assets (images, fonts)
+├── src/
+│   ├── app/               # Next.js 14 App Router pages
+│   ├── components/        # React components
+│   │   ├── ui/           # Reusable UI components
+│   │   ├── Home/         # Homepage sections
+│   │   └── Shared/       # Layout components
+│   ├── hooks/            # Custom React hooks
+│   ├── lib/              # Utilities and helpers
+│   ├── store/            # Zustand state management
+│   └── types/            # TypeScript type definitions
+├── tailwind.config.ts    # Tailwind configuration
+├── next.config.ts        # Next.js configuration
+└── package.json
+
+See src/README.md for detailed source code documentation.
+```
+
+## 🛠️ Getting Started
+
+### Prerequisites
+- Node.js 18+ 
+- npm or yarn
+- Backend API running (see ecommerce-backend)
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd ecommerce/ecommerce-frontend
+   ```
+
+2. **Install dependencies**
    ```bash
    npm install
    ```
 
-2. **Create environment file:**
-   Create a `.env.local` file in the root directory:
+3. **Configure environment variables**
+   
+   Create a `.env.local` file:
    ```env
    NEXT_PUBLIC_API_URL=http://localhost:5001/api
+   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name
+   NEXT_PUBLIC_CLOUDINARY_API_KEY=your_api_key
+   NEXT_PUBLIC_SITE_URL=http://localhost:3000
    ```
 
-3. **Start the development server:**
+4. **Run development server**
    ```bash
    npm run dev
    ```
 
-4. **Open your browser:**
+5. **Open browser**
    Navigate to [http://localhost:3000](http://localhost:3000)
 
-## 🏗️ Project Structure
+### Available Scripts
 
-```
-src/
-├── app/                    # Next.js App Router pages
-│   ├── login/             # Login page
-│   ├── register/          # Registration page
-│   ├── cart/              # Shopping cart
-│   ├── products/          # Products listing
-│   └── page.tsx           # Homepage
-├── components/            # Reusable components
-│   ├── Header.tsx         # Navigation header
-│   └── ProductCard.tsx    # Product display card
-├── services/              # API services
-│   └── api.ts            # API client and endpoints
-└── store/                # State management
-    └── useStore.ts       # Zustand store
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run start        # Start production server
+npm run lint         # Run ESLint
+npm run type-check   # Run TypeScript compiler check
 ```
 
-## 🎯 Key Features
+## 🎨 Design System
 
-### User Features
-- ✅ **User Authentication** - Login/Register with JWT
-- ✅ **Product Browsing** - Search, filter, and sort products
-- ✅ **Shopping Cart** - Add/remove items, quantity management
-- ✅ **Responsive Design** - Mobile-first approach
-- ✅ **Product Categories** - Browse by category
-- ✅ **Product Search** - Search functionality
-- ✅ **User Profile** - Account management
+### Brand Colors
+- **Primary** (Terracotta): `#e85d5d` - Warm handloom red
+- **Accent** (Saffron): `#d97706` - Heritage gold
+- **Heritage** (Beige): `#bfa094` - Natural cotton
+- **Indigo**: `#6366f1` - Traditional blue
+- **Earth**: `#78716c` - Clay pot brown
 
-### Admin Features (Ready for Implementation)
-- 🔄 **Product Management** - CRUD operations
-- 🔄 **Order Management** - View and update orders
-- 🔄 **User Management** - Admin panel
-- 🔄 **Analytics Dashboard** - Sales and user statistics
+### Typography
+- **Display**: Playfair Display (elegant serif)
+- **Body**: Inter (clean sans-serif)
+- **Handcrafted**: Dancing Script (decorative)
+- **Traditional**: Noto Serif Devanagari (Hindi text)
 
-### Technical Features
-- ✅ **Type Safety** - Full TypeScript implementation
-- ✅ **Form Validation** - Client-side validation with Zod
-- ✅ **State Management** - Persistent cart and auth state
-- ✅ **API Integration** - Complete backend integration
-- ✅ **Error Handling** - Comprehensive error management
-- ✅ **Loading States** - Skeleton loaders and spinners
-- ✅ **Toast Notifications** - User feedback
+### Key Design Principles
+1. **Warmth & Trust**: Earth tones, soft shadows
+2. **Clarity**: Clean layouts, clear hierarchy
+3. **Cultural Authenticity**: Hindi text, traditional patterns
+4. **Modern Polish**: Smooth animations, responsive design
 
-## 🔧 Available Scripts
+## 📱 Key Pages
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
+- `/` - Homepage with hero, featured products, categories
+- `/products` - Product listing with filters and search
+- `/products/[id]` - Individual product details
+- `/categories` - Browse by category
+- `/cart` - Shopping cart
+- `/checkout` - Checkout flow
+- `/login` & `/register` - Authentication
+- `/profile` - User account management
+- `/orders` - Order history
+- `/admin` - Admin dashboard (restricted)
 
-## 🌐 API Integration
+## 🔧 Configuration
 
-The frontend is fully integrated with the Express.js backend API:
+### Tailwind Config
+Custom theme with Hastkari brand colors, animations, and patterns. See `tailwind.config.ts`.
 
-- **Authentication**: `/api/auth/*`
-- **Products**: `/api/products/*`
-- **Orders**: `/api/orders/*`
-- **Users**: `/api/users/*` (Admin only)
+### Next.js Config
+Image optimization, remote patterns for Cloudinary, internationalization ready. See `next.config.ts`.
 
-## 🎨 UI/UX Features
+### Constants
+All app-wide constants centralized in `src/lib/constants.ts`:
+- API endpoints
+- Brand colors
+- Validation rules
+- Image settings
+- Routes
 
-- **Modern Design** - Clean, professional interface
-- **Responsive Layout** - Works on all devices
-- **Dark Mode Ready** - CSS variables for theming
-- **Accessibility** - ARIA labels and keyboard navigation
-- **Performance** - Optimized images and lazy loading
-- **Animations** - Smooth transitions and hover effects
+### Types
+All TypeScript interfaces in `src/types/index.ts`:
+- Product, Category, User
+- Order, Review, Cart
+- API responses
+- UI component props
 
-## 🔒 Security Features
+## 🧪 Testing
 
-- **JWT Authentication** - Secure token-based auth
-- **Form Validation** - Client and server-side validation
-- **XSS Protection** - Sanitized inputs
-- **CSRF Protection** - Built-in Next.js protection
+```bash
+# Run linting
+npm run lint
 
-## 📱 Mobile Features
+# Type checking
+npm run type-check
 
-- **Touch-Friendly** - Optimized for mobile devices
-- **Responsive Navigation** - Mobile menu with sidebar
-- **Touch Gestures** - Swipe and tap interactions
-- **Progressive Web App** - PWA capabilities ready
+# Build test
+npm run build
+```
 
-## 🚀 Deployment
+## 📈 Performance Optimizations
 
-### Vercel (Recommended)
-1. Connect your GitHub repository
-2. Set environment variables
-3. Deploy automatically
+- ✅ Next.js Image component for automatic optimization
+- ✅ Cloudinary transformations for responsive images
+- ✅ Code splitting with dynamic imports
+- ✅ Lazy loading for below-the-fold content
+- ✅ Memoization of expensive calculations
+- ✅ Optimized bundle size with tree-shaking
+- ✅ Client-side caching with Zustand persist
 
-### Other Platforms
-- **Netlify** - Static site hosting
-- **AWS Amplify** - Full-stack hosting
-- **Docker** - Containerized deployment
+## ♿ Accessibility
 
-## 🔄 Development Workflow
+- Semantic HTML5 elements
+- ARIA labels and roles
+- Keyboard navigation support
+- Focus visible states
+- Alt text for all images
+- Color contrast compliance (WCAG AA)
+- Screen reader friendly
 
-1. **Feature Development** - Create feature branches
-2. **Type Safety** - Ensure TypeScript compliance
-3. **Testing** - Manual testing on different devices
-4. **Code Review** - Pull request reviews
-5. **Deployment** - Automatic deployment on merge
+## 🔒 Security
 
-## 📈 Performance
+- JWT token authentication
+- Secure HTTP-only cookies (backend)
+- XSS protection
+- CSRF protection
+- Input validation and sanitization
+- Environment variable protection
 
-- **Lighthouse Score**: 90+ on all metrics
-- **Bundle Size**: Optimized with Next.js
-- **Image Optimization**: Next.js Image component
-- **Code Splitting**: Automatic route-based splitting
+## 📚 Learn More
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [TypeScript Documentation](https://www.typescriptlang.org/docs/)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- [Zustand Documentation](https://github.com/pmndrs/zustand)
+- [Framer Motion Documentation](https://www.framer.com/motion/)
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+1. Follow the coding conventions in `src/README.md`
+2. Run linter before committing
+3. Test on multiple screen sizes
+4. Add comments for complex logic
+5. Update types when adding new features
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+This project is proprietary software for Hastkari.
 
-## 🆘 Support
+## 👥 Team
 
-For support and questions:
-- Create an issue on GitHub
-- Check the documentation
-- Review the code comments
+Developed with ❤️ by the Hastkari team.
 
 ---
 
-**Note**: This frontend is designed to work with the Express.js backend. Make sure the backend is running on `http://localhost:5001` before starting the frontend.
+**Version**: 1.0.0  
+**Last Updated**: October 2025  
+**Status**: Production Ready ✅

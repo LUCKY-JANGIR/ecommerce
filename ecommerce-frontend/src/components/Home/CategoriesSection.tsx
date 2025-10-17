@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { categoriesAPI, productsAPI } from '@/components/services/api';
-import { getOptimizedImageUrl } from '@/lib/imageUtils';
+import { getOptimizedImageUrl } from '@/lib/cloudinary';
 
 interface Category {
   _id: string;

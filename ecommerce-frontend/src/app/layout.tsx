@@ -12,23 +12,8 @@ import "@/app/fonts.css";
 import { Toaster } from 'react-hot-toast';
 
 export const metadata: Metadata = {
-  title: 'Indian Handloom - Your Online Shop',
-  description: 'A modern ecommerce experience',
-  icons: {
-    icon: [
-      {
-        url: '/favicon.ico',
-        sizes: '32x32',
-        type: 'image/x-icon',
-      },
-      {
-        url: '/file.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-    shortcut: '/favicon.ico',
-    apple: '/favicon.ico',
-  },
+  title: 'Hastkari - Handwoven Stories',
+  description: 'Discover authentic Indian handlooms and traditional craftsmanship',
 };
 
 export const viewport = {
@@ -44,9 +29,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="bg-white min-h-screen" style={{ fontFamily: 'Playfair Display, Inter, sans-serif' }}>
-        <Toaster position="top-right" />
+    <html lang="en" className="dark">
+      <body className="bg-dark-bg-primary text-dark-text-primary min-h-screen transition-colors duration-300" style={{ fontFamily: 'Playfair Display, Inter, sans-serif' }}>
+        <Toaster 
+          position="top-right" 
+          toastOptions={{
+            style: {
+              background: '#1a1a1a',
+              color: '#f9fafb',
+              border: '1px solid #374151',
+            },
+          }}
+        />
         <ErrorBoundary>
           <LenisProvider>
             <HydrationProvider />

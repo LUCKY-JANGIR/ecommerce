@@ -38,8 +38,14 @@ router.post('/', protect, admin, upload.single('file'), async (req, res, next) =
         if (req.file.size > 5 * 1024 * 1024) {
             return res.status(400).json({ message: 'File size must be less than 5MB' });
         }
-        // Upload to Cloudinary
-        const result = await uploadToCloudinary(req.file.buffer, req.file.originalname);
+        // Upload to Cloudinary with enhanced quality settings
+        const folder = req.body.folder || 'products';
+        const result = await uploadToCloudinary(req.file.buffer, folder, {
+            quality: 'auto:best',
+            maxWidth: 1200,
+            maxHeight: 1200,
+            format: 'auto'
+        });
         res.json({
             success: true,
             data: {

@@ -107,7 +107,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+    <div className="min-h-screen bg-dark-bg-primary">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <motion.div 
@@ -123,8 +123,8 @@ export default function CartPage() {
               <ArrowLeft className="h-5 w-5 text-gray-600 group-hover:text-blue-600 group-hover:-translate-x-0.5 transition-all" />
             </Link>
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Shopping Cart</h1>
-              <p className="text-gray-600 mt-1">{cart.totalItems} {cart.totalItems === 1 ? 'item' : 'items'} in your cart</p>
+              <h1 className="text-3xl md:text-4xl font-bold text-dark-text-primary font-display">Shopping Cart</h1>
+              <p className="text-dark-text-secondary mt-1">{cart.totalItems} {cart.totalItems === 1 ? 'item' : 'items'} in your cart</p>
             </div>
           </div>
           
@@ -144,9 +144,9 @@ export default function CartPage() {
             transition={{ duration: 0.6 }}
             className="lg:col-span-2"
           >
-            <div className="bg-white rounded-3xl shadow-lg border border-gray-100">
-              <div className="p-6 border-b border-gray-100">
-                <h2 className="text-xl font-bold text-gray-900">Your Items</h2>
+            <div className="bg-dark-bg-secondary rounded-3xl shadow-lg border border-dark-border-primary">
+              <div className="p-6 border-b border-dark-border-primary">
+                <h2 className="text-xl font-bold text-dark-text-primary">Your Items</h2>
               </div>
 
               <div className="divide-y divide-gray-100">

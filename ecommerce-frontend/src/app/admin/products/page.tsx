@@ -6,7 +6,7 @@ import Image from "next/image";
 import { productsAPI, categoriesAPI } from "@/components/services/api";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { getOptimizedImageUrl } from "@/lib/imageUtils";
+import { getOptimizedImageUrl } from "@/lib/cloudinary";
 import { Star } from "lucide-react";
 import MultipleImageUpload from "@/app/components/ui/MultipleImageUpload";
 

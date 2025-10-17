@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 const heroSlides = [
   {
     id: 1,
-    image: '/IMG-20250805-WA0008.jpg',
+    image: '/img1.jpg',
     title: 'Discover Authentic Indian Handlooms',
     subtitle: 'Handcrafted with love and tradition',
     cta: 'Shop Now',
@@ -15,7 +15,7 @@ const heroSlides = [
   },
   {
     id: 2,
-    image: '/IMG-20250805-WA0007.jpg',
+    image: '/img2.jpg',
     title: 'Premium Quality Textiles',
     subtitle: 'From traditional weavers to your home',
     cta: 'Explore Collection',
@@ -23,19 +23,11 @@ const heroSlides = [
   },
   {
     id: 3,
-    image: '/IMG-20250805-WA0006.jpg',
+    image: '/img3.jpg',
     title: 'Sustainable Fashion',
     subtitle: 'Eco-friendly and ethically sourced',
     cta: 'Learn More',
     link: '/about'
-  },
-  {
-    id: 4,
-    image: '/IMG-20250805-WA0005.jpg',
-    title: 'Exclusive Designs',
-    subtitle: 'Unique patterns and contemporary styles',
-    cta: 'View Gallery',
-    link: '/products'
   }
 ];
 

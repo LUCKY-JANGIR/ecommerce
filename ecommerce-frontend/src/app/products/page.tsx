@@ -16,7 +16,9 @@ import {
   ChevronDown,
   Star,
   Filter,
-  ArrowUpDown
+  ArrowUpDown,
+  Menu,
+  ChevronLeft
 } from 'lucide-react';
 import { useDebounce } from '@/hooks/useDebounce';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -25,16 +27,16 @@ import { ProductsGridSkeleton } from '@/components/ui/Skeleton';
 // Dynamic import for ProductCard
 const ProductCard = dynamic(() => import('@/components/ProductCard'), {
   loading: () => (
-    <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-      <div className="relative aspect-square bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 overflow-hidden">
-        <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+    <div className="bg-dark-bg-secondary rounded-2xl overflow-hidden shadow-sm border border-dark-border-primary">
+      <div className="relative aspect-square bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary overflow-hidden">
+        <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
       </div>
       <div className="p-4 space-y-3">
-        <div className="relative h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded overflow-hidden">
-          <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+        <div className="relative h-4 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
+          <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
         </div>
-        <div className="relative h-4 w-2/3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded overflow-hidden">
-          <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+        <div className="relative h-4 w-2/3 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
+          <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
         </div>
       </div>
     </div>
@@ -50,53 +52,47 @@ interface Category {
 
 function ProductsPageSkeleton() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header Skeleton */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div className="space-y-2">
-              <div className="h-8 w-32 bg-gray-200 rounded animate-pulse" />
-              <div className="h-4 w-48 bg-gray-200 rounded animate-pulse" />
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="h-10 w-64 bg-gray-200 rounded-full animate-pulse" />
-              <div className="h-10 w-24 bg-gray-200 rounded animate-pulse" />
-              <div className="h-10 w-20 bg-gray-200 rounded animate-pulse" />
-            </div>
+    <div className="min-h-screen bg-dark-bg-primary">
+      {/* Sidebar Skeleton */}
+      <div className="hidden lg:block fixed top-0 left-0 w-72 xl:w-80 bg-dark-bg-secondary border-r border-dark-border-primary flex flex-col h-screen z-40">
+        {/* Sidebar Header Skeleton */}
+        <div className="flex-shrink-0 p-6 border-b border-dark-border-primary">
+          <div className="space-y-4 mb-6">
+            <div className="h-6 w-32 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded animate-pulse" />
+            <div className="h-4 w-40 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded animate-pulse" />
           </div>
+          <div className="h-10 w-full bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded-lg animate-pulse" />
+        </div>
+
+        {/* Sidebar Content Skeleton */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="space-y-3">
+              <div className="h-4 w-16 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded animate-pulse" />
+              <div className="space-y-2">
+                <div className="h-10 w-full bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded-lg animate-pulse" />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Content Skeleton */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Filters Sidebar Skeleton */}
-          <div className="lg:w-64 space-y-6">
-            <div className="bg-white rounded-2xl p-6 space-y-4">
-              <div className="h-6 w-20 bg-gray-200 rounded animate-pulse" />
-              <div className="space-y-3">
-                {[...Array(5)].map((_, i) => (
-                  <div key={i} className="flex items-center space-x-3">
-                    <div className="w-4 h-4 bg-gray-200 rounded animate-pulse" />
-                    <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="bg-white rounded-2xl p-6 space-y-4">
-              <div className="h-6 w-16 bg-gray-200 rounded animate-pulse" />
-              <div className="space-y-2">
-                <div className="h-4 w-full bg-gray-200 rounded animate-pulse" />
-                <div className="h-4 w-3/4 bg-gray-200 rounded animate-pulse" />
-              </div>
+      {/* Main Content Skeleton */}
+      <div className="lg:ml-72 xl:ml-80 min-h-screen">
+        {/* Mobile Header Skeleton */}
+        <div className="lg:hidden bg-dark-bg-secondary border-b border-dark-border-primary px-4 py-4 sticky top-0 z-30">
+          <div className="flex items-center justify-between">
+            <div className="h-8 w-20 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded animate-pulse" />
+            <div className="text-right space-y-1">
+              <div className="h-5 w-24 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded animate-pulse" />
+              <div className="h-4 w-16 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded animate-pulse" />
             </div>
           </div>
+        </div>
 
-          {/* Products Grid Skeleton */}
-          <div className="flex-1">
-            <ProductsGridSkeleton count={12} />
-          </div>
+        {/* Products Grid Skeleton */}
+        <div className="p-4 lg:p-8">
+          <ProductsGridSkeleton count={12} />
         </div>
       </div>
     </div>
@@ -119,8 +115,7 @@ function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [showFilters, setShowFilters] = useState(false);
-  const [showMobileSearch, setShowMobileSearch] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [filters, setFilters] = useState({
     category: searchParams.get('category') || '',
     minPrice: '',
@@ -289,329 +284,280 @@ function ProductsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-16 z-40">
-        <div className="container mx-auto px-4">
-          <div className="py-6">
-            <div className="flex items-center justify-between mb-6">
+    <div className="min-h-screen bg-dark-bg-primary">
+      {/* Sidebar */}
+      <div className={`${
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      } lg:translate-x-0 fixed top-0 left-0 z-50 lg:z-40 w-80 lg:w-72 xl:w-80 bg-dark-bg-secondary border-r border-dark-border-primary transition-transform duration-300 ease-in-out lg:transition-none flex flex-col h-screen`}>
+        
+        {/* Sidebar Header */}
+        <div className="flex-shrink-0 p-6 border-b border-dark-border-primary">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="lg:hidden p-2 text-dark-text-muted hover:text-dark-text-primary hover:bg-dark-bg-hover rounded-lg transition-colors"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-                  Our Products
+                <h1 className="text-xl font-bold text-dark-text-primary font-display">
+                  Our Collection
                 </h1>
-                <p className="text-gray-600 mt-1">
+                <p className="text-dark-text-secondary text-sm">
                   {pagination.totalProducts > 0 
-                    ? `${pagination.totalProducts} products found`
-                    : 'Discover our collection'
+                    ? `${pagination.totalProducts} treasures found`
+                    : 'Discover authentic crafts'
                   }
                 </p>
               </div>
-              
-              {/* Desktop Search */}
-              <div className="hidden md:flex items-center space-x-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                  <input
-                    type="text"
-                    placeholder="Search products..."
-                    value={searchInput}
-                    onChange={(e) => setSearchInput(e.target.value)}
-                    className="pl-10 pr-4 py-2 w-80 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Controls Bar */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                {/* Mobile Search Toggle */}
-                <button
-                  onClick={() => setShowMobileSearch(!showMobileSearch)}
-                  className="md:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <Search className="h-5 w-5" />
-                </button>
-
-                {/* Filters Toggle */}
-                <button
-                  onClick={() => setShowFilters(!showFilters)}
-                  className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors relative"
-                >
-                  <SlidersHorizontal className="h-5 w-5" />
-                  <span className="hidden sm:inline">Filters</span>
-                  {getActiveFiltersCount() > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {getActiveFiltersCount()}
-                    </span>
-                  )}
-                </button>
-
-                {/* Category Quick Filter */}
-                <div className="hidden lg:flex items-center space-x-2">
-                  <select
-                    value={filters.category}
-                    onChange={(e) => handleFilterChange('category', e.target.value)}
-                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">All Categories</option>
-                    {categories.map((category) => (
-                      <option key={category._id} value={category._id}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-3">
-                {/* Sort Dropdown */}
-                <select
-                  value={filters.sortBy}
-                  onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  {sortOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-
-                {/* View Mode Toggle */}
-                <div className="flex items-center bg-gray-100 rounded-lg p-1">
-                  <button
-                    onClick={() => setViewMode('grid')}
-                    className={`p-2 rounded-md transition-colors ${
-                      viewMode === 'grid' 
-                        ? 'bg-white text-gray-900 shadow-sm' 
-                        : 'text-gray-600 hover:text-gray-900'
-                    }`}
-                  >
-                    <Grid3X3 className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => setViewMode('list')}
-                    className={`p-2 rounded-md transition-colors ${
-                      viewMode === 'list' 
-                        ? 'bg-white text-gray-900 shadow-sm' 
-                        : 'text-gray-600 hover:text-gray-900'
-                    }`}
-                  >
-                    <List className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
             </div>
           </div>
+
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-dark-text-muted h-4 w-4" />
+            <input
+              type="text"
+              placeholder="Search handcrafted treasures..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 text-sm border border-dark-border-primary rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500 bg-dark-bg-primary text-dark-text-primary placeholder-dark-text-muted"
+            />
+          </div>
+        </div>
+
+        {/* Sidebar Content - Scrollable */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          
+          {/* Sort Options */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-dark-text-primary uppercase tracking-wide">
+              Sort By
+            </h3>
+            <select
+              value={filters.sortBy}
+              onChange={(e) => handleFilterChange('sortBy', e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-dark-border-primary rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500 bg-dark-bg-primary text-dark-text-primary"
+            >
+              {sortOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.icon} {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Category Filter */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-dark-text-primary uppercase tracking-wide">
+              Categories
+            </h3>
+            <select
+              value={filters.category}
+              onChange={(e) => handleFilterChange('category', e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-dark-border-primary rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500 bg-dark-bg-primary text-dark-text-primary"
+            >
+              <option value="">All Categories</option>
+              {categories.map((category) => (
+                <option key={category._id} value={category._id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Price Range */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-dark-text-primary uppercase tracking-wide">
+              Price Range
+            </h3>
+            <div className="space-y-2">
+              <input
+                type="number"
+                placeholder="Min Price"
+                value={filters.minPrice}
+                onChange={(e) => handleFilterChange('minPrice', e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-dark-border-primary rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500 bg-dark-bg-primary text-dark-text-primary placeholder-dark-text-muted"
+              />
+              <input
+                type="number"
+                placeholder="Max Price"
+                value={filters.maxPrice}
+                onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-dark-border-primary rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500 bg-dark-bg-primary text-dark-text-primary placeholder-dark-text-muted"
+              />
+            </div>
+          </div>
+
+          {/* View Mode Toggle */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-dark-text-primary uppercase tracking-wide">
+              View Mode
+            </h3>
+            <div className="flex items-center bg-dark-bg-hover rounded-lg p-1">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`flex-1 flex items-center justify-center py-2 rounded-md transition-colors ${
+                  viewMode === 'grid' 
+                    ? 'bg-dark-bg-secondary text-dark-text-primary shadow-sm' 
+                    : 'text-dark-text-muted hover:text-dark-text-primary'
+                }`}
+              >
+                <Grid3X3 className="h-4 w-4 mr-2" />
+                <span className="text-sm">Grid</span>
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`flex-1 flex items-center justify-center py-2 rounded-md transition-colors ${
+                  viewMode === 'list' 
+                    ? 'bg-dark-bg-secondary text-dark-text-primary shadow-sm' 
+                    : 'text-dark-text-muted hover:text-dark-text-primary'
+                }`}
+              >
+                <List className="h-4 w-4 mr-2" />
+                <span className="text-sm">List</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Clear Filters */}
+          {getActiveFiltersCount() > 0 && (
+            <div className="pt-4 border-t border-dark-border-primary">
+              <button
+                onClick={clearFilters}
+                className="w-full px-4 py-2 text-sm text-accent-500 hover:text-accent-400 hover:bg-accent-500/10 rounded-lg transition-colors border border-accent-500/20"
+              >
+                Clear All Filters ({getActiveFiltersCount()})
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Mobile Search */}
-      <AnimatePresence>
-        {showMobileSearch && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white border-b border-gray-200"
-          >
-            <div className="container mx-auto px-4 py-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <input
-                  type="text"
-                  placeholder="Search products..."
-                  value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  autoFocus
-                />
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Filters Panel */}
-      <AnimatePresence>
-        {showFilters && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="bg-white border-b border-gray-200"
-          >
-            <div className="container mx-auto px-4 py-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
-                <div className="flex items-center space-x-3">
-                  <button
-                    onClick={clearFilters}
-                    className="text-sm text-gray-600 hover:text-gray-900"
-                  >
-                    Clear all
-                  </button>
-                  <button
-                    onClick={() => setShowFilters(false)}
-                    className="p-1 text-gray-400 hover:text-gray-600"
-                  >
-                    <X className="h-5 w-5" />
-                  </button>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Category Filter */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Category
-                  </label>
-                  <select
-                    value={filters.category}
-                    onChange={(e) => handleFilterChange('category', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">All Categories</option>
-                    {categories.map((category) => (
-                      <option key={category._id} value={category._id}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Price Range */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Price Range
-                  </label>
-                  <div className="flex space-x-2">
-                    <input
-                      type="number"
-                      placeholder="Min"
-                      value={filters.minPrice}
-                      onChange={(e) => handleFilterChange('minPrice', e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                    <input
-                      type="number"
-                      placeholder="Max"
-                      value={filters.maxPrice}
-                      onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-                </div>
-
-                {/* Sort Options */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Sort By
-                  </label>
-                  <select
-                    value={filters.sortBy}
-                    onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    {sortOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.icon} {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Mobile Sidebar Overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
-        {/* Products Grid */}
-        {loading ? (
-          <div className={`grid gap-6 ${
-            viewMode === 'grid' 
-              ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' 
-              : 'grid-cols-1 max-w-4xl mx-auto'
-          }`}>
-            {[...Array(12)].map((_, index) => (
-              <div key={index} className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-                <div className="relative aspect-square bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 overflow-hidden">
-                  <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
-                </div>
-                <div className="p-4 space-y-3">
-                  <div className="relative h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded overflow-hidden">
-                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
-                  </div>
-                  <div className="relative h-4 w-2/3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded overflow-hidden">
-                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
-                  </div>
-                  <div className="flex items-center justify-between pt-2">
-                    <div className="relative h-5 w-20 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded overflow-hidden">
-                      <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
-                    </div>
-                    <div className="relative h-8 w-8 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded-full overflow-hidden">
-                      <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : products.length > 0 ? (
-          <div className={`grid gap-6 ${
-            viewMode === 'grid' 
-              ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' 
-              : 'grid-cols-1 max-w-4xl mx-auto'
-          }`}>
-            {products.map((product, index) => (
-              <motion.div
-                key={product._id}
-                ref={index === products.length - 1 ? lastProductElementRef : null}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.1 }}
-                transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3) }}
-              >
-                <ProductCard product={product} viewMode={viewMode} />
-              </motion.div>
-            ))}
-          </div>
-        ) : (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center py-16"
-          >
-            <div className="bg-white rounded-2xl p-12 shadow-sm border border-gray-100 max-w-md mx-auto">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Search className="h-8 w-8 text-gray-400" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No products found</h3>
-              <p className="text-gray-600 mb-6">
-                Try adjusting your search or filter criteria
+      <div className="lg:ml-72 xl:ml-80 min-h-screen">
+        
+        {/* Mobile Header */}
+        <div className="lg:hidden bg-dark-bg-secondary border-b border-dark-border-primary px-4 py-4 sticky top-0 z-30">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="flex items-center space-x-2 px-3 py-2 text-dark-text-secondary hover:text-dark-text-primary hover:bg-dark-bg-hover rounded-lg transition-colors"
+            >
+              <Menu className="h-5 w-5" />
+              <span>Filters</span>
+              {getActiveFiltersCount() > 0 && (
+                <span className="bg-accent-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {getActiveFiltersCount()}
+                </span>
+              )}
+            </button>
+            
+            <div className="text-right">
+              <h1 className="text-lg font-bold text-dark-text-primary">
+                Our Collection
+              </h1>
+              <p className="text-dark-text-secondary text-sm">
+                {pagination.totalProducts} treasures
               </p>
-              <button
-                onClick={clearFilters}
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Clear filters
-              </button>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Loading More Indicator */}
-        {loadingMore && (
-          <div className="flex justify-center py-8">
-            <div className="flex items-center space-x-2 text-gray-600">
-              <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-              <span>Loading more products...</span>
             </div>
           </div>
-        )}
+        </div>
+
+        {/* Products Content */}
+        <div className="p-4 lg:p-8">
+          {loading ? (
+            <div className={`grid gap-6 ${
+              viewMode === 'grid' 
+                ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' 
+                : 'grid-cols-1 max-w-4xl mx-auto'
+            }`}>
+              {[...Array(12)].map((_, index) => (
+                <div key={index} className="bg-dark-bg-secondary rounded-2xl overflow-hidden shadow-sm border border-dark-border-primary">
+                  <div className="relative aspect-square bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary overflow-hidden">
+                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                  </div>
+                  <div className="p-4 space-y-3">
+                    <div className="relative h-4 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
+                      <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                    </div>
+                    <div className="relative h-4 w-2/3 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
+                      <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                    </div>
+                    <div className="flex items-center justify-between pt-2">
+                      <div className="relative h-5 w-20 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
+                        <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                      </div>
+                      <div className="relative h-8 w-8 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded-full overflow-hidden">
+                        <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : products.length > 0 ? (
+            <div className={`grid gap-6 ${
+              viewMode === 'grid' 
+                ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' 
+                : 'grid-cols-1 max-w-4xl mx-auto'
+            }`}>
+              {products.map((product, index) => (
+                <motion.div
+                  key={product._id}
+                  ref={index === products.length - 1 ? lastProductElementRef : null}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.1 }}
+                  transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3) }}
+                >
+                  <ProductCard product={product} viewMode={viewMode} />
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center py-16"
+            >
+              <div className="bg-dark-bg-secondary rounded-2xl p-12 shadow-sm border border-dark-border-primary max-w-md mx-auto">
+                <div className="w-16 h-16 bg-dark-bg-tertiary rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Search className="h-8 w-8 text-dark-text-muted" />
+                </div>
+                <h3 className="text-xl font-semibold text-dark-text-primary mb-2">No products found</h3>
+                <p className="text-dark-text-secondary mb-6">
+                  Try adjusting your search or filter criteria
+                </p>
+                <button
+                  onClick={clearFilters}
+                  className="bg-accent-500 text-white px-6 py-2 rounded-lg hover:bg-accent-600 transition-colors"
+                >
+                  Clear filters
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Loading More Indicator */}
+          {loadingMore && (
+            <div className="flex justify-center py-8">
+              <div className="flex items-center space-x-2 text-dark-text-muted">
+                <div className="w-5 h-5 border-2 border-accent-500 border-t-transparent rounded-full animate-spin" />
+                <span>Loading more products...</span>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

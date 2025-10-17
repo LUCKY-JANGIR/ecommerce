@@ -1,79 +1,107 @@
+'use client';
+
 import React from 'react';
-import { cva, type VariantProps } from 'class-variance-authority';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
-const buttonVariants = cva(
-  'inline-flex items-center justify-center rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background',
-  {
-    variants: {
-      variant: {
-        default: 'bg-primary-500 text-white hover:bg-primary-600 shadow-lg hover:shadow-xl',
-        secondary: 'bg-heritage-100 text-primary-700 hover:bg-heritage-200 border border-heritage-300',
-        outline: 'border border-primary-500 text-primary-700 hover:bg-primary-50',
-        ghost: 'hover:bg-primary-50 hover:text-primary-700',
-        accent: 'bg-accent-500 text-white hover:bg-accent-600 shadow-lg hover:shadow-xl',
-        destructive: 'bg-red-500 text-white hover:bg-red-600',
-        link: 'text-primary-600 underline-offset-4 hover:underline',
-      },
-      size: {
-        default: 'h-12 px-6 py-3',
-        sm: 'h-9 px-4 py-2 text-xs',
-        lg: 'h-14 px-8 py-4 text-base',
-        xl: 'h-16 px-10 py-5 text-lg',
-        icon: 'h-10 w-10',
-      },
-    },
-    defaultVariants: {
-      variant: 'default',
-      size: 'default',
-    },
-  }
-);
-
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
-  asChild?: boolean;
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'accent';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+  children: React.ReactNode;
   loading?: boolean;
+  icon?: React.ReactNode;
+  iconPosition?: 'left' | 'right';
+  fullWidth?: boolean;
+  handcrafted?: boolean; // Special Hastkari styling
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, loading, children, disabled, ...props }, ref) => {
+  ({
+    variant = 'primary',
+    size = 'md',
+    children,
+    loading = false,
+    icon,
+    iconPosition = 'left',
+    fullWidth = false,
+    handcrafted = false,
+    className,
+    disabled,
+    ...props
+  }, ref) => {
+    const baseStyles = 'relative inline-flex items-center justify-center font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+    
+    const variants = {
+      primary: 'bg-primary-500 text-white hover:bg-primary-600 focus:ring-primary-500 shadow-lg hover:shadow-xl',
+      secondary: 'bg-heritage-500 text-heritage-900 hover:bg-heritage-600 focus:ring-heritage-500',
+      outline: 'border-2 border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white focus:ring-primary-500',
+      ghost: 'text-primary-500 hover:bg-primary-50 hover:text-primary-600 focus:ring-primary-500',
+      accent: 'bg-accent-500 text-white hover:bg-accent-600 focus:ring-accent-500 shadow-lg hover:shadow-xl',
+    };
+
+    const sizes = {
+      sm: 'px-3 py-1.5 text-sm rounded-lg',
+      md: 'px-4 py-2 text-base rounded-xl',
+      lg: 'px-6 py-3 text-lg rounded-xl',
+      xl: 'px-8 py-4 text-xl rounded-2xl',
+    };
+
+    const handcraftedStyles = handcrafted ? 'animate-handwoven font-handcrafted' : '';
+
     return (
-      <button
-        className={cn(buttonVariants({ variant, size, className }))}
+      <motion.button
         ref={ref}
+        className={cn(
+          baseStyles,
+          variants[variant],
+          sizes[size],
+          handcraftedStyles,
+          fullWidth && 'w-full',
+          className
+        )}
         disabled={disabled || loading}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        transition={{ type: "spring", stiffness: 400, damping: 17 }}
         {...props}
       >
         {loading && (
-          <svg
-            className="animate-spin -ml-1 mr-2 h-4 w-4"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
+          <motion.div
+            className="absolute inset-0 flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
           >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            />
-          </svg>
+            <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+          </motion.div>
         )}
-        {children}
-      </button>
+        
+        <span className={cn('flex items-center gap-2', loading && 'opacity-0')}>
+          {icon && iconPosition === 'left' && (
+            <motion.span
+              initial={{ x: -5, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.1 }}
+            >
+              {icon}
+            </motion.span>
+          )}
+          {children}
+          {icon && iconPosition === 'right' && (
+            <motion.span
+              initial={{ x: 5, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.1 }}
+            >
+              {icon}
+            </motion.span>
+          )}
+        </span>
+      </motion.button>
     );
   }
 );
 
 Button.displayName = 'Button';
 
-export { Button, buttonVariants };
+export default Button;

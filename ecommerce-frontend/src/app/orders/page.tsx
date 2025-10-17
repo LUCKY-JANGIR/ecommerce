@@ -58,7 +58,7 @@ export default function OrdersPage() {
       case 'Pending':
         return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'Processing':
-        return 'bg-primary/10 text-primary border-primary/20';
+        return 'bg-accent-500/10 text-dark-text-primary border-primary/20';
       case 'Shipped':
         return 'bg-purple-100 text-purple-800 border-purple-200';
       case 'Delivered':
@@ -66,7 +66,7 @@ export default function OrdersPage() {
       case 'Cancelled':
         return 'bg-red-100 text-red-800 border-red-200';
       default:
-        return 'bg-muted/10 text-muted border-muted/20';
+        return 'bg-muted/10 text-dark-text-secondary border-muted/20';
     }
   };
 
@@ -80,7 +80,7 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background-light">
+    <div className="min-h-screen bg-dark-bg-accent-500">
       <div className="container mx-auto px-4 pt-24 pb-8">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -90,7 +90,7 @@ export default function OrdersPage() {
           {/* Back to home */}
           <Link
             href="/"
-            className="inline-flex items-center text-muted hover:text-primary mb-8 transition-colors"
+            className="inline-flex items-center text-dark-text-secondary hover:text-dark-text-primary mb-8 transition-colors"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Home
@@ -101,10 +101,10 @@ export default function OrdersPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-card border border-accent rounded-2xl shadow-lg p-8 mb-8"
+            className="bg-dark-bg-secondary border border-dark-border-primary rounded-2xl shadow-lg p-8 mb-8"
           >
-            <h1 className="text-3xl font-serif font-bold text-primary mb-2">My Orders</h1>
-            <p className="text-muted text-lg">Track your order history and status</p>
+            <h1 className="text-3xl font-serif font-bold text-dark-text-primary mb-2">My Orders</h1>
+            <p className="text-dark-text-secondary text-lg">Track your order history and status</p>
           </motion.div>
 
           {loading ? (
@@ -114,7 +114,7 @@ export default function OrdersPage() {
               className="text-center py-12"
             >
               <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mx-auto"></div>
-              <p className="mt-4 text-muted text-lg">Loading orders...</p>
+              <p className="mt-4 text-dark-text-secondary text-lg">Loading orders...</p>
             </motion.div>
           ) : orders.length > 0 ? (
             <div className="space-y-6">
@@ -124,18 +124,18 @@ export default function OrdersPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="bg-card border border-accent rounded-2xl shadow-lg p-8"
+                  className="bg-dark-bg-secondary border border-dark-border-primary rounded-2xl shadow-lg p-8"
                 >
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
-                        <FiPackage className="h-6 w-6 text-primary" />
+                      <div className="w-12 h-12 bg-accent-500/10 rounded-xl flex items-center justify-center">
+                        <FiPackage className="h-6 w-6 text-dark-text-primary" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-serif font-bold text-primary">
+                        <h3 className="text-xl font-serif font-bold text-dark-text-primary">
                           Order #{order._id.slice(-8).toUpperCase()}
                         </h3>
-                        <p className="text-muted">
+                        <p className="text-dark-text-secondary">
                           {new Date(order.createdAt).toLocaleDateString()}
                         </p>
                       </div>
@@ -147,29 +147,29 @@ export default function OrdersPage() {
 
                   <div className="grid md:grid-cols-3 gap-6 mb-6">
                     <div className="flex items-center">
-                      <Calendar className="h-5 w-5 text-muted mr-3" />
-                      <span className="text-muted">
+                      <Calendar className="h-5 w-5 text-dark-text-secondary mr-3" />
+                      <span className="text-dark-text-secondary">
                         {new Date(order.createdAt).toLocaleDateString()}
                       </span>
                     </div>
                     <div className="flex items-center">
-                      <DollarSign className="h-5 w-5 text-muted mr-3" />
-                      <span className="text-muted">
+                      <DollarSign className="h-5 w-5 text-dark-text-secondary mr-3" />
+                      <span className="text-dark-text-secondary">
                         Total: {renderNegotiable()}
                       </span>
                     </div>
-                    <div className="text-muted">
+                    <div className="text-dark-text-secondary">
                       {order.orderItems.length} item(s)
                     </div>
                   </div>
 
-                  <div className="border-t border-accent pt-6">
-                    <h4 className="font-serif font-bold text-primary mb-4">Order Items:</h4>
+                  <div className="border-t border-dark-border-primary pt-6">
+                    <h4 className="font-serif font-bold text-dark-text-primary mb-4">Order Items:</h4>
                     <div className="space-y-3">
                                              {order.orderItems.map((item: { name: string; quantity: number }, itemIndex: number) => (
-                        <div key={itemIndex} className="flex items-center justify-between text-sm bg-background-light p-3 rounded-xl">
-                          <span className="text-muted font-medium">{item.name}</span>
-                          <span className="text-primary font-semibold">
+                        <div key={itemIndex} className="flex items-center justify-between text-sm bg-dark-bg-accent-500 p-3 rounded-xl">
+                          <span className="text-dark-text-secondary font-medium">{item.name}</span>
+                          <span className="text-dark-text-primary font-semibold">
                             Qty: {item.quantity} × {renderNegotiable()}
                           </span>
                         </div>
@@ -187,13 +187,13 @@ export default function OrdersPage() {
               className="text-center py-16"
             >
               <div className="w-24 h-24 bg-muted/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                <FiPackage className="h-12 w-12 text-muted" />
+                <FiPackage className="h-12 w-12 text-dark-text-secondary" />
               </div>
-              <h3 className="text-2xl font-serif font-bold text-primary mb-4">No orders yet</h3>
-              <p className="text-muted text-lg mb-8">Start shopping to see your orders here</p>
+              <h3 className="text-2xl font-serif font-bold text-dark-text-primary mb-4">No orders yet</h3>
+              <p className="text-dark-text-secondary text-lg mb-8">Start shopping to see your orders here</p>
               <Link
                 href="/products"
-                className="inline-flex items-center bg-primary text-white px-8 py-3 rounded-xl hover:bg-accent transition-colors font-semibold shadow-lg"
+                className="inline-flex items-center bg-accent-500 text-white px-8 py-3 rounded-xl hover:bg-primary-500 transition-colors font-semibold shadow-lg"
               >
                 Browse Products
               </Link>

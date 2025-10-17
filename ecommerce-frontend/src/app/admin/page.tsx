@@ -7,7 +7,7 @@ import { Users, ShoppingBag, BarChart3, Tag, Settings, Plus, Edit, Trash2, X, St
 import { FiPackage } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { productsAPI, categoriesAPI, uploadAPI } from "@/components/services/api";
-import { getOptimizedImageUrl } from "@/lib/imageUtils";
+import { getOptimizedImageUrl } from "@/lib/cloudinary";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import { motion } from 'framer-motion';
@@ -324,7 +324,7 @@ export default function AdminPage() {
       case 'Cancelled':
         return 'bg-red-100 text-red-800 border-red-200';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-gray-100 text-dark-text-primary border-dark-border-primary';
     }
   };
 
@@ -715,32 +715,32 @@ export default function AdminPage() {
               </Swiper>
               
               {/* Custom Navigation Buttons */}
-              <div className="stats-swiper-prev absolute left-2 top-1/2 transform -translate-y-1/2 z-10 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
-                <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="stats-swiper-prev absolute left-2 top-1/2 transform -translate-y-1/2 z-10 w-8 h-8 bg-dark-bg-secondary rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-dark-bg-tertiary transition-colors">
+                <svg className="w-4 h-4 text-dark-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </div>
-              <div className="stats-swiper-next absolute right-2 top-1/2 transform -translate-y-1/2 z-10 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
-                <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="stats-swiper-next absolute right-2 top-1/2 transform -translate-y-1/2 z-10 w-8 h-8 bg-dark-bg-secondary rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-dark-bg-tertiary transition-colors">
+                <svg className="w-4 h-4 text-dark-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </div>
             </div>
 
             {/* Recent Activity */}
-            <div className="bg-white rounded-xl p-6 shadow-lg">
+            <div className="bg-dark-bg-secondary rounded-xl p-6 shadow-lg">
               <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
               <div className="space-y-4">
                 {products.length > 0 ? (
-                  <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center space-x-3 p-3 bg-dark-bg-tertiary rounded-lg">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                     <div className="flex-1">
                       <p className="text-sm font-medium">Products loaded successfully</p>
-                      <p className="text-xs text-gray-500">{products.length} products available</p>
+                      <p className="text-xs text-dark-text-secondary">{products.length} products available</p>
                     </div>
                   </div>
                 ) : (
-                  <p className="text-gray-600">No recent activity to display.</p>
+                  <p className="text-dark-text-secondary">No recent activity to display.</p>
                 )}
               </div>
             </div>
@@ -772,15 +772,15 @@ export default function AdminPage() {
                 onWheel={(e) => e.stopPropagation()}
               >
                 <div 
-                  className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col my-8"
+                  className="bg-dark-bg-secondary rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col my-8"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-xl">
+                  <div className="sticky top-0 bg-dark-bg-secondary border-b border-dark-border-primary px-6 py-4 rounded-t-xl">
                     <div className="flex justify-between items-center">
-                      <h3 className="text-xl font-semibold text-gray-800">Add New Product</h3>
+                      <h3 className="text-xl font-semibold text-dark-text-primary">Add New Product</h3>
                       <button 
                         onClick={() => setProductAdding(false)} 
-                        className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100"
+                        className="text-gray-400 hover:text-dark-text-secondary transition-colors p-1 rounded-full hover:bg-gray-100"
                       >
                         <X className="h-6 w-6" />
                       </button>
@@ -810,7 +810,7 @@ export default function AdminPage() {
                           placeholder="Enter product name"
                           value={productAddForm.name}
                           onChange={handleProductAddChange}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                          className="w-full p-3 border border-dark-border-primary rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-colors"
                           required
                         />
                       </div>
@@ -825,7 +825,7 @@ export default function AdminPage() {
                           placeholder="Enter SKU"
                           value={productAddForm.sku}
                           onChange={handleProductAddChange}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                          className="w-full p-3 border border-dark-border-primary rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-colors"
                           required
                         />
                       </div>
@@ -840,7 +840,7 @@ export default function AdminPage() {
                         placeholder="Enter product description"
                         value={productAddForm.description}
                         onChange={handleProductAddChange}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none"
+                        className="w-full p-3 border border-dark-border-primary rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-colors resize-none"
                         rows={4}
                         required
                       />
@@ -855,7 +855,7 @@ export default function AdminPage() {
                           name="category"
                           value={productAddForm.category}
                           onChange={handleProductAddChange}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                          className="w-full p-3 border border-dark-border-primary rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-colors"
                           required
                         >
                           <option value="">Select Category</option>
@@ -870,14 +870,14 @@ export default function AdminPage() {
                           Price <span className="text-red-500">*</span>
                         </label>
                         <div className="relative">
-                          <span className="absolute left-3 top-3 text-gray-500">$</span>
+                          <span className="absolute left-3 top-3 text-dark-text-secondary">$</span>
                           <input
                             type="number"
                             name="price"
                             placeholder="0.00"
                             value={productAddForm.price}
                             onChange={handleProductAddChange}
-                            className="w-full p-3 pl-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                            className="w-full p-3 pl-8 border border-dark-border-primary rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-colors"
                             min="0"
                             step="0.01"
                             required
@@ -895,7 +895,7 @@ export default function AdminPage() {
                           placeholder="0"
                           value={productAddForm.stock}
                           onChange={handleProductAddChange}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                          className="w-full p-3 border border-dark-border-primary rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-colors"
                           min="0"
                           required
                         />
@@ -903,7 +903,7 @@ export default function AdminPage() {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex gap-3 pt-4 border-t border-gray-200">
+                    <div className="flex gap-3 pt-4 border-t border-dark-border-primary">
                       <button
                         onClick={handleProductAddSave}
                         disabled={productAddLoading || !productAddForm.name || !productAddForm.description || !productAddForm.category || !productAddForm.price || !productAddForm.stock || !productAddForm.sku}
@@ -923,7 +923,7 @@ export default function AdminPage() {
                       </button>
                       <button
                         onClick={() => setProductAdding(false)}
-                        className="flex-1 bg-gray-500 text-white py-3 px-4 rounded-lg hover:bg-gray-600 transition-colors font-medium"
+                        className="flex-1 bg-dark-bg-tertiary0 text-white py-3 px-4 rounded-lg hover:bg-gray-600 transition-colors font-medium"
                       >
                         Cancel
                       </button>
@@ -945,15 +945,15 @@ export default function AdminPage() {
                 onWheel={(e) => e.stopPropagation()}
               >
                 <div 
-                  className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col my-8"
+                  className="bg-dark-bg-secondary rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col my-8"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-xl z-10">
+                  <div className="sticky top-0 bg-dark-bg-secondary border-b border-dark-border-primary px-6 py-4 rounded-t-xl z-10">
                     <div className="flex justify-between items-center">
-                      <h3 className="text-xl font-semibold text-gray-800">Edit Product</h3>
+                      <h3 className="text-xl font-semibold text-dark-text-primary">Edit Product</h3>
                       <button 
                         onClick={() => setProductEditing(null)} 
-                        className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100"
+                        className="text-gray-400 hover:text-dark-text-secondary transition-colors p-1 rounded-full hover:bg-gray-100"
                       >
                         <X className="h-6 w-6" />
                       </button>
@@ -982,7 +982,7 @@ export default function AdminPage() {
                         placeholder="Enter product name"
                         value={productEditForm.name}
                         onChange={handleProductEditChange}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                        className="w-full p-3 border border-dark-border-primary rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-colors"
                         required
                       />
                     </div>
@@ -997,7 +997,7 @@ export default function AdminPage() {
                         value={productEditForm.description}
                         onChange={handleProductEditChange}
                         rows={3}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none"
+                        className="w-full p-3 border border-dark-border-primary rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-colors resize-none"
                       />
                     </div>
 
@@ -1010,7 +1010,7 @@ export default function AdminPage() {
                           name="category"
                           value={productEditForm.category}
                           onChange={handleProductEditChange}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                          className="w-full p-3 border border-dark-border-primary rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-colors"
                           required
                         >
                           <option value="">Select Category</option>
@@ -1025,14 +1025,14 @@ export default function AdminPage() {
                           Price <span className="text-red-500">*</span>
                         </label>
                         <div className="relative">
-                          <span className="absolute left-3 top-3 text-gray-500">$</span>
+                          <span className="absolute left-3 top-3 text-dark-text-secondary">$</span>
                           <input
                             type="number"
                             name="price"
                             placeholder="0.00"
                             value={productEditForm.price}
                             onChange={handleProductEditChange}
-                            className="w-full p-3 pl-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                            className="w-full p-3 pl-8 border border-dark-border-primary rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-colors"
                             min="0"
                             step="0.01"
                             required
@@ -1050,7 +1050,7 @@ export default function AdminPage() {
                           placeholder="0"
                           value={productEditForm.stock}
                           onChange={handleProductEditChange}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                          className="w-full p-3 border border-dark-border-primary rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-colors"
                           min="0"
                           required
                         />
@@ -1058,11 +1058,11 @@ export default function AdminPage() {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex gap-3 pt-4 border-t border-gray-200">
+                    <div className="flex gap-3 pt-4 border-t border-dark-border-primary">
                       <button
                         onClick={handleProductEditSave}
                         disabled={productEditLoading || !productEditForm.name || !productEditForm.category || !productEditForm.price || !productEditForm.stock}
-                        className="flex-1 bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center justify-center gap-2"
+                        className="flex-1 bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-accent-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center justify-center gap-2"
                       >
                         {productEditLoading ? (
                           <>
@@ -1078,7 +1078,7 @@ export default function AdminPage() {
                       </button>
                       <button
                         onClick={() => setProductEditing(null)}
-                        className="flex-1 bg-gray-500 text-white py-3 px-4 rounded-lg hover:bg-gray-600 transition-colors font-medium"
+                        className="flex-1 bg-dark-bg-tertiary0 text-white py-3 px-4 rounded-lg hover:bg-gray-600 transition-colors font-medium"
                       >
                         Cancel
                       </button>
@@ -1090,23 +1090,23 @@ export default function AdminPage() {
 
             {/* Products List - Desktop Table */}
             <div className="hidden md:block">
-              <div className="bg-white rounded-lg overflow-hidden">
+              <div className="bg-dark-bg-secondary rounded-lg overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-dark-bg-tertiary">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Featured</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">Product</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">Category</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">Price</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">Stock</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">Featured</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-dark-bg-secondary divide-y divide-gray-200">
                       {products.length === 0 ? (
                         <tr>
-                          <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                          <td colSpan={6} className="px-6 py-8 text-center text-dark-text-secondary">
                             No products found. Add your first product!
                           </td>
                         </tr>
@@ -1125,17 +1125,17 @@ export default function AdminPage() {
                                   />
                                 </div>
                                 <div className="ml-4">
-                                  <div className="text-sm font-medium text-gray-900">{product.name}</div>
+                                  <div className="text-sm font-medium text-dark-text-primary">{product.name}</div>
                                 </div>
                               </div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-dark-text-secondary">
                               {typeof product.category === 'object' && product.category !== null 
                                 ? (product.category as { _id: string; name: string }).name 
                                 : categories.find(cat => cat._id === product.category)?.name || 'Unknown'}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${product.price}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{product.stock}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-dark-text-primary">${product.price}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-dark-text-primary">{product.stock}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                               <button
                                 onClick={() => handleToggleFeatured(product._id)}
@@ -1153,14 +1153,14 @@ export default function AdminPage() {
                               <div className="flex gap-2">
                                 <button
                                   onClick={() => openProductEdit(product)}
-                                  className="bg-white text-blue-600 border border-blue-600 hover:bg-blue-600 hover:text-white transition-colors rounded p-1.5"
+                                  className="bg-dark-bg-secondary text-blue-600 border border-blue-600 hover:bg-accent-500 hover:text-white transition-colors rounded p-1.5"
                                 >
                                   <Edit className="h-4 w-4" />
                                 </button>
                                 <button
                                   onClick={() => handleProductDelete(product._id)}
                                   disabled={productDeleting === product._id}
-                                  className="bg-white text-red-600 border border-red-600 hover:bg-red-600 hover:text-white transition-colors rounded p-1.5 disabled:opacity-50"
+                                  className="bg-dark-bg-secondary text-red-600 border border-red-600 hover:bg-red-600 hover:text-white transition-colors rounded p-1.5 disabled:opacity-50"
                                 >
                                   {productDeleting === product._id ? (
                                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
@@ -1181,15 +1181,15 @@ export default function AdminPage() {
             {/* Products List - Mobile Cards */}
             <div className="md:hidden space-y-4">
               {products.length === 0 ? (
-                <div className="text-center text-gray-500 py-8">No products found. Add your first product!</div>
+                <div className="text-center text-dark-text-secondary py-8">No products found. Add your first product!</div>
               ) : (
                 products.map(product => (
-                  <div key={product._id} className="bg-white rounded-lg shadow-md border border-gray-200 p-4 flex flex-col gap-2">
+                  <div key={product._id} className="bg-dark-bg-secondary rounded-lg shadow-md border border-dark-border-primary p-4 flex flex-col gap-2">
                     <div className="flex items-center gap-4">
                       <Image src={product.images?.[0]?.url ? getOptimizedImageUrl(product.images[0].url) : '/placeholder.png'} alt={product.name} className="w-16 h-16 object-cover rounded" width={64} height={64} />
                       <div>
-                        <div className="font-semibold text-gray-900">{product.name}</div>
-                        <div className="text-xs text-gray-500">
+                        <div className="font-semibold text-dark-text-primary">{product.name}</div>
+                        <div className="text-xs text-dark-text-secondary">
                           {typeof product.category === 'object' && product.category !== null 
                             ? (product.category as { _id: string; name: string }).name 
                             : categories.find(cat => cat._id === product.category)?.name || 'Unknown'}
@@ -1218,7 +1218,7 @@ export default function AdminPage() {
                       </div>
                     </div>
                     <div className="flex gap-2 mt-2">
-                                      <button onClick={() => openProductEdit(product)} className="bg-blue-600 text-white border border-blue-600 hover:bg-blue-700 hover:text-white transition-colors rounded p-1.5 flex-1 shadow-sm">Edit</button>
+                                      <button onClick={() => openProductEdit(product)} className="bg-accent-500 text-white border border-blue-600 hover:bg-accent-600 hover:text-white transition-colors rounded p-1.5 flex-1 shadow-sm">Edit</button>
                 <button onClick={() => handleProductDelete(product._id)} disabled={productDeleting === product._id} className="bg-red-600 text-white border border-red-600 hover:bg-red-700 hover:text-white transition-colors rounded p-1.5 flex-1 disabled:opacity-50 shadow-sm">{productDeleting === product._id ? 'Deleting...' : 'Delete'}</button>
                     </div>
                   </div>
@@ -1253,15 +1253,15 @@ export default function AdminPage() {
                 onWheel={(e) => e.stopPropagation()}
               >
                 <div 
-                  className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col my-8"
+                  className="bg-dark-bg-secondary rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col my-8"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-xl">
+                  <div className="sticky top-0 bg-dark-bg-secondary border-b border-dark-border-primary px-6 py-4 rounded-t-xl">
                     <div className="flex justify-between items-center">
-                      <h3 className="text-xl font-semibold text-gray-800">Add New Category</h3>
+                      <h3 className="text-xl font-semibold text-dark-text-primary">Add New Category</h3>
                       <button 
                         onClick={() => setCategoryAdding(false)} 
-                        className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100"
+                        className="text-gray-400 hover:text-dark-text-secondary transition-colors p-1 rounded-full hover:bg-gray-100"
                       >
                         <X className="h-6 w-6" />
                       </button>
@@ -1279,7 +1279,7 @@ export default function AdminPage() {
                         placeholder="Enter category name"
                         value={categoryAddForm.name}
                         onChange={handleCategoryAddChange}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-colors"
+                        className="w-full p-3 border border-dark-border-primary rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
                         required
                       />
                     </div>
@@ -1293,7 +1293,7 @@ export default function AdminPage() {
                         placeholder="Enter category description (optional)"
                         value={categoryAddForm.description}
                         onChange={handleCategoryAddChange}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-colors resize-none"
+                        className="w-full p-3 border border-dark-border-primary rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors resize-none"
                         rows={4}
                       />
                     </div>
@@ -1327,12 +1327,12 @@ export default function AdminPage() {
                                 }
                               }
                             }}
-                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-colors"
+                            className="block w-full text-sm text-dark-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-colors"
                           />
                         </div>
                         {categoryAddForm.image && (
                           <div className="relative">
-                            <Image src={categoryAddForm.image} alt="Preview" className="w-20 h-20 object-cover rounded-lg border-2 border-gray-200" width={80} height={80} />
+                            <Image src={categoryAddForm.image} alt="Preview" className="w-20 h-20 object-cover rounded-lg border-2 border-dark-border-primary" width={80} height={80} />
                             <button
                               onClick={() => {
                                 setCategoryImageFile(null);
@@ -1348,7 +1348,7 @@ export default function AdminPage() {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex gap-3 pt-4 border-t border-gray-200">
+                    <div className="flex gap-3 pt-4 border-t border-dark-border-primary">
                       <button
                         onClick={handleCategoryAddSave}
                         disabled={categoryAddLoading || !categoryAddForm.name}
@@ -1368,7 +1368,7 @@ export default function AdminPage() {
                       </button>
                       <button
                         onClick={() => setCategoryAdding(false)}
-                        className="flex-1 bg-gray-500 text-white py-3 px-4 rounded-lg hover:bg-gray-600 transition-colors font-medium"
+                        className="flex-1 bg-dark-bg-tertiary0 text-white py-3 px-4 rounded-lg hover:bg-gray-600 transition-colors font-medium"
                       >
                         Cancel
                       </button>
@@ -1390,15 +1390,15 @@ export default function AdminPage() {
                 onWheel={(e) => e.stopPropagation()}
               >
                 <div 
-                  className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col my-8"
+                  className="bg-dark-bg-secondary rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col my-8"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-xl">
+                  <div className="sticky top-0 bg-dark-bg-secondary border-b border-dark-border-primary px-6 py-4 rounded-t-xl">
                     <div className="flex justify-between items-center">
-                      <h3 className="text-xl font-semibold text-gray-800">Edit Category</h3>
+                      <h3 className="text-xl font-semibold text-dark-text-primary">Edit Category</h3>
                       <button 
                         onClick={() => setCategoryEditing(null)} 
-                        className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100"
+                        className="text-gray-400 hover:text-dark-text-secondary transition-colors p-1 rounded-full hover:bg-gray-100"
                       >
                         <X className="h-6 w-6" />
                       </button>
@@ -1416,7 +1416,7 @@ export default function AdminPage() {
                         placeholder="Enter category name"
                         value={categoryEditForm.name}
                         onChange={handleCategoryEditChange}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                        className="w-full p-3 border border-dark-border-primary rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-colors"
                         required
                       />
                     </div>
@@ -1430,7 +1430,7 @@ export default function AdminPage() {
                         placeholder="Enter category description (optional)"
                         value={categoryEditForm.description}
                         onChange={handleCategoryEditChange}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none"
+                        className="w-full p-3 border border-dark-border-primary rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-colors resize-none"
                         rows={4}
                       />
                     </div>
@@ -1464,12 +1464,12 @@ export default function AdminPage() {
                                 }
                               }
                             }}
-                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-colors"
+                            className="block w-full text-sm text-dark-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-colors"
                           />
                         </div>
                         {categoryEditForm.image && (
                           <div className="relative">
-                            <Image src={categoryEditForm.image} alt="Preview" className="w-20 h-20 object-cover rounded-lg border-2 border-gray-200" width={80} height={80} />
+                            <Image src={categoryEditForm.image} alt="Preview" className="w-20 h-20 object-cover rounded-lg border-2 border-dark-border-primary" width={80} height={80} />
                             <button
                               onClick={() => {
                                 setCategoryImageFile(null);
@@ -1485,11 +1485,11 @@ export default function AdminPage() {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex gap-3 pt-4 border-t border-gray-200">
+                    <div className="flex gap-3 pt-4 border-t border-dark-border-primary">
                       <button
                         onClick={handleCategoryEditSave}
                         disabled={categoryEditLoading || !categoryEditForm.name}
-                        className="flex-1 bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center justify-center gap-2"
+                        className="flex-1 bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-accent-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center justify-center gap-2"
                       >
                         {categoryEditLoading ? (
                           <>
@@ -1505,7 +1505,7 @@ export default function AdminPage() {
                       </button>
                       <button
                         onClick={() => setCategoryEditing(null)}
-                        className="flex-1 bg-gray-500 text-white py-3 px-4 rounded-lg hover:bg-gray-600 transition-colors font-medium"
+                        className="flex-1 bg-dark-bg-tertiary0 text-white py-3 px-4 rounded-lg hover:bg-gray-600 transition-colors font-medium"
                       >
                         Cancel
                       </button>
@@ -1517,20 +1517,20 @@ export default function AdminPage() {
 
             {/* Categories List - Desktop Table */}
             <div className="hidden md:block">
-              <div className="bg-white rounded-lg overflow-hidden">
+              <div className="bg-dark-bg-secondary rounded-lg overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-dark-bg-tertiary">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">Name</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">Description</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-dark-bg-secondary divide-y divide-gray-200">
                       {categories.length === 0 ? (
                         <tr>
-                          <td colSpan={3} className="px-6 py-8 text-center text-gray-500">
+                          <td colSpan={3} className="px-6 py-8 text-center text-dark-text-secondary">
                             No categories found. Add your first category!
                           </td>
                         </tr>
@@ -1538,23 +1538,23 @@ export default function AdminPage() {
                         categories.map((category) => (
                           <tr key={category._id}>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm font-medium text-gray-900">{category.name}</div>
+                              <div className="text-sm font-medium text-dark-text-primary">{category.name}</div>
                             </td>
                             <td className="px-6 py-4">
-                              <div className="text-sm text-gray-500">{category.description}</div>
+                              <div className="text-sm text-dark-text-secondary">{category.description}</div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                               <div className="flex gap-2">
                                 <button
                                   onClick={() => openCategoryEdit(category)}
-                                  className="bg-white text-blue-600 border border-blue-600 hover:bg-blue-600 hover:text-white transition-colors rounded p-1.5"
+                                  className="bg-dark-bg-secondary text-blue-600 border border-blue-600 hover:bg-accent-500 hover:text-white transition-colors rounded p-1.5"
                                 >
                                   <Edit className="h-4 w-4" />
                                 </button>
                                 <button
                                   onClick={() => handleCategoryDelete(category._id)}
                                   disabled={categoryDeleting === category._id}
-                                  className="bg-white text-red-600 border border-red-600 hover:bg-red-600 hover:text-white transition-colors rounded p-1.5 disabled:opacity-50"
+                                  className="bg-dark-bg-secondary text-red-600 border border-red-600 hover:bg-red-600 hover:text-white transition-colors rounded p-1.5 disabled:opacity-50"
                                 >
                                   {categoryDeleting === category._id ? (
                                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
@@ -1575,14 +1575,14 @@ export default function AdminPage() {
             {/* Categories List - Mobile Cards */}
             <div className="md:hidden space-y-4">
               {categories.length === 0 ? (
-                <div className="text-center text-gray-500 py-8">No categories found. Add your first category!</div>
+                <div className="text-center text-dark-text-secondary py-8">No categories found. Add your first category!</div>
               ) : (
                 categories.map(category => (
-                  <div key={category._id} className="bg-white rounded-lg shadow-md border border-gray-200 p-4 flex flex-col gap-2">
-                    <div className="font-semibold text-gray-900">{category.name}</div>
-                    <div className="text-xs text-gray-500">{category.description}</div>
+                  <div key={category._id} className="bg-dark-bg-secondary rounded-lg shadow-md border border-dark-border-primary p-4 flex flex-col gap-2">
+                    <div className="font-semibold text-dark-text-primary">{category.name}</div>
+                    <div className="text-xs text-dark-text-secondary">{category.description}</div>
                     <div className="flex gap-2 mt-2">
-                                      <button onClick={() => openCategoryEdit(category)} className="bg-blue-600 text-white border border-blue-600 hover:bg-blue-700 hover:text-white transition-colors rounded p-1.5 flex-1 shadow-sm">Edit</button>
+                                      <button onClick={() => openCategoryEdit(category)} className="bg-accent-500 text-white border border-blue-600 hover:bg-accent-600 hover:text-white transition-colors rounded p-1.5 flex-1 shadow-sm">Edit</button>
                 <button onClick={() => handleCategoryDelete(category._id)} disabled={categoryDeleting === category._id} className="bg-red-600 text-white border border-red-600 hover:bg-red-700 hover:text-white transition-colors rounded p-1.5 flex-1 disabled:opacity-50 shadow-sm">{categoryDeleting === category._id ? 'Deleting...' : 'Delete'}</button>
                     </div>
                   </div>
@@ -1617,14 +1617,14 @@ export default function AdminPage() {
             )}
 
             {/* Filters */}
-            <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <div className="bg-dark-bg-secondary border border-dark-border-primary rounded-lg p-4">
               <div className="flex flex-wrap gap-4 items-center">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                   <select
                     value={orderFilters.status}
                     onChange={(e) => setOrderFilters({ ...orderFilters, status: e.target.value, page: 1 })}
-                    className="border border-gray-300 rounded-md px-3 py-2 text-sm"
+                    className="border border-dark-border-primary rounded-md px-3 py-2 text-sm"
                   >
                     <option value="">All Status</option>
                     <option value="Pending">Pending</option>
@@ -1639,7 +1639,7 @@ export default function AdminPage() {
                   <select
                     value={orderFilters.isPaid}
                     onChange={(e) => setOrderFilters({ ...orderFilters, isPaid: e.target.value, page: 1 })}
-                    className="border border-gray-300 rounded-md px-3 py-2 text-sm"
+                    className="border border-dark-border-primary rounded-md px-3 py-2 text-sm"
                   >
                     <option value="">All</option>
                     <option value="true">Paid</option>
@@ -1648,7 +1648,7 @@ export default function AdminPage() {
                 </div>
                 <button
                   onClick={() => setOrderFilters({ status: '', isPaid: '', page: 1, limit: 10 })}
-                  className="bg-gray-500 text-white px-4 py-2 rounded-md text-sm hover:bg-gray-600 transition-colors"
+                  className="bg-dark-bg-tertiary0 text-white px-4 py-2 rounded-md text-sm hover:bg-gray-600 transition-colors"
                 >
                   Clear Filters
                 </button>
@@ -1656,47 +1656,47 @@ export default function AdminPage() {
             </div>
 
             {/* Orders List */}
-            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">Orders</h3>
+            <div className="bg-dark-bg-secondary border border-dark-border-primary rounded-lg overflow-hidden">
+              <div className="px-6 py-4 border-b border-dark-border-primary">
+                <h3 className="text-lg font-semibold text-dark-text-primary">Orders</h3>
               </div>
               
               {orderLoading ? (
                 <div className="p-6 text-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                  <p className="mt-2 text-gray-600">Loading orders...</p>
+                  <p className="mt-2 text-dark-text-secondary">Loading orders...</p>
                 </div>
               ) : orders.length === 0 ? (
                 <div className="p-6 text-center">
-                  <p className="text-gray-600">No orders found.</p>
+                  <p className="text-dark-text-secondary">No orders found.</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-dark-bg-tertiary">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">Order ID</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">Customer</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">Items</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">Payment</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">Date</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-dark-text-secondary uppercase tracking-wider">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-dark-bg-secondary divide-y divide-gray-200">
                       {orders.map((order) => (
-                        <tr key={order._id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <tr key={order._id} className="hover:bg-dark-bg-tertiary">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-dark-text-primary">
                             #{order._id.slice(-6)}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-dark-text-primary">
                             <div>
                               <div className="font-medium">{order.user?.name || 'N/A'}</div>
-                              <div className="text-gray-500">{order.user?.email || 'N/A'}</div>
+                              <div className="text-dark-text-secondary">{order.user?.email || 'N/A'}</div>
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-dark-text-primary">
                             <div className="flex items-center space-x-2">
                               <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
                                 {order.orderItems?.length || 0} items
@@ -1717,7 +1717,7 @@ export default function AdminPage() {
                               <option value="Cancelled">Cancelled</option>
                             </select>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-dark-text-primary">
                             <div className="flex items-center space-x-2">
                               <span className={`px-2 py-1 rounded-full text-xs ${order.isPaid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                                 {order.isPaid ? 'Paid' : 'Unpaid'}
@@ -1731,7 +1731,7 @@ export default function AdminPage() {
                               </button>
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-dark-text-secondary">
                             {formatDate(order.createdAt)}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -1760,8 +1760,8 @@ export default function AdminPage() {
                 Manage Users
               </button>
             </div>
-            <div className="bg-white rounded-lg p-6">
-              <p className="text-gray-600">User management functionality coming soon.</p>
+            <div className="bg-dark-bg-secondary rounded-lg p-6">
+              <p className="text-dark-text-secondary">User management functionality coming soon.</p>
             </div>
           </div>
         );
@@ -1770,12 +1770,12 @@ export default function AdminPage() {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-semibold">Settings</h3>
-              <button className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
+              <button className="bg-dark-bg-tertiary0 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
                 Save Settings
               </button>
             </div>
-            <div className="bg-white rounded-lg p-6">
-              <p className="text-gray-600">Settings functionality coming soon.</p>
+            <div className="bg-dark-bg-secondary rounded-lg p-6">
+              <p className="text-dark-text-secondary">Settings functionality coming soon.</p>
             </div>
           </div>
         );
@@ -1785,14 +1785,14 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="min-h-screen bg-sand">
+    <div className="min-h-screen bg-dark-bg-primary">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto">
           {/* Back to home */}
           {/* 1. Remove the 'Back to Home' link. */}
           {/* 2. Remove the 'Management Sections' box (the box with the section title and grid of nav buttons). */}
           {/* 3. Change the 'Admin Panel' text to a smaller size, e.g., 'text-base' or 'text-lg'. */}
-          <h1 className="text-base font-bold text-gray-800 mb-4 mt-2">Admin Panel</h1>
+          <h1 className="text-base font-bold text-dark-text-primary mb-4 mt-2">Admin Panel</h1>
 
           {/* Desktop Navigation Grid */}
           <div className="hidden md:grid grid-cols-6 gap-4 mb-6">
@@ -1800,7 +1800,7 @@ export default function AdminPage() {
               <button
                 key={link.key}
                 onClick={() => setActiveSection(link.key)}
-                className={`flex flex-col items-center justify-center p-4 rounded-lg font-semibold transition-colors border-2 shadow-md ${activeSection === link.key ? 'bg-white text-primary-700 border-primary-600 hover:bg-primary-600 hover:text-white shadow-lg' : 'bg-primary-600 text-white border-primary-600 hover:bg-primary-700 hover:text-white shadow-lg'}`}
+                className={`flex flex-col items-center justify-center p-4 rounded-lg font-semibold transition-colors border-2 shadow-md ${activeSection === link.key ? 'bg-dark-bg-secondary text-accent-500 border-accent-500 hover:bg-accent-500 hover:text-white shadow-lg' : 'bg-accent-500 text-white border-accent-500 hover:bg-accent-600 hover:text-white shadow-lg'}`}
               >
                 {link.icon}
                 <span className="mt-2 text-xs font-medium">{link.label}</span>
@@ -1809,12 +1809,12 @@ export default function AdminPage() {
           </div>
 
           {/* Mobile Tab Bar */}
-          <div className="md:hidden flex items-center gap-2 px-2 py-2 overflow-x-auto bg-gray-50 border-t border-gray-200 mb-4">
+          <div className="md:hidden flex items-center gap-2 px-2 py-2 overflow-x-auto bg-dark-bg-tertiary border-t border-dark-border-primary mb-4">
             {navLinks.map(link => (
                 <button
                 key={link.key}
                 onClick={() => setActiveSection(link.key)}
-                className={`flex-shrink-0 flex items-center gap-1 px-3 py-1.5 rounded font-semibold text-sm transition-colors shadow-sm ${activeSection === link.key ? 'bg-primary-600 text-white border border-primary-600 hover:bg-primary-700 shadow-md' : 'bg-white text-primary-700 border border-primary-300 hover:bg-primary-600 hover:text-white shadow-md'}`}
+                className={`flex-shrink-0 flex items-center gap-1 px-3 py-1.5 rounded font-semibold text-sm transition-colors shadow-sm ${activeSection === link.key ? 'bg-accent-500 text-white border border-accent-500 hover:bg-accent-600 shadow-md' : 'bg-dark-bg-secondary text-accent-500 border border-dark-border-primary hover:bg-accent-500 hover:text-white shadow-md'}`}
               >
                 {link.icon}
                 {link.label}
@@ -1823,21 +1823,21 @@ export default function AdminPage() {
           </div>
 
           {/* Section Content */}
-          <div className="bg-white rounded-lg shadow-lg p-6 border border-gray-200">
+          <div className="bg-dark-bg-secondary rounded-lg shadow-lg p-6 border border-dark-border-primary">
             {renderSectionContent()}
           </div>
 
           {/* Order Details Modal */}
           {selectedOrder && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-                <div className="flex justify-between items-center p-6 border-b border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-900">
+              <div className="bg-dark-bg-secondary rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                <div className="flex justify-between items-center p-6 border-b border-dark-border-primary">
+                  <h3 className="text-lg font-semibold text-dark-text-primary">
                     Order Details - #{selectedOrder._id.slice(-6)}
                   </h3>
                   <button
                     onClick={closeOrderDetails}
-                    className="text-gray-400 hover:text-gray-600"
+                    className="text-gray-400 hover:text-dark-text-secondary"
                   >
                     <X className="h-6 w-6" />
                   </button>
@@ -1846,14 +1846,14 @@ export default function AdminPage() {
                 <div className="p-6 space-y-6">
                   {/* Customer Information */}
                   <div>
-                    <h4 className="text-md font-semibold text-gray-900 mb-3">Customer Information</h4>
+                    <h4 className="text-md font-semibold text-dark-text-primary mb-3">Customer Information</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm text-gray-600">Name</p>
+                        <p className="text-sm text-dark-text-secondary">Name</p>
                         <p className="font-medium">{selectedOrder.user?.name || 'N/A'}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600">Email</p>
+                        <p className="text-sm text-dark-text-secondary">Email</p>
                         <p className="font-medium">{selectedOrder.user?.email || 'N/A'}</p>
                       </div>
                     </div>
@@ -1861,21 +1861,21 @@ export default function AdminPage() {
 
                   {/* Shipping Address */}
                   <div>
-                    <h4 className="text-md font-semibold text-gray-900 mb-3">Shipping Address</h4>
-                    <div className="bg-gray-50 p-4 rounded-lg">
+                    <h4 className="text-md font-semibold text-dark-text-primary mb-3">Shipping Address</h4>
+                    <div className="bg-dark-bg-tertiary p-4 rounded-lg">
                       <p className="font-medium">{selectedOrder.shippingAddress?.fullName}</p>
-                      <p className="text-gray-600">{selectedOrder.shippingAddress?.address}</p>
-                      <p className="text-gray-600">
+                      <p className="text-dark-text-secondary">{selectedOrder.shippingAddress?.address}</p>
+                      <p className="text-dark-text-secondary">
                         {selectedOrder.shippingAddress?.city}, {selectedOrder.shippingAddress?.state} {selectedOrder.shippingAddress?.postalCode}
                       </p>
-                      <p className="text-gray-600">{selectedOrder.shippingAddress?.country}</p>
-                      <p className="text-gray-600">Phone: {selectedOrder.shippingAddress?.phone}</p>
+                      <p className="text-dark-text-secondary">{selectedOrder.shippingAddress?.country}</p>
+                      <p className="text-dark-text-secondary">Phone: {selectedOrder.shippingAddress?.phone}</p>
                     </div>
                   </div>
 
                   {/* Order Items */}
                   <div>
-                    <h4 className="text-md font-semibold text-gray-900 mb-3">Order Items</h4>
+                    <h4 className="text-md font-semibold text-dark-text-primary mb-3">Order Items</h4>
                     <div className="space-y-3">
                       {selectedOrder.orderItems?.map((item: {
                         name: string;
@@ -1883,7 +1883,7 @@ export default function AdminPage() {
                         price: number;
                         image?: string;
                       }, index: number) => (
-                        <div key={index} className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
+                        <div key={index} className="flex items-center space-x-4 p-3 bg-dark-bg-tertiary rounded-lg">
                           <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
                             {item.image ? (
                               <Image src={item.image} alt={item.name} className="w-full h-full object-cover rounded-lg" width={48} height={48} />
@@ -1893,8 +1893,8 @@ export default function AdminPage() {
                           </div>
                           <div className="flex-1">
                             <p className="font-medium">{item.name}</p>
-                            <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
-                            <p className="text-sm text-gray-600">Price: Negotiable</p>
+                            <p className="text-sm text-dark-text-secondary">Quantity: {item.quantity}</p>
+                            <p className="text-sm text-dark-text-secondary">Price: Negotiable</p>
                           </div>
                         </div>
                       ))}
@@ -1903,16 +1903,16 @@ export default function AdminPage() {
 
                   {/* Order Status */}
                   <div>
-                    <h4 className="text-md font-semibold text-gray-900 mb-3">Order Status</h4>
+                    <h4 className="text-md font-semibold text-dark-text-primary mb-3">Order Status</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm text-gray-600">Status</p>
+                        <p className="text-sm text-dark-text-secondary">Status</p>
                         <span className={`px-3 py-1 rounded-full text-sm ${getStatusColor(selectedOrder.orderStatus)}`}>
                           {selectedOrder.orderStatus}
                         </span>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600">Payment</p>
+                        <p className="text-sm text-dark-text-secondary">Payment</p>
                         <div className="flex items-center space-x-2">
                           <span className={`px-3 py-1 rounded-full text-sm ${selectedOrder.isPaid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                             {selectedOrder.isPaid ? 'Paid' : 'Unpaid'}
@@ -1927,11 +1927,11 @@ export default function AdminPage() {
                         </div>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600">Order Date</p>
+                        <p className="text-sm text-dark-text-secondary">Order Date</p>
                         <p className="font-medium">{formatDate(selectedOrder.createdAt)}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600">Payment Method</p>
+                        <p className="text-sm text-dark-text-secondary">Payment Method</p>
                         <p className="font-medium">{selectedOrder.paymentMethod}</p>
                       </div>
                     </div>
@@ -1939,25 +1939,25 @@ export default function AdminPage() {
 
                   {/* Negotiation Notes */}
                   <div>
-                    <h4 className="text-md font-semibold text-gray-900 mb-3">Negotiation Notes</h4>
+                    <h4 className="text-md font-semibold text-dark-text-primary mb-3">Negotiation Notes</h4>
                     <textarea
                       value={negotiationNotes}
                       onChange={(e) => setNegotiationNotes(e.target.value)}
                       placeholder="Add negotiation notes here..."
-                      className="w-full p-3 border border-gray-300 rounded-lg resize-none"
+                      className="w-full p-3 border border-dark-border-primary rounded-lg resize-none"
                       rows={4}
                     />
                     <div className="mt-3 flex justify-end space-x-3">
                       <button
                         onClick={closeOrderDetails}
-                        className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                        className="px-4 py-2 text-dark-text-secondary border border-dark-border-primary rounded-lg hover:bg-dark-bg-tertiary transition-colors"
                       >
                         Cancel
                       </button>
                       <button
                         onClick={() => handleNegotiationNotesUpdate(selectedOrder._id)}
                         disabled={updatingNotes}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                        className="px-4 py-2 bg-accent-500 text-white rounded-lg hover:bg-accent-600 transition-colors disabled:opacity-50"
                       >
                         {updatingNotes ? 'Updating...' : 'Update Notes'}
                       </button>

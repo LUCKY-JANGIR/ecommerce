@@ -1,6 +1,116 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Hastkari Custom Styles */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+}
+
+@layer components {
+  /* Navigation Links */
+  .nav-link {
+    @apply text-dark-text-secondary hover:text-accent-500 transition-colors duration-200 font-medium;
+  }
+  
+  /* Focus Styles */
+  .focus-visible:focus {
+    outline: 2px solid #d97706;
+    outline-offset: 2px;
+  }
+  
+  /* Header Hover Effects */
+  header nav .flex.lg\:hidden > *:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+  }
+  
+  /* Search Input Focus */
+  header input[type="text"]:focus {
+    border-color: rgb(217 119 6) !important;
+    box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.2) !important;
+  }
+  
+  /* Hero Section Dots */
+  .hero-dot {
+    @apply w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-all duration-300 cursor-pointer;
+  }
+  
+  .hero-dot-active {
+    @apply w-6 sm:w-8;
+  }
+  
+  /* Handcrafted Text Styles */
+  .text-handcrafted {
+    font-family: 'Dancing Script', cursive;
+  }
+  
+  /* Shimmer Animation for Loading States */
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+  
+  .animate-shimmer {
+    animation: shimmer 2s infinite;
+  }
+  
+  /* Handwoven Pattern Overlay */
+  .handwoven-overlay {
+    background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23bfa094' fill-opacity='0.1'%3E%3Cpath d='M20 20c0-11.046-8.954-20-20-20v20h20zM20 20c0 11.046 8.954 20 20 20V20H20zM20 20c-11.046 0-20-8.954-20-20h20v20zM20 20c11.046 0 20 8.954 20 20H20V20z'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: 40px 40px;
+  }
+  
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #1a1a1a;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #d97706;
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #b45309;
+  }
+  
+  /* Line Clamp Utility */
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+  
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+}
 @font-face {
   font-family: 'Samarkan'; /* This is the name you'll use in your CSS */
   src: 
@@ -50,7 +160,7 @@ body::-webkit-scrollbar {
 
 /* Navigation link styles */
 .nav-link {
-  @apply text-text-primary hover:text-accent-600 transition-colors duration-200 font-medium;
+  @apply text-dark-text-secondary hover:text-accent-500 transition-colors duration-200 font-medium;
 }
 
 /* Dropdown z-index fix */
@@ -246,7 +356,7 @@ main::-webkit-scrollbar {
 
 /* Focus utilities */
 .focus-visible:focus {
-  outline: 2px solid #f97316;
+  outline: 2px solid #d97706;
   outline-offset: 2px;
 }
 
@@ -423,7 +533,7 @@ header input[type="text"]:focus {
   position: relative;
   z-index: 1;
   outline: none !important;
-  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2) !important;
+  box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.2) !important;
 }
 
 header input[type="text"]:focus + button {
@@ -432,7 +542,7 @@ header input[type="text"]:focus + button {
 
 /* Override any Tailwind focus styles that might interfere */
 header input[type="text"]:focus {
-  border-color: rgb(79 70 229) !important;
+  border-color: rgb(217 119 6) !important;
 }
 
 /* Search dropdown positioning */
@@ -515,6 +625,6 @@ header .search-container .search-dropdown {
   }
   
   header nav .flex.lg\\:hidden > *:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: rgba(255, 255, 255, 0.1);
   }
 }

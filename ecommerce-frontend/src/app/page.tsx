@@ -20,22 +20,23 @@ import {
   FeaturesSkeleton
 } from '@/components/ui/Skeleton';
 import { productsAPI, categoriesAPI } from '@/components/services/api';
-import { getOptimizedImageUrl } from '@/lib/imageUtils';
+import { getImagePreset } from '@/lib/cloudinary';
+import { getResponsiveImageSizes, getBlurPlaceholder } from '@/lib/imageUtils';
 import { Product } from '@/store/useStore';
 
 // Dynamic imports for performance
 const ProductCard = dynamic(() => import('@/components/ProductCard'), {
   loading: () => (
-    <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-      <div className="relative aspect-square bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 overflow-hidden">
-        <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+    <div className="bg-dark-bg-secondary rounded-2xl overflow-hidden shadow-sm border border-dark-border-primary">
+      <div className="relative aspect-square bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary overflow-hidden">
+        <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
       </div>
       <div className="p-4 space-y-3">
-        <div className="relative h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded overflow-hidden">
-          <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+        <div className="relative h-4 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
+          <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
         </div>
-        <div className="relative h-4 w-2/3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded overflow-hidden">
-          <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+        <div className="relative h-4 w-2/3 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
+          <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
         </div>
       </div>
     </div>
@@ -45,11 +46,11 @@ const ProductCard = dynamic(() => import('@/components/ProductCard'), {
 
 const Testimonials = dynamic(() => import('@/components/Home/Testimonials'), {
   loading: () => (
-    <div className="py-12 bg-gray-50">
+    <div className="py-12 bg-dark-bg-secondary">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16 space-y-4">
-          <div className="relative h-10 w-64 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded overflow-hidden mx-auto">
-            <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+          <div className="relative h-10 w-64 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden mx-auto">
+            <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
           </div>
         </div>
       </div>
@@ -60,10 +61,10 @@ const Testimonials = dynamic(() => import('@/components/Home/Testimonials'), {
 
 const Footer = dynamic(() => import('@/components/Shared/Footer'), {
   loading: () => (
-    <div className="py-12 bg-gray-900">
+    <div className="py-12 bg-dark-bg-primary">
       <div className="container mx-auto px-4">
-        <div className="relative h-20 bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700 rounded overflow-hidden">
-          <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+        <div className="relative h-20 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
+          <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
         </div>
       </div>
     </div>
@@ -71,58 +72,58 @@ const Footer = dynamic(() => import('@/components/Shared/Footer'), {
   ssr: true
 });
 
-// Hero slides data
+// Hastkari Hero slides - Authentic Indian Handloom Stories
 const heroSlides = [
   {
     id: 1,
-    image: '/IMG-20250805-WA0008.jpg',
-    title: 'Authentic Indian Handlooms',
-    subtitle: 'Discover the artistry of traditional craftsmanship',
-    description: 'Each piece tells a story of heritage, skill, and passion passed down through generations.',
-    cta: 'Explore Collection',
+    image: '/img1.jpg',
+    title: 'हस्तकारी - Handwoven Stories',
+    subtitle: 'Where tradition meets timeless beauty',
+    description: 'Every thread woven with love, every pattern carrying generations of wisdom. Discover authentic Indian handlooms that connect you to our rich cultural heritage.',
+    cta: 'Explore Our Collection',
     link: '/products',
-    badge: 'New Arrivals'
+    badge: 'Handpicked for You'
   },
   {
     id: 2,
-    image: '/IMG-20250805-WA0007.jpg',
-    title: 'Premium Quality Textiles',
-    subtitle: 'From master weavers to your home',
-    description: 'Experience the finest materials and exceptional craftsmanship in every thread.',
-    cta: 'Shop Premium',
-    link: '/products?sortBy=price_desc',
-    badge: 'Premium'
+    image: '/img2.jpg',
+    title: 'Master Craftspeople',
+    subtitle: 'From skilled artisans to your home',
+    description: 'Meet the talented weavers and artisans who bring these beautiful pieces to life. Each product supports local communities and preserves traditional techniques.',
+    cta: 'Meet Our Artisans',
+    link: '/products?featured=true',
+    badge: 'Artisan Made'
   },
   {
     id: 3,
-    image: '/IMG-20250805-WA0006.jpg',
-    title: 'Sustainable Fashion',
-    subtitle: 'Eco-friendly and ethically sourced',
-    description: 'Supporting local artisans while caring for our planet with sustainable practices.',
-    cta: 'Learn More',
-    link: '/products',
-    badge: 'Eco-Friendly'
+    image: '/img3.jpg',
+    title: 'Sustainable & Ethical',
+    subtitle: 'Caring for our planet, supporting our people',
+    description: 'Eco-friendly materials, fair trade practices, and sustainable production methods. Shop with confidence knowing you\'re making a positive impact.',
+    cta: 'Learn Our Story',
+    link: '/about',
+    badge: 'Eco-Conscious'
   }
 ];
 
 
 
-// Features data
+// Hastkari Promise - Our commitment to you
 const features = [
   {
     icon: Shield,
-    title: 'Quality Guaranteed',
-    description: 'Every product is carefully inspected for quality and authenticity'
+    title: 'Authenticity Promise',
+    description: 'Every piece is verified authentic, handcrafted by skilled artisans with generations of expertise'
   },
   {
     icon: Truck,
-    title: 'Free Shipping',
-    description: 'Free delivery on orders above $50 with secure packaging'
+    title: 'Careful Delivery',
+    description: 'Free shipping across India with eco-friendly packaging that protects your treasures'
   },
   {
     icon: RefreshCw,
-    title: 'Easy Returns',
-    description: '30-day hassle-free returns and exchanges for your peace of mind'
+    title: 'Hassle-Free Returns',
+    description: '30-day return policy with free pickup - your satisfaction is our priority'
   }
 ];
 
@@ -239,7 +240,7 @@ export default function Home() {
       {loading || !imagesLoaded ? (
         <HeroSkeleton />
       ) : (
-        <section className="relative h-screen min-h-[600px] max-h-[900px] overflow-hidden bg-gray-900" style={{ transform: 'translateZ(0)' }}>
+        <section className="relative h-screen min-h-[600px] max-h-[900px] overflow-hidden bg-dark-bg-primary" style={{ transform: 'translateZ(0)' }}>
           {/* Background Images - All loaded but only current one visible */}
           {heroSlides.map((slide, index) => (
             <motion.div
@@ -262,7 +263,10 @@ export default function Home() {
                 fill
                 className="object-cover"
                 priority={index === 0}
-                sizes="100vw"
+                sizes={getResponsiveImageSizes('hero')}
+                quality={95}
+                placeholder="blur"
+                blurDataURL={getBlurPlaceholder(80, 60)}
               />
             </motion.div>
           ))}
@@ -286,36 +290,64 @@ export default function Home() {
                 }}
                 className="text-white"
               >
-                <div className="inline-block bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 mb-6">
-                  <span className="text-sm font-medium">{heroSlides[currentSlide].badge}</span>
-                </div>
+                <motion.div 
+                  className="inline-block bg-gradient-to-r from-accent-500/20 to-primary-500/20 backdrop-blur-sm rounded-full px-6 py-3 mb-8 border border-white/20"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <span className="text-sm font-medium text-white flex items-center gap-2">
+                    <span className="w-2 h-2 bg-accent-500 rounded-full animate-pulse"></span>
+                    {heroSlides[currentSlide].badge}
+                  </span>
+                </motion.div>
                 
-                <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
+                <motion.h1 
+                  className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight font-display"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
                   {heroSlides[currentSlide].title}
-                </h1>
+                </motion.h1>
                 
-                <p className="text-xl md:text-2xl mb-4 text-gray-200">
+                <motion.p 
+                  className="text-xl md:text-2xl mb-4 text-gray-200 font-medium"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                >
                   {heroSlides[currentSlide].subtitle}
-                </p>
+                </motion.p>
                 
-                <p className="text-lg mb-8 text-gray-300 max-w-2xl">
+                <motion.p 
+                  className="text-lg mb-8 text-gray-300 max-w-2xl leading-relaxed"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
+                >
                   {heroSlides[currentSlide].description}
-                </p>
+                </motion.p>
                 
-                <div className="flex flex-col sm:flex-row gap-4">
+                <motion.div 
+                  className="flex flex-col sm:flex-row gap-4"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6 }}
+                >
                   <Link
                     href={heroSlides[currentSlide].link}
-                    className="inline-flex items-center justify-center px-8 py-4 bg-white text-gray-900 rounded-full font-semibold hover:bg-gray-100 transition-colors group"
+                    className="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-accent-500 to-accent-600 text-white rounded-full font-semibold hover:from-accent-600 hover:to-accent-700 transition-all duration-300 group shadow-lg hover:shadow-xl transform hover:scale-105"
                   >
                     {heroSlides[currentSlide].cta}
                     <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </Link>
                   
-                  <button className="inline-flex items-center justify-center px-8 py-4 border-2 border-white text-white rounded-full font-semibold hover:bg-white hover:text-gray-900 transition-colors">
+                  <button className="inline-flex items-center justify-center px-8 py-4 border-2 border-white/80 text-white rounded-full font-semibold hover:bg-white/10 hover:border-white transition-all duration-300 backdrop-blur-sm">
                     <Play className="mr-2 h-5 w-5" />
-                    Watch Story
+                    Our Story
                   </button>
-                </div>
+                </motion.div>
               </motion.div>
             </div>
           </div>
@@ -345,7 +377,7 @@ export default function Home() {
 
 
       {/* Featured Products */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-dark-bg-secondary">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -354,34 +386,34 @@ export default function Home() {
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Featured Products
+            <h2 className="text-3xl md:text-4xl font-bold text-dark-text-primary mb-4 font-display">
+              Handpicked Treasures
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Discover our handpicked collection of premium handloom products
+            <p className="text-xl text-dark-text-secondary max-w-2xl mx-auto">
+              Carefully curated collection of authentic Indian handlooms, each piece telling its own story
             </p>
           </motion.div>
 
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {[...Array(8)].map((_, i) => (
-                <div key={i} className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-                  <div className="relative aspect-square bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 overflow-hidden">
-                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+                <div key={i} className="bg-dark-bg-secondary rounded-2xl overflow-hidden shadow-sm border border-dark-border-primary">
+                  <div className="relative aspect-square bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary overflow-hidden">
+                    <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                   </div>
                   <div className="p-4 space-y-3">
-                    <div className="relative h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded overflow-hidden">
-                      <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+                    <div className="relative h-4 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
+                      <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                     </div>
-                    <div className="relative h-4 w-2/3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded overflow-hidden">
-                      <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+                    <div className="relative h-4 w-2/3 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
+                      <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                     </div>
                     <div className="flex items-center justify-between pt-2">
-                      <div className="relative h-5 w-20 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded overflow-hidden">
-                        <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+                      <div className="relative h-5 w-20 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
+                        <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                       </div>
-                      <div className="relative h-8 w-8 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded-full overflow-hidden">
-                        <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+                      <div className="relative h-8 w-8 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded-full overflow-hidden">
+                        <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                       </div>
                     </div>
                   </div>
@@ -413,7 +445,7 @@ export default function Home() {
           >
             <Link
               href="/products"
-              className="inline-flex items-center px-8 py-4 bg-blue-600 text-white rounded-full font-semibold hover:bg-blue-700 transition-colors group"
+              className="inline-flex items-center px-8 py-4 bg-accent-500 text-white rounded-full font-semibold hover:bg-accent-600 transition-colors group"
             >
               View All Products
               <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
@@ -423,7 +455,7 @@ export default function Home() {
       </section>
 
       {/* Categories Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-dark-bg-primary">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -432,44 +464,44 @@ export default function Home() {
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Shop by Category
+            <h2 className="text-3xl md:text-4xl font-bold text-dark-text-primary mb-4 font-display">
+              Traditional Crafts
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Explore our diverse collection organized by traditional crafts
+            <p className="text-xl text-dark-text-secondary max-w-2xl mx-auto">
+              Discover the rich heritage of Indian craftsmanship across different art forms and regions
             </p>
           </motion.div>
 
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="bg-gray-50 rounded-3xl overflow-hidden">
+                <div key={i} className="bg-dark-bg-secondary rounded-3xl overflow-hidden">
                   <div className="p-8">
                     <div className="flex items-center justify-between mb-6">
                       <div className="space-y-2">
-                        <div className="relative h-8 w-32 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded overflow-hidden">
-                          <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+                        <div className="relative h-8 w-32 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
+                          <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                         </div>
-                        <div className="relative h-4 w-48 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded overflow-hidden">
-                          <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+                        <div className="relative h-4 w-48 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
+                          <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                         </div>
                       </div>
-                      <div className="relative h-12 w-24 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded-full overflow-hidden">
-                        <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+                      <div className="relative h-12 w-24 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded-full overflow-hidden">
+                        <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       {[...Array(2)].map((_, j) => (
-                        <div key={j} className="bg-white rounded-2xl overflow-hidden">
-                          <div className="relative aspect-square w-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 overflow-hidden">
-                            <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+                        <div key={j} className="bg-dark-bg-primary rounded-2xl overflow-hidden">
+                          <div className="relative aspect-square w-full bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary overflow-hidden">
+                            <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                           </div>
                           <div className="p-3 space-y-2">
-                            <div className="relative h-3 w-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded overflow-hidden">
-                              <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+                            <div className="relative h-3 w-full bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
+                              <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                             </div>
-                            <div className="relative h-3 w-2/3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 rounded overflow-hidden">
-                              <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white to-transparent"></div>
+                            <div className="relative h-3 w-2/3 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
+                              <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                             </div>
                           </div>
                         </div>
@@ -488,19 +520,19 @@ export default function Home() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="bg-gray-50 rounded-3xl overflow-hidden hover:shadow-lg transition-shadow"
+                className="bg-dark-bg-secondary rounded-3xl overflow-hidden hover:shadow-lg transition-shadow"
               >
                 <div className="p-8">
                   <div className="flex items-center justify-between mb-6">
                     <div>
-                      <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                      <h3 className="text-2xl font-bold text-dark-text-primary mb-2">
                         {category.name}
                       </h3>
-                      <p className="text-gray-600">{category.description}</p>
+                      <p className="text-dark-text-secondary">{category.description}</p>
                     </div>
                     <Link
                       href={`/products?category=${category._id}`}
-                      className="inline-flex items-center px-6 py-3 bg-white text-gray-900 rounded-full font-semibold hover:bg-gray-100 transition-colors group"
+                      className="inline-flex items-center px-6 py-3 bg-dark-bg-primary text-dark-text-primary rounded-full font-semibold hover:bg-dark-bg-hover transition-colors group"
                     >
                       Explore
                       <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -508,31 +540,12 @@ export default function Home() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                                         {category.products?.slice(0, 2).map((product) => (
-                      <Link
+                    {category.products?.slice(0, 2).map((product) => (
+                      <ProductCard 
                         key={product._id}
-                        href={`/products/${product._id}`}
-                        className="group"
-                      >
-                        <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                          <div className="aspect-square relative overflow-hidden">
-                            <Image
-                              src={product.images?.[0]?.url ? getOptimizedImageUrl(product.images[0].url) : '/placeholder-product.svg'}
-                              alt={product.name}
-                              fill
-                              className="object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
-                          </div>
-                          <div className="p-3">
-                            <h4 className="font-semibold text-gray-900 text-sm mb-1 truncate group-hover:text-blue-600 transition-colors">
-                              {product.name}
-                            </h4>
-                            <p className="text-blue-600 font-bold text-sm">
-                              ₹{product.price}
-                            </p>
-                          </div>
-                        </div>
-                      </Link>
+                        product={product} 
+                        viewMode="grid"
+                      />
                     ))}
                   </div>
                 </div>
@@ -544,7 +557,7 @@ export default function Home() {
       </section>
 
       {/* Platform Reviews Section */}
-      <Suspense fallback={<div className="py-12 bg-gray-100 animate-pulse" />}>
+      <Suspense fallback={<div className="py-12 bg-dark-bg-secondary animate-pulse" />}>
         <motion.section
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -557,7 +570,7 @@ export default function Home() {
       </Suspense>
 
       {/* Features Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-dark-bg-secondary">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -566,11 +579,11 @@ export default function Home() {
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Why Choose Us
+            <h2 className="text-3xl md:text-4xl font-bold text-dark-text-primary mb-4 font-display">
+              The Hastkari Promise
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                             We&apos;re committed to providing the best shopping experience
+            <p className="text-xl text-dark-text-secondary max-w-2xl mx-auto">
+              Our commitment to authenticity, quality, and supporting local artisans
             </p>
           </motion.div>
 
@@ -584,13 +597,13 @@ export default function Home() {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 className="text-center"
               >
-                <div className="inline-flex items-center justify-center w-20 h-20 bg-blue-100 rounded-full mb-6">
-                  <feature.icon className="h-10 w-10 text-blue-600" />
+                <div className="inline-flex items-center justify-center w-20 h-20 bg-accent-500/20 rounded-full mb-6">
+                  <feature.icon className="h-10 w-10 text-accent-500" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">
+                <h3 className="text-xl font-bold text-dark-text-primary mb-4">
                   {feature.title}
                 </h3>
-                <p className="text-gray-600 leading-relaxed">
+                <p className="text-dark-text-secondary leading-relaxed">
                   {feature.description}
                 </p>
               </motion.div>
@@ -602,7 +615,7 @@ export default function Home() {
 
 
       {/* Footer */}
-      <Suspense fallback={<div className="py-12 bg-gray-100 animate-pulse" />}>
+      <Suspense fallback={<div className="py-12 bg-dark-bg-secondary animate-pulse" />}>
           <Footer />
       </Suspense>
     </main>
