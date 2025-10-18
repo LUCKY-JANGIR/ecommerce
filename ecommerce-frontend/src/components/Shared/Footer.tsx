@@ -148,6 +148,7 @@ export default function Footer() {
                     <span className="text-white font-samarkan font-bold text-lg">HK</span>
                   </div>
                   <span className="text-2xl font-samarkan font-bold text-white">Hastkari</span>
+                  <span className="text-sm text-gray-400 ml-2">since 1989</span>
                 </div>
                 
                 <p className="text-gray-400 leading-relaxed max-w-md">

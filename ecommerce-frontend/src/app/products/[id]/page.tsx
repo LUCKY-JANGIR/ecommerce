@@ -27,6 +27,7 @@ import ReviewModal from "@/components/ReviewModal";
 import ImageModal from "@/components/ImageModal";
 import RecommendedProducts from "@/components/RecommendedProducts";
 import { ProductDetailsSkeleton } from "@/components/ui/Skeleton";
+import { getImagePreset } from "@/lib/cloudinary";
 
 
 
@@ -126,7 +127,7 @@ export default function ProductDetailsPage() {
       <StarIcon
         key={i}
         className={`h-5 w-5 ${
-          i < rating ? 'text-accent-500 fill-current' : 'text-heritage-300'
+          i < rating ? 'text-accent-500 fill-current' : 'text-dark-text-muted'
         }`}
       />
     ));
@@ -140,11 +141,11 @@ export default function ProductDetailsPage() {
         </div>
       );
     }
-    return (
-      <div className="text-3xl font-bold text-primary-700 mb-4">
-        ₹{product?.price}
-      </div>
-    );
+      return (
+        <div className="text-3xl font-bold text-dark-text-primary mb-4">
+          ₹{product?.price}
+        </div>
+      );
   };
 
   if (loading) {
@@ -153,9 +154,9 @@ export default function ProductDetailsPage() {
 
   if (error || !product) {
     return (
-      <div className="min-h-screen bg-background-cream flex items-center justify-center">
+      <div className="min-h-screen bg-dark-bg-primary flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-serif font-bold text-primary-700 mb-4">{error || "Product not found"}</h1>
+          <h1 className="text-2xl font-serif font-bold text-dark-text-primary mb-4">{error || "Product not found"}</h1>
           <Link
             href="/products"
             className="bg-accent-500 text-white px-6 py-3 rounded-2xl hover:bg-accent-600 transition-colors font-semibold shadow-lg"
@@ -170,7 +171,7 @@ export default function ProductDetailsPage() {
   const images = Array.isArray(product.images) ? product.images : [];
 
   return (
-    <div className="min-h-screen bg-background-cream">
+    <div className="min-h-screen bg-dark-bg-primary">
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumb */}
         <motion.div 
@@ -180,13 +181,13 @@ export default function ProductDetailsPage() {
         >
           <Link
             href="/products"
-            className="flex items-center text-text-muted hover:text-primary-700 mr-4 transition-colors"
+            className="flex items-center text-dark-text-muted hover:text-dark-text-primary mr-4 transition-colors"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Products
           </Link>
-          <span className="text-text-muted">/</span>
-          <span className="ml-4 text-primary-700 font-medium">{product.name}</span>
+          <span className="text-dark-text-muted">/</span>
+          <span className="ml-4 text-dark-text-primary font-medium">{product.name}</span>
         </motion.div>
 
         <div className="grid lg:grid-cols-2 gap-16">
@@ -201,13 +202,13 @@ export default function ProductDetailsPage() {
             {images.length > 1 && (
               <div className="flex flex-col gap-3">
                 {images.map((image, index) => {
-                  const imageUrl = typeof image === 'string' ? image : image?.url || '/placeholder-product.svg';
+                  const imageUrl = typeof image === 'string' ? getImagePreset(image, 'thumbnail') : getImagePreset(image?.url || '/placeholder-product.svg', 'thumbnail');
                   return (
                     <button
                       key={index}
                       onClick={() => setSelectedImage(index)}
-                      className={`relative w-20 h-20 bg-white rounded-xl overflow-hidden border-2 transition-all shadow-md group hover:shadow-lg flex-shrink-0 ${
-                        selectedImage === index ? 'border-accent-500 shadow-xl ring-2 ring-accent-200' : 'border-heritage-200 hover:border-accent-300'
+                      className={`relative w-20 h-20 bg-dark-bg-secondary rounded-xl overflow-hidden border-2 transition-all shadow-md group hover:shadow-lg flex-shrink-0 ${
+                        selectedImage === index ? 'border-accent-500 shadow-xl ring-2 ring-accent-200' : 'border-dark-border-primary hover:border-accent-300'
                       }`}
                     >
                                              <div className="relative w-full h-full">
@@ -238,12 +239,12 @@ export default function ProductDetailsPage() {
             )}
 
             {/* Main Image Display */}
-            <div className="relative aspect-square bg-white rounded-3xl overflow-hidden shadow-lg flex-1">
+            <div className="relative aspect-square bg-dark-bg-secondary rounded-3xl overflow-hidden shadow-lg flex-1">
               {images.length > 0 ? (
                                  <div className="relative w-full h-full group cursor-pointer" onClick={handleImageClick}>
                    <div className="relative w-full h-full">
                      <Image
-                       src={typeof images[selectedImage] === 'string' ? images[selectedImage] : images[selectedImage]?.url || '/placeholder-product.svg'}
+                       src={typeof images[selectedImage] === 'string' ? getImagePreset(images[selectedImage], 'full') : getImagePreset(images[selectedImage]?.url || '/placeholder-product.svg', 'full')}
                        alt={`${product.name} ${selectedImage + 1}`}
                        fill
                        className="object-cover"
@@ -285,15 +286,15 @@ export default function ProductDetailsPage() {
             className="space-y-8"
           >
             <div>
-              <h1 className="text-4xl md:text-5xl font-serif font-bold text-primary-700 mb-6">{product.name}</h1>
+              <h1 className="text-4xl md:text-5xl font-serif font-bold text-dark-text-primary mb-6">{product.name}</h1>
               <div className="flex items-center mb-8">
                 <div className="flex items-center mr-8">
                   {renderStars(product.averageRating || 0)}
-                  <span className="ml-4 text-text-secondary font-medium">
+                  <span className="ml-4 text-dark-text-secondary font-medium">
                     ({product.averageRating ? product.averageRating.toFixed(1) : '0.0'})
                   </span>
                 </div>
-                <span className="text-text-secondary font-medium">
+                <span className="text-dark-text-secondary font-medium">
                   {product.numReviews || 0} {(product.numReviews || 0) === 1 ? 'review' : 'reviews'}
                 </span>
               </div>
@@ -301,17 +302,17 @@ export default function ProductDetailsPage() {
             </div>
 
             <div className="space-y-8">
-              <p className="text-text-secondary leading-relaxed text-lg">{product.description}</p>
+              <p className="text-dark-text-secondary leading-relaxed text-lg">{product.description}</p>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex items-center space-x-4">
-                  <span className="text-text-secondary font-medium">SKU:</span>
-                  <span className="text-primary-700 font-semibold">{product._id}</span>
+                  <span className="text-dark-text-secondary font-medium">SKU:</span>
+                  <span className="text-dark-text-primary font-semibold">{product._id}</span>
                 </div>
                 
                 <div className="flex items-center space-x-4">
-                  <span className="text-text-secondary font-medium">Category:</span>
-                  <span className="text-primary-700 font-semibold">
+                  <span className="text-dark-text-secondary font-medium">Category:</span>
+                  <span className="text-dark-text-primary font-semibold">
                     {typeof product.category === 'object' && product.category !== null
                       ? product.category.name
                       : product.category}
@@ -347,16 +348,16 @@ export default function ProductDetailsPage() {
                       if (cartQuantity > 1) updateCartItemQuantity(product._id, cartQuantity - 1);
                       else removeFromCart(product._id);
                     }}
-                    className="p-4 bg-heritage-100 border border-heritage-200 text-primary-700 rounded-2xl hover:bg-accent-500 hover:text-white hover:border-accent-500 transition-colors shadow-lg"
+                    className="p-4 bg-dark-bg-secondary border border-dark-border-primary text-dark-text-primary rounded-2xl hover:bg-accent-500 hover:text-white hover:border-accent-500 transition-colors shadow-lg"
                   >
                     {cartQuantity === 1 ? <Trash2 className="h-5 w-5" /> : <Minus className="h-5 w-5" />}
                   </button>
-                  <span className="px-8 font-semibold text-primary-700 text-xl">{cartQuantity}</span>
+                  <span className="px-8 font-semibold text-dark-text-primary text-xl">{cartQuantity}</span>
                   <button
                     onClick={() => {
                       if (cartQuantity < product.stock) updateCartItemQuantity(product._id, cartQuantity + 1);
                     }}
-                    className="p-4 bg-heritage-100 border border-heritage-200 text-primary-700 rounded-2xl hover:bg-accent-500 hover:text-white hover:border-accent-500 transition-colors shadow-lg"
+                    className="p-4 bg-dark-bg-secondary border border-dark-border-primary text-dark-text-primary rounded-2xl hover:bg-accent-500 hover:text-white hover:border-accent-500 transition-colors shadow-lg"
                     disabled={cartQuantity >= product.stock}
                   >
                     <Plus className="h-5 w-5" />
@@ -376,7 +377,7 @@ export default function ProductDetailsPage() {
           className="mt-24"
         >
           <div className="flex items-center justify-between mb-12">
-            <h2 className="text-3xl font-serif font-bold text-primary-700 flex items-center">
+            <h2 className="text-3xl font-serif font-bold text-dark-text-primary flex items-center">
               <MessageCircle className="h-8 w-8 mr-4" />
               Customer Reviews
             </h2>
@@ -401,23 +402,23 @@ export default function ProductDetailsPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="bg-white border border-heritage-200 rounded-2xl shadow-lg p-8"
+                  className="bg-dark-bg-secondary border border-dark-border-primary rounded-2xl shadow-lg p-8"
                 >
                   <div className="flex items-start justify-between mb-8">
                     <div className="flex items-center">
-                      <div className="w-12 h-12 bg-heritage-100 rounded-full flex items-center justify-center mr-6">
-                        <User className="h-6 w-6 text-primary-700" />
+                      <div className="w-12 h-12 bg-dark-bg-tertiary rounded-full flex items-center justify-center mr-6">
+                        <User className="h-6 w-6 text-dark-text-primary" />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-primary-700 text-lg">{review.user.name}</h4>
+                        <h4 className="font-semibold text-dark-text-primary text-lg">{review.user.name}</h4>
                         <div className="flex items-center mt-2">
                           {renderStars(review.rating)}
-                          <span className="ml-4 text-text-secondary font-medium">{review.rating}/5</span>
+                          <span className="ml-4 text-dark-text-secondary font-medium">{review.rating}/5</span>
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center space-x-4">
-                      <div className="flex items-center text-text-muted">
+                      <div className="flex items-center text-dark-text-muted">
                         <Calendar className="h-4 w-4 mr-2" />
                         {new Date(review.createdAt).toLocaleDateString()}
                       </div>
@@ -425,14 +426,14 @@ export default function ProductDetailsPage() {
                         <div className="flex items-center space-x-3">
                           <button
                             onClick={() => handleEditReview(review)}
-                            className="p-3 text-text-muted hover:text-primary-700 transition-colors rounded-xl hover:bg-heritage-100"
+                            className="p-3 text-dark-text-muted hover:text-dark-text-primary transition-colors rounded-xl hover:bg-dark-bg-hover"
                             title="Edit review"
                           >
                             <Edit className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => handleDeleteReview(review._id)}
-                            className="p-3 text-text-muted hover:text-red-600 transition-colors rounded-xl hover:bg-red-50"
+                            className="p-3 text-dark-text-muted hover:text-red-400 transition-colors rounded-xl hover:bg-red-900/20"
                             title="Delete review"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -441,17 +442,17 @@ export default function ProductDetailsPage() {
                       )}
                     </div>
                   </div>
-                  <p className="text-text-secondary text-lg leading-relaxed">{review.comment}</p>
+                  <p className="text-dark-text-secondary text-lg leading-relaxed">{review.comment}</p>
                 </motion.div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-20 bg-white border border-heritage-200 rounded-2xl shadow-lg">
-              <div className="w-24 h-24 bg-heritage-100 rounded-full flex items-center justify-center mx-auto mb-8">
-                <MessageCircle className="h-12 w-12 text-heritage-400" />
+            <div className="text-center py-20 bg-dark-bg-secondary border border-dark-border-primary rounded-2xl shadow-lg">
+              <div className="w-24 h-24 bg-dark-bg-tertiary rounded-full flex items-center justify-center mx-auto mb-8">
+                <MessageCircle className="h-12 w-12 text-dark-text-muted" />
               </div>
-              <h3 className="text-2xl font-serif font-bold text-primary-700 mb-6">No reviews yet</h3>
-              <p className="text-text-secondary text-lg mb-10 max-w-md mx-auto">Be the first to review this product and share your experience with our community!</p>
+              <h3 className="text-2xl font-serif font-bold text-dark-text-primary mb-6">No reviews yet</h3>
+              <p className="text-dark-text-secondary text-lg mb-10 max-w-md mx-auto">Be the first to review this product and share your experience with our community!</p>
               {auth.isAuthenticated ? (
                 <button
                   onClick={() => {

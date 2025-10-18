@@ -39,11 +39,11 @@
   
   /* Hero Section Dots */
   .hero-dot {
-    @apply w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-all duration-300 cursor-pointer;
+    @apply w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 cursor-pointer;
   }
   
   .hero-dot-active {
-    @apply w-6 sm:w-8;
+    @apply w-4 sm:w-6;
   }
   
   /* Handcrafted Text Styles */
@@ -520,6 +520,42 @@ header nav {
 /* Ensure header doesn't clip search dropdown */
 header {
   overflow: visible !important;
+}
+
+/* Hamburger menu scrollable override */
+.hamburger-scrollable {
+  scrollbar-width: thin !important;
+  -ms-overflow-style: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  touch-action: pan-y !important;
+  overscroll-behavior: contain !important;
+}
+
+/* Prevent Lenis from interfering with hamburger menu scrolling */
+.hamburger-scrollable[data-lenis-prevent] {
+  pointer-events: auto !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.hamburger-scrollable::-webkit-scrollbar {
+  display: block !important;
+  width: 8px !important;
+  height: 8px !important;
+}
+
+.hamburger-scrollable::-webkit-scrollbar-track {
+  background: #374151 !important;
+  border-radius: 4px !important;
+}
+
+.hamburger-scrollable::-webkit-scrollbar-thumb {
+  background: #6B7280 !important;
+  border-radius: 4px !important;
+}
+
+.hamburger-scrollable::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF !important;
 }
 
 /* Search suggestions dropdown fix */
