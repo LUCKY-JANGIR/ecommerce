@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiUser, FiShoppingCart, FiLogIn, FiChevronDown, FiSearch, FiMenu, FiX } from "react-icons/fi";
-import { useStore } from '@/store/useStore';
+import { useStore, Product } from '@/store/useStore';
 import { productsAPI } from '@/components/services/api';
 import { useDebounce } from '@/hooks/useDebounce';
 import { getImagePreset } from '@/lib/cloudinary';
@@ -19,7 +19,7 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [searchSuggestions, setSearchSuggestions] = useState<any[]>([]);
+  const [searchSuggestions, setSearchSuggestions] = useState<Product[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedSuggestion, setSelectedSuggestion] = useState(-1);
   const [mobileSearchMode, setMobileSearchMode] = useState(false);
@@ -114,7 +114,7 @@ export default function Header() {
       setMobileMenuOpen(false);
   };
 
-  const handleSuggestionClick = (suggestion: any) => {
+  const handleSuggestionClick = (suggestion: Product) => {
     setSearch(suggestion.name);
     setShowSuggestions(false);
     setSelectedSuggestion(-1);
@@ -318,9 +318,9 @@ export default function Header() {
                             }`}
                           >
                             <div className="flex items-center space-x-3">
-                              {suggestion.images?.[0]?.url && (
+                              {suggestion.images?.[0] && (
                                 <Image
-                                  src={getImagePreset(suggestion.images[0].url, 'thumbnail')}
+                                  src={getImagePreset(typeof suggestion.images[0] === 'string' ? suggestion.images[0] : suggestion.images[0].url, 'thumbnail')}
                                   alt={suggestion.name}
                                   width={32}
                                   height={32}
@@ -351,7 +351,7 @@ export default function Header() {
                         {!isSearchLoading && searchSuggestions.length === 0 && search.trim() && (
                           <div className="px-4 py-8 text-center text-dark-text-muted">
                             <FiSearch className="w-8 h-8 mx-auto mb-3 text-dark-text-muted" />
-                            <p className="text-sm">No products found for "{search}"</p>
+                            <p className="text-sm">No products found for &quot;{search}&quot;</p>
                             <p className="text-xs text-dark-text-muted mt-1">Try searching with different keywords</p>
                           </div>
                         )}
@@ -369,7 +369,7 @@ export default function Header() {
                           >
                             <div className="flex items-center space-x-2">
                               <FiSearch className="w-4 h-4" />
-                              <span>Search for "<span className="text-accent-500 font-semibold">{search}</span>"</span>
+                              <span>Search for &quot;<span className="text-accent-500 font-semibold">{search}</span>&quot;</span>
                             </div>
                   </button>
                         )}
@@ -603,9 +603,9 @@ export default function Header() {
                               }`}
                             >
                               <div className="flex items-center space-x-3">
-                                {suggestion.images?.[0]?.url && (
+                                {suggestion.images?.[0] && (
                                   <Image
-                                    src={getImagePreset(suggestion.images[0].url, 'thumbnail')}
+                                    src={getImagePreset(typeof suggestion.images[0] === 'string' ? suggestion.images[0] : suggestion.images[0].url, 'thumbnail')}
                                     alt={suggestion.name}
                                     width={48}
                                     height={48}
@@ -644,7 +644,7 @@ export default function Header() {
                             >
                               <div className="flex items-center space-x-2">
                                 <FiSearch className="w-4 h-4" />
-                                <span>Search for "<span className="text-accent-500 font-semibold">{search}</span>"</span>
+                                <span>Search for &quot;<span className="text-accent-500 font-semibold">{search}</span>&quot;</span>
                               </div>
                             </button>
                           )}
@@ -655,7 +655,7 @@ export default function Header() {
                           {search.trim() && searchSuggestions.length === 0 && (
                             <div className="p-8 text-center text-dark-text-muted flex-1 flex flex-col justify-center">
                               <FiSearch className="w-12 h-12 mx-auto mb-4 text-dark-text-muted" />
-                              <p className="mb-1">No products found for "{search}"</p>
+                              <p className="mb-1">No products found for &quot;{search}&quot;</p>
                               <p className="text-sm text-dark-text-muted">Try searching with different keywords</p>
                             </div>
                           )}
@@ -682,7 +682,7 @@ export default function Header() {
                               >
                                 <div className="flex items-center space-x-2">
                                   <FiSearch className="w-4 h-4" />
-                                  <span>Search for "<span className="text-accent-500 font-semibold">{search}</span>"</span>
+                                  <span>Search for &quot;<span className="text-accent-500 font-semibold">{search}</span>&quot;</span>
                                 </div>
                               </button>
                             </div>

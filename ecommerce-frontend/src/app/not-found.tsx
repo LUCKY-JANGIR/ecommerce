@@ -6,7 +6,6 @@ import { motion } from 'framer-motion';
 import { 
   Home, 
   ArrowLeft, 
-  Search, 
   ShoppingBag,
   Compass,
   RefreshCw
@@ -40,8 +39,8 @@ export default function NotFound() {
             Oops! Page Not Found
           </h1>
           <p className="text-lg text-gray-600 mb-8 max-w-md mx-auto">
-            The page you're looking for seems to have wandered off into the digital wilderness. 
-            Let's get you back on track!
+            The page you&apos;re looking for seems to have wandered off into the digital wilderness. 
+            Let&apos;s get you back on track!
           </p>
         </motion.div>
 

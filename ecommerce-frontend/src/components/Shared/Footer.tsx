@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { 
@@ -87,11 +87,7 @@ const features = [
 
 export default function Footer() {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const toggleSection = (title: string) => {
     const newExpanded = new Set(expandedSections);

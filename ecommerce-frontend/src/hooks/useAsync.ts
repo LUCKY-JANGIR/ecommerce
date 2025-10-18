@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { CustomError, handleApiError } from '@/lib/errorHandler';
 import toast from 'react-hot-toast';
 
@@ -112,14 +112,12 @@ export function useFetch<T = unknown>(
 ) {
   const { data, loading, error, execute, reset } = useAsync(fetchFunction, false);
 
-  // Memoize dependencies to avoid spread element in dependency array
-  const memoizedDependencies = useMemo(() => dependencies, dependencies);
 
   useEffect(() => {
     if (immediate) {
       execute();
     }
-  }, [execute, immediate, memoizedDependencies]);
+  }, [execute, immediate, ...dependencies]);
 
   return {
     data,

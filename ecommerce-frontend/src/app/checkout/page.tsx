@@ -91,7 +91,7 @@ export default function CheckoutPage() {
         orderItems: cart.items.map(item => ({
           product: item.product._id,
           name: item.product.name,
-          image: item.product.images?.[0]?.url || '',
+          image: typeof item.product.images?.[0] === 'string' ? item.product.images[0] : item.product.images?.[0]?.url || '',
           quantity: item.quantity
         })),
         shippingAddress: {

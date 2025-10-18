@@ -1,4 +1,5 @@
 // Server-side only Cloudinary configuration
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let cloudinary: any = null;
 
 // Only initialize on server side

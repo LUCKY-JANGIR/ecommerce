@@ -73,7 +73,6 @@ export default function AdminPage() {
   const [categoryEditLoading, setCategoryEditLoading] = useState(false);
   const [categoryDeleting, setCategoryDeleting] = useState<string | null>(null);
   const [categoryImageFile, setCategoryImageFile] = useState<File | null>(null);
-  const [categoryImageUploading, setCategoryImageUploading] = useState(false);
 
 
   // Body scroll lock for modals
@@ -1311,7 +1310,6 @@ export default function AdminPage() {
                               const file = e.target.files?.[0];
                               if (file) {
                                 setCategoryImageFile(file);
-                                setCategoryImageUploading(true);
                                 try {
                                   const uploadRes = await uploadAPI.uploadImage(file, 'categories');
                                   if (uploadRes && uploadRes.data && uploadRes.data.url) {
@@ -1323,7 +1321,6 @@ export default function AdminPage() {
                                 } catch {
                                   toast.error('Image upload failed');
                                 } finally {
-                                  setCategoryImageUploading(false);
                                 }
                               }
                             }}
@@ -1448,7 +1445,6 @@ export default function AdminPage() {
                               const file = e.target.files?.[0];
                               if (file) {
                                 setCategoryImageFile(file);
-                                setCategoryImageUploading(true);
                                 try {
                                   const uploadRes = await uploadAPI.uploadImage(file, 'categories');
                                   if (uploadRes && uploadRes.data && uploadRes.data.url) {
@@ -1460,7 +1456,6 @@ export default function AdminPage() {
                                 } catch {
                                   toast.error('Image upload failed');
                                 } finally {
-                                  setCategoryImageUploading(false);
                                 }
                               }
                             }}

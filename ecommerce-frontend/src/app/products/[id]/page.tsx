@@ -306,7 +306,7 @@ export default function ProductDetailsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex items-center space-x-4">
                   <span className="text-text-secondary font-medium">SKU:</span>
-                  <span className="text-primary-700 font-semibold">{product.sku}</span>
+                  <span className="text-primary-700 font-semibold">{product._id}</span>
                 </div>
                 
                 <div className="flex items-center space-x-4">

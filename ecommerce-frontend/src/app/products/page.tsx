@@ -6,22 +6,15 @@ import dynamic from 'next/dynamic';
 import { productsAPI, categoriesAPI } from '@/components/services/api';
 import { Product } from '@/store/useStore';
 import { useStore } from '@/store/useStore';
-import Link from 'next/link';
 import { 
   Search,
-  SlidersHorizontal,
   Grid3X3,
   List,
-  X,
-  ChevronDown,
-  Star,
-  Filter,
-  ArrowUpDown,
   Menu,
   ChevronLeft
 } from 'lucide-react';
 import { useDebounce } from '@/hooks/useDebounce';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ProductsGridSkeleton } from '@/components/ui/Skeleton';
 
 // Dynamic import for ProductCard
@@ -152,7 +145,7 @@ function ProductsPage() {
     setLoadingMore(true);
     try {
       const nextPage = pagination.currentPage + 1;
-      const params: any = {
+      const params: Record<string, unknown> = {
         page: nextPage,
         limit: 12,
         sortBy: filters.sortBy,
@@ -165,7 +158,7 @@ function ProductsPage() {
 
       const response = await productsAPI.getAll(params);
       if (response.products && response.products.length > 0) {
-        setProducts(prevProducts => [...prevProducts, ...response.products]);
+        setProducts(prev => [...prev, ...response.products]);
         setPagination(prev => ({
           ...response.pagination,
           currentPage: nextPage,
@@ -215,7 +208,7 @@ function ProductsPage() {
     }
     
     try {
-      const params: any = {
+      const params: Record<string, unknown> = {
         page,
         limit: 12,
         sortBy: filters.sortBy,

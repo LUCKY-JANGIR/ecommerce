@@ -31,7 +31,7 @@ export const getResponsiveImageSizes = (containerType: 'product-card' | 'hero' |
 };
 
 // Get optimized image URL with preset
-export const getOptimizedImage = (url: string, preset: 'thumbnail' | 'card' | 'hero' | 'gallery' | 'full'): string => {
+export const getOptimizedImage = (url: string): string => {
   if (!url) return getPlaceholderImage();
   return getOptimizedImageUrl(url, { quality: 'auto:good' });
 };
@@ -62,7 +62,7 @@ export const generateResponsiveImageSet = (url: string, baseWidth: number = 400)
 };
 
 // Image loading optimization hook
-export const useImagePreload = (urls: string[]) => {
+export const useImagePreload = () => {
   const preloadImages = (imageUrls: string[]) => {
     imageUrls.forEach(url => {
       if (url && url.includes('cloudinary.com')) {

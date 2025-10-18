@@ -5,7 +5,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { ArrowRight, Eye, Heart, Star } from 'lucide-react';
-import ProductCard from '@/components/ProductCard';
 import { Product } from '@/store/useStore';
 import { categoriesAPI, productsAPI } from '@/components/services/api';
 import { CategoriesGridSkeleton } from '@/components/ui/Skeleton';
@@ -27,7 +26,6 @@ interface CategoryWithProducts extends Category {
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<CategoryWithProducts[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory] = useState<string | null>(null);
 
   // Memoized fetch function for better performance
   const fetchCategoriesAndProducts = useCallback(async () => {

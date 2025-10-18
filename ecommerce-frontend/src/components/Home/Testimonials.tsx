@@ -168,7 +168,7 @@ export default function Testimonials() {
 
                 {/* Quote */}
                 <blockquote className="text-base md:text-lg text-gray-700 mb-6 flex-grow leading-relaxed">
-                  "{review.comment}"
+                  &quot;{review.comment}&quot;
                 </blockquote>
 
                 {/* Author */}

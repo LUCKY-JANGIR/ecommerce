@@ -48,7 +48,7 @@ export const handleApiError = (error: unknown): never => {
 
   // Axios error
   if (error && typeof error === 'object' && 'response' in error && error.response) {
-    const { status, data } = error.response as any;
+    const { status, data } = error.response as { status: number; data: { message?: string; error?: { message?: string } } };
     
     // Handle different status codes
     switch (status) {

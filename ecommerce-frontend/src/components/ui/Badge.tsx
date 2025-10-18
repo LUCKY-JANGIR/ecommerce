@@ -36,28 +36,18 @@ const Badge: React.FC<BadgeProps> = ({
     lg: 'px-4 py-1.5 text-base',
   };
 
-  const Component = animated ? motion.span : 'span';
-
-  const motionProps = animated ? {
-    initial: { opacity: 0, scale: 0.8 },
-    animate: { opacity: 1, scale: 1 },
-    transition: { type: "spring", stiffness: 300 },
-    whileHover: { scale: 1.05 },
-  } : {};
-
   return (
-    <Component
+    <span
       className={cn(
         baseStyles,
         variants[variant],
         sizes[size],
         className
       )}
-      {...motionProps}
       {...props}
     >
       {children}
-    </Component>
+    </span>
   );
 };
 

@@ -69,14 +69,14 @@ export default function ProfilePage() {
         setProfile(response);
         // Pre-fill form
         setForm({
-          name: response.user?.name || '',
-          phone: response.user?.phone || '',
+          name: response.name || '',
+          phone: response.phone || '',
           address: {
-            street: response.user?.address?.street || '',
-            city: response.user?.address?.city || '',
-            state: response.user?.address?.state || '',
-            zipCode: response.user?.address?.zipCode || '',
-            country: response.user?.address?.country || '',
+            street: response.address?.street || '',
+            city: response.address?.city || '',
+            state: response.address?.state || '',
+            zipCode: response.address?.zipCode || '',
+            country: response.address?.country || '',
           },
         });
       } catch (error) {
@@ -120,7 +120,7 @@ export default function ProfilePage() {
           {/* User Avatar */}
           <div className="text-center mb-10">
             <div className="w-24 h-24 bg-gradient-to-r from-accent-500 to-primary-500 rounded-full flex items-center justify-center text-white text-4xl font-bold mb-6 mx-auto shadow-lg">
-              {profile?.user?.name ? profile.user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase() : 'U'}
+              {profile?.name ? profile.name.split(' ').map((n: string) => n[0]).join('').toUpperCase() : 'U'}
             </div>
             <h1 className="text-4xl font-serif font-bold text-dark-text-primary mb-3">My Profile</h1>
             <p className="text-dark-text-secondary text-lg">Manage your account information</p>
@@ -141,25 +141,25 @@ export default function ProfilePage() {
                 <div className="flex items-center">
                   <User className="h-5 w-5 text-dark-text-secondary mr-3" />
                   <span className="text-dark-text-secondary">Name:</span>
-                  <span className="ml-2 font-semibold text-dark-text-primary">{profile?.user?.name}</span>
+                  <span className="ml-2 font-semibold text-dark-text-primary">{profile?.name}</span>
                 </div>
                 <div className="flex items-center">
                   <Mail className="h-5 w-5 text-dark-text-secondary mr-3" />
                   <span className="text-dark-text-secondary">Email:</span>
-                  <span className="ml-2 font-semibold text-dark-text-primary">{profile?.user?.email}</span>
+                  <span className="ml-2 font-semibold text-dark-text-primary">{profile?.email}</span>
                 </div>
-                {profile?.user?.phone && (
+                {profile?.phone && (
                   <div className="flex items-center">
                     <Phone className="h-5 w-5 text-dark-text-secondary mr-3" />
                     <span className="text-dark-text-secondary">Phone:</span>
-                    <span className="ml-2 font-semibold text-dark-text-primary">{profile.user.phone}</span>
+                    <span className="ml-2 font-semibold text-dark-text-primary">{profile.phone}</span>
                   </div>
                 )}
               </div>
             </motion.div>
             
             {/* Address */}
-            {profile?.user?.address && (
+            {profile?.address && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -172,9 +172,9 @@ export default function ProfilePage() {
                 <div className="flex items-start">
                   <MapPin className="h-5 w-5 text-dark-text-secondary mr-3 mt-1" />
                   <div className="text-dark-text-secondary">
-                    {profile.user.address.street && <p className="mb-1">{profile.user.address.street}</p>}
-                    <p className="mb-1">{profile.user.address.city}, {profile.user.address.state} {profile.user.address.zipCode}</p>
-                    <p>{profile.user.address.country}</p>
+                    {profile.address.street && <p className="mb-1">{profile.address.street}</p>}
+                    <p className="mb-1">{profile.address.city}, {profile.address.state} {profile.address.zipCode}</p>
+                    <p>{profile.address.country}</p>
                   </div>
                 </div>
               </motion.div>
@@ -193,13 +193,13 @@ export default function ProfilePage() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-dark-text-secondary">Account Type:</span>
-                  <span className="font-semibold text-dark-text-primary capitalize">{profile?.user?.role}</span>
+                  <span className="font-semibold text-dark-text-primary capitalize">{profile?.role}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-dark-text-secondary">Member Since:</span>
                   <span className="font-semibold text-dark-text-primary">
-                    {profile?.user?.createdAt && !isNaN(new Date(profile.user.createdAt).getTime())
-                      ? new Date(profile.user.createdAt).toLocaleDateString()
+                    {profile?.createdAt && !isNaN(new Date(profile.createdAt).getTime())
+                      ? new Date(profile.createdAt).toLocaleDateString()
                       : 'N/A'}
                   </span>
                 </div>

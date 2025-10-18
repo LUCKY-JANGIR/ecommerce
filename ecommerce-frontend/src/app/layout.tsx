@@ -10,7 +10,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import LenisProvider from "@/components/LenisProvider";
 import "@/app/fonts.css";
 import { Toaster } from 'react-hot-toast';
-
+import { Analytics } from "@vercel/analytics/next"
 export const metadata: Metadata = {
   title: 'Hastkari - Handwoven Stories',
   description: 'Discover authentic Indian handlooms and traditional craftsmanship',
@@ -46,6 +46,7 @@ export default function RootLayout({
             <HydrationProvider />
             <Header />
             {children}
+            <Analytics />
           </LenisProvider>
         </ErrorBoundary>
       </body>

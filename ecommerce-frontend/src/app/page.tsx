@@ -13,14 +13,9 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { 
-  HeroSkeleton,
-  FeaturedProductsSkeleton,
-  CategoriesSkeleton,
-  ReviewsSkeleton,
-  FeaturesSkeleton
+  HeroSkeleton
 } from '@/components/ui/Skeleton';
 import { productsAPI, categoriesAPI } from '@/components/services/api';
-import { getImagePreset } from '@/lib/cloudinary';
 import { getResponsiveImageSizes, getBlurPlaceholder } from '@/lib/imageUtils';
 import { Product } from '@/store/useStore';
 

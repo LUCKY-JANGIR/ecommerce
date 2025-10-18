@@ -8,7 +8,7 @@ import { useStore } from '@/store/useStore';
 import { ShoppingCart, Star, Minus, Plus, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
-import { getOptimizedImageUrl, getImagePreset } from '@/lib/cloudinary';
+import { getImagePreset } from '@/lib/cloudinary';
 import { getResponsiveImageSizes, getBlurPlaceholder } from '@/lib/imageUtils';
 
 interface ProductCardProps {

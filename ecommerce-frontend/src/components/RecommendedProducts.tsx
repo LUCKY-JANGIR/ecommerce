@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { productsAPI } from '@/components/services/api';
-import { useStore, Product } from '@/store/useStore';
+import { Product } from '@/store/useStore';
 import ProductCard from '@/components/ProductCard';
 
 interface RecommendedProductsProps {

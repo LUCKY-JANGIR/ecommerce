@@ -1,7 +1,6 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -12,7 +11,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: React.ReactNode;
   iconPosition?: 'left' | 'right';
   fullWidth?: boolean;
-  handcrafted?: boolean; // Special Hastkari styling
+  handcrafted?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -49,59 +48,18 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const handcraftedStyles = handcrafted ? 'animate-handwoven font-handcrafted' : '';
 
     return (
-      <motion.button
+      <button
         ref={ref}
-        className={cn(
-          baseStyles,
-          variants[variant],
-          sizes[size],
-          handcraftedStyles,
-          fullWidth && 'w-full',
-          className
-        )}
+        className={cn(baseStyles,variants[variant],sizes[size],handcraftedStyles,fullWidth && 'w-full',className)}
         disabled={disabled || loading}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        transition={{ type: "spring", stiffness: 400, damping: 17 }}
         {...props}
       >
-        {loading && (
-          <motion.div
-            className="absolute inset-0 flex items-center justify-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-          </motion.div>
-        )}
-        
-        <span className={cn('flex items-center gap-2', loading && 'opacity-0')}>
-          {icon && iconPosition === 'left' && (
-            <motion.span
-              initial={{ x: -5, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.1 }}
-            >
-              {icon}
-            </motion.span>
-          )}
-          {children}
-          {icon && iconPosition === 'right' && (
-            <motion.span
-              initial={{ x: 5, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.1 }}
-            >
-              {icon}
-            </motion.span>
-          )}
-        </span>
-      </motion.button>
+        {loading && <div className="absolute inset-0 flex items-center justify-center"><div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" /></div>}
+        <span className={cn('flex items-center gap-2', loading && 'opacity-0')}>{icon && iconPosition === 'left' && icon}{children}{icon && iconPosition === 'right' && icon}</span>
+      </button>
     );
   }
 );
 
 Button.displayName = 'Button';
-
 export default Button;

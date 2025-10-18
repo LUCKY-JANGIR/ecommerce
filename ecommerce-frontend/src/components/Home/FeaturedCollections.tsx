@@ -2,9 +2,9 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Card, CardContent, CardTitle } from '@/components/ui/card';
+import Card, { CardContent, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import Button from '@/components/ui/button';
 
 interface Collection {
   id: string;
@@ -119,7 +119,7 @@ export default function FeaturedCollections({
               className="group"
             >
               <Link href={collection.href}>
-                <Card variant="product" className="h-full cursor-pointer">
+                <Card className="h-full cursor-pointer">
                   <div className="relative overflow-hidden rounded-t-2xl">
                     <div className="aspect-square relative">
                       <img
