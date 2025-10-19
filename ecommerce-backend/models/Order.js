@@ -25,7 +25,16 @@ const orderItemSchema = new mongoose.Schema({
         type: Number,
         required: true,
         min: [1, 'Quantity must be at least 1']
-    }
+    },
+    selectedParameters: [{
+        parameterId: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'Parameter'
+        },
+        parameterName: String,
+        parameterType: String,
+        value: mongoose.Schema.Types.Mixed // Can be string, number, object (for dimensions), etc.
+    }]
 });
 
 const shippingAddressSchema = new mongoose.Schema({
@@ -40,6 +49,10 @@ const shippingAddressSchema = new mongoose.Schema({
     city: {
         type: String,
         required: true
+    },
+    state: {
+        type: String,
+        required: false
     },
     postalCode: {
         type: String,

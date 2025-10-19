@@ -92,7 +92,9 @@ export default function CheckoutPage() {
           product: item.product._id,
           name: item.product.name,
           image: typeof item.product.images?.[0] === 'string' ? item.product.images[0] : item.product.images?.[0]?.url || '',
-          quantity: item.quantity
+          price: item.product.price || 0,
+          quantity: item.quantity,
+          selectedParameters: item.selectedParameters || []
         })),
         shippingAddress: {
           fullName: data.fullName,

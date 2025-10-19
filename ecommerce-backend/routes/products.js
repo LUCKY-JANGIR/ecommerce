@@ -244,7 +244,7 @@ router.get('/', [
 router.get('/featured', async (req, res, next) => {
     try {
         const products = await Product.getFeatured()
-            .limit(8)
+            .limit(12)
             .select('-reviews');
 
         res.json(products);
@@ -274,6 +274,7 @@ router.get('/category/:category', async (req, res, next) => {
 router.get('/:id', optionalAuth, asyncHandler(async (req, res) => {
     const product = await Product.findById(req.params.id)
         .populate('category', 'name') // Populate category name
+        .populate('parameters') // Populate parameters
         .populate('reviews.user', 'name');
 
     if (!product) {
@@ -319,7 +320,7 @@ router.post('/', protect, admin, upload.array('images', 5), async (req, res, nex
         const {
             name, description, price, originalPrice, discount, category,
             subcategory, brand, sku, stock, lowStockThreshold, weight,
-            dimensions, specifications, tags, isFeatured
+            dimensions, specifications, tags, isFeatured, parameters
         } = req.body;
 
         // Check if SKU already exists
@@ -359,6 +360,7 @@ router.post('/', protect, admin, upload.array('images', 5), async (req, res, nex
             dimensions: dimensions ? JSON.parse(dimensions) : {},
             specifications: specifications ? JSON.parse(specifications) : [],
             tags: tags ? JSON.parse(tags) : [],
+            parameters: parameters ? JSON.parse(parameters) : [],
             isFeatured: isFeatured === 'true',
             // Note: createdBy field removed from schema
         });
@@ -406,6 +408,9 @@ router.put('/:id', protect, admin, upload.array('images', 5), async (req, res, n
         }
         if (req.body.tags) {
             product.tags = JSON.parse(req.body.tags);
+        }
+        if (req.body.parameters) {
+            product.parameters = JSON.parse(req.body.parameters);
         }
 
         // Handle images: existing images, new images, and reordering

@@ -648,4 +648,75 @@ export const platformReviewsAPI = {
   },
 };
 
+// Parameters API
+export const parametersAPI = {
+  getAll: async () => {
+    try {
+      const response = await api.get('/parameters');
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
+  },
+
+  getById: async (id: string) => {
+    try {
+      const response = await api.get(`/parameters/${id}`);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
+  },
+
+  create: async (parameterData: {
+    name: string;
+    type: 'select' | 'text' | 'number' | 'custom-range' | 'dimensions';
+    options?: string[];
+    required?: boolean;
+    unit?: string;
+    min?: number;
+    max?: number;
+    step?: number;
+    allowCustom?: boolean;
+    description?: string;
+  }) => {
+    try {
+      const response = await api.post('/parameters', parameterData);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
+  },
+
+  update: async (id: string, parameterData: {
+    name?: string;
+    type?: 'select' | 'text' | 'number' | 'custom-range' | 'dimensions';
+    options?: string[];
+    required?: boolean;
+    unit?: string;
+    min?: number;
+    max?: number;
+    step?: number;
+    allowCustom?: boolean;
+    description?: string;
+    isActive?: boolean;
+  }) => {
+    try {
+      const response = await api.put(`/parameters/${id}`, parameterData);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
+  },
+
+  delete: async (id: string) => {
+    try {
+      const response = await api.delete(`/parameters/${id}`);
+      return response.data;
+    } catch (error) {
+      handleApiError(error);
+    }
+  },
+};
+
 export default api; 

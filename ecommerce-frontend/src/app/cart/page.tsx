@@ -189,6 +189,23 @@ export default function CartPage() {
                             ? item.product.category.name
                             : item.product.category}
                         </p>
+                        
+                        {/* Display Selected Parameters */}
+                        {item.selectedParameters && item.selectedParameters.length > 0 && (
+                          <div className="mt-2 space-y-1">
+                            {item.selectedParameters.map((param, idx) => (
+                              <div key={idx} className="text-xs text-gray-600 flex items-center gap-1">
+                                <span className="font-medium">{param.parameterName}:</span>
+                                <span className="text-gray-800">
+                                  {typeof param.value === 'object' && param.value !== null
+                                    ? `${param.value.length || 0} × ${param.value.width || 0} × ${param.value.height || 0}`
+                                    : param.value}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        
                         <div className="mt-3">
                           <span className="text-lg font-bold text-blue-600">
                             {renderPrice(item.product.price)}

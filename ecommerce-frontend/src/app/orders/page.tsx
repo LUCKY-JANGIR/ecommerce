@@ -21,12 +21,32 @@ export default function OrdersPage() {
     orderStatus: string;
     createdAt: string;
     isPaid: boolean;
+    totalPrice?: number;
+    itemsPrice?: number;
+    shippingPrice?: number;
+    taxPrice?: number;
     negotiationNotes?: string;
+    shippingAddress?: {
+      fullName: string;
+      address: string;
+      city: string;
+      state?: string;
+      postalCode: string;
+      country: string;
+      phone: string;
+    };
     orderItems: Array<{
       name: string;
       quantity: number;
+      price: number;
       product?: string;
       image?: string;
+      selectedParameters?: Array<{
+        parameterId: string;
+        parameterName: string;
+        parameterType: string;
+        value: any;
+      }>;
     }>;
   }>>([]);
 
@@ -216,7 +236,7 @@ export default function OrdersPage() {
                   <div className="border-t border-dark-border-primary pt-6">
                     <h4 className="font-serif font-bold text-dark-text-primary mb-4">Order Items:</h4>
                     <div className="space-y-4 mb-6">
-                      {order.orderItems.map((item: { name: string; quantity: number; product?: string; image?: string }, itemIndex: number) => (
+                      {order.orderItems.map((item: { name: string; quantity: number; price: number; product?: string; image?: string; selectedParameters?: Array<{ parameterId: string; parameterName: string; parameterType: string; value: any }> }, itemIndex: number) => (
                         <div key={itemIndex} className="bg-dark-bg-tertiary p-5 rounded-xl border border-dark-border-primary hover:border-accent-500/30 transition-colors">
                           <div className="flex items-start gap-4">
                             {/* Product Image */}
@@ -242,16 +262,41 @@ export default function OrdersPage() {
                                   <h5 className="text-lg font-semibold text-dark-text-primary mb-1 truncate">
                                     {item.name}
                                   </h5>
-                                  <div className="flex items-center gap-4 text-sm text-dark-text-secondary">
+                                  <div className="flex items-center gap-4 text-sm text-dark-text-secondary flex-wrap">
                                     <span className="flex items-center gap-1.5">
                                       <span className="w-2 h-2 rounded-full bg-accent-500"></span>
-                                      Quantity: <span className="font-semibold text-dark-text-primary">{item.quantity}</span>
+                                      Qty: <span className="font-semibold text-dark-text-primary">{item.quantity}</span>
                                     </span>
                                     <span className="flex items-center gap-1.5">
                                       <span className="w-2 h-2 rounded-full bg-orange-500"></span>
-                                      Price: {renderNegotiable()}
+                                      Price: {item.price !== undefined && item.price > 0 
+                                        ? <span className="font-semibold text-dark-text-primary">₹{item.price.toLocaleString()}</span>
+                                        : renderNegotiable()}
                                     </span>
+                                    {item.price !== undefined && item.price > 0 && item.quantity > 1 && (
+                                      <span className="flex items-center gap-1.5">
+                                        <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                                        Total: <span className="font-semibold text-green-600">₹{(item.price * item.quantity).toLocaleString()}</span>
+                                      </span>
+                                    )}
                                   </div>
+                                  
+                                  {/* Display Selected Parameters */}
+                                  {item.selectedParameters && item.selectedParameters.length > 0 && (
+                                    <div className="mt-3 space-y-1">
+                                      <p className="text-xs font-medium text-dark-text-muted">Specifications:</p>
+                                      {item.selectedParameters.map((param, idx) => (
+                                        <div key={idx} className="text-xs text-dark-text-secondary flex items-center gap-1">
+                                          <span className="font-medium text-accent-400">{param.parameterName}:</span>
+                                          <span className="text-dark-text-primary">
+                                            {typeof param.value === 'object' && param.value !== null
+                                              ? `${param.value.length || 0} × ${param.value.width || 0} × ${param.value.height || 0}`
+                                              : param.value}
+                                          </span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
                                 </div>
                                 
                                 {/* Price Summary */}
@@ -268,9 +313,63 @@ export default function OrdersPage() {
                       ))}
                     </div>
 
+                    {/* Shipping Address & Order Summary */}
+                    <div className="grid md:grid-cols-2 gap-4 mt-6 border-t border-dark-border-primary pt-6">
+                      {/* Shipping Address */}
+                      {order.shippingAddress && (
+                        <div className="bg-dark-bg-tertiary rounded-xl p-5 border border-dark-border-primary">
+                          <h5 className="font-semibold text-dark-text-primary mb-3 flex items-center gap-2">
+                            <FiPackage className="w-4 h-4 text-accent-500" />
+                            Shipping Address
+                          </h5>
+                          <div className="text-sm text-dark-text-secondary space-y-1">
+                            <p className="font-semibold text-dark-text-primary">{order.shippingAddress.fullName}</p>
+                            <p>{order.shippingAddress.address}</p>
+                            <p>{order.shippingAddress.city}, {order.shippingAddress.state || ''} {order.shippingAddress.postalCode}</p>
+                            <p>{order.shippingAddress.country}</p>
+                            <p className="pt-2 border-t border-dark-border-primary mt-2">📞 {order.shippingAddress.phone}</p>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Order Summary */}
+                      <div className="bg-dark-bg-tertiary rounded-xl p-5 border border-dark-border-primary">
+                        <h5 className="font-semibold text-dark-text-primary mb-3 flex items-center gap-2">
+                          <DollarSign className="w-4 h-4 text-accent-500" />
+                          Order Summary
+                        </h5>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between text-dark-text-secondary">
+                            <span>Items Total:</span>
+                            <span className="font-semibold text-dark-text-primary">
+                              {order.itemsPrice ? `₹${order.itemsPrice.toLocaleString()}` : 'Negotiable'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-dark-text-secondary">
+                            <span>Shipping:</span>
+                            <span className="font-semibold text-dark-text-primary">
+                              {order.shippingPrice !== undefined ? (order.shippingPrice === 0 ? 'FREE' : `₹${order.shippingPrice}`) : 'TBD'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-dark-text-secondary">
+                            <span>Tax:</span>
+                            <span className="font-semibold text-dark-text-primary">
+                              {order.taxPrice ? `₹${order.taxPrice.toLocaleString()}` : 'TBD'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-lg font-bold text-dark-text-primary pt-2 border-t border-dark-border-primary">
+                            <span>Total:</span>
+                            <span className="text-accent-500">
+                              {order.totalPrice ? `₹${order.totalPrice.toLocaleString()}` : renderNegotiable()}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
                     {/* Cancellation Information */}
                     {order.orderStatus === 'Cancelled' && order.negotiationNotes && (
-                      <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
+                      <div className="bg-red-50 border border-red-200 rounded-xl p-4 mt-4">
                         <div className="flex items-start gap-3">
                           <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
                           <div>

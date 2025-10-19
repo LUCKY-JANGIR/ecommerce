@@ -114,7 +114,7 @@ export default function CategoriesPage() {
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
               {categories.map((category, index) => (
                 <OptimizedCategoryCard 
                   key={category._id}
@@ -180,25 +180,26 @@ const OptimizedCategoryCard = ({ category, index }: OptimizedCategoryCardProps) 
         <div className="bg-gradient-to-br from-dark-bg-secondary to-dark-bg-tertiary rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 group-hover:-translate-y-3 border border-dark-border-primary/50 hover:border-accent-500/40 group-hover:shadow-accent-500/10 h-full flex flex-col">
           
           {/* Enhanced Category Image */}
-          <div className="relative h-80 overflow-hidden">
+          <div className="relative w-full h-64 sm:h-72 md:h-80 lg:h-96 xl:h-[28rem] overflow-hidden bg-dark-bg-tertiary flex items-center justify-center">
             {category.image ? (
               <div className="relative w-full h-full">
                 <Image
-                  src={getImagePreset(category.image, 'hero')}
+                  src={getImagePreset(category.image, 'card')}
                   alt={category.name}
                   fill
-                  className="object-contain group-hover:scale-105 transition-transform duration-700 bg-dark-bg-tertiary"
+                  className="object-contain group-hover:scale-[1.02] transition-transform duration-700"
+                  style={{ objectFit: 'contain', objectPosition: 'center' }}
                   quality={95}
                   placeholder="blur"
                   blurDataURL={getBlurPlaceholder(50, 50)}
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  priority={index < 3}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+                  priority={index < 4}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                <div className="absolute inset-0 bg-gradient-to-br from-accent-500/5 via-transparent to-primary-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-br from-accent-500/5 via-transparent to-primary-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                 
                 {/* Handwoven Pattern Overlay */}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 bg-handloom-pattern"></div>
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 bg-handloom-pattern pointer-events-none"></div>
               </div>
             ) : (
               <div className="absolute inset-0 bg-gradient-to-br from-accent-500 via-primary-500 to-heritage-500 flex items-center justify-center">
@@ -281,7 +282,7 @@ const OptimizedCategoryCard = ({ category, index }: OptimizedCategoryCardProps) 
                           src={getImagePreset(img.url!, 'card')}
                           alt={img.alt}
                           fill
-                          className="object-contain group-hover/thumb:scale-110 transition-transform duration-300 bg-dark-bg-tertiary"
+                          className="object-contain group-hover/thumb:scale-110 transition-transform duration-300"
                           quality={90}
                           placeholder="blur"
                           blurDataURL={getBlurPlaceholder(15, 15)}

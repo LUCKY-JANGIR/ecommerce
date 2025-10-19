@@ -89,8 +89,9 @@ export default function ImageModal({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black/90 backdrop-blur-sm z-[9999]"
             onClick={onClose}
+            data-lenis-prevent
           />
 
           {/* Modal */}
@@ -98,8 +99,11 @@ export default function ImageModal({
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
             onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            data-lenis-prevent
           >
             <div className="relative w-full h-full max-w-7xl max-h-[90vh] flex flex-col">
               {/* Header */}

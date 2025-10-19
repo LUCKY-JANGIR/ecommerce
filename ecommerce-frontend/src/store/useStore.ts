@@ -6,7 +6,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { User, Product, CartItem } from '@/types';
+import { User, Product, CartItem, SelectedParameter } from '@/types';
 
 // ============================================================================
 // INTERNAL STATE INTERFACES
@@ -34,7 +34,7 @@ interface AppState {
   
   // Cart
   cart: CartState;
-  addToCart: (product: Product, quantity?: number) => void;
+  addToCart: (product: Product, quantity?: number, selectedParameters?: SelectedParameter[]) => void;
   removeFromCart: (productId: string) => void;
   updateCartItemQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
@@ -141,10 +141,11 @@ export const useStore = create<AppState>()(
       /**
        * Add product to cart or increment quantity if already exists
        */
-      addToCart: (product: Product, quantity = 1) => {
+      addToCart: (product: Product, quantity = 1, selectedParameters?: SelectedParameter[]) => {
         set((state) => {
           const existingItem = state.cart.items.find(
-            (item) => item.product._id === product._id
+            (item) => item.product._id === product._id && 
+            JSON.stringify(item.selectedParameters) === JSON.stringify(selectedParameters)
           );
           
           let newItems: CartItem[];
@@ -152,13 +153,14 @@ export const useStore = create<AppState>()(
           if (existingItem) {
             // Increment quantity for existing item
             newItems = state.cart.items.map((item) =>
-              item.product._id === product._id
+              item.product._id === product._id && 
+              JSON.stringify(item.selectedParameters) === JSON.stringify(selectedParameters)
                 ? { ...item, quantity: item.quantity + quantity }
                 : item
             );
           } else {
             // Add new item to cart
-            newItems = [...state.cart.items, { product, quantity }];
+            newItems = [...state.cart.items, { product, quantity, selectedParameters }];
           }
           
           const { totalItems, totalPrice } = calculateCartTotals(newItems);

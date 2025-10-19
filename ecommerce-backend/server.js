@@ -44,6 +44,7 @@ const userRoutes = require('./routes/users');
 const categoryRoutes = require('./routes/categories');
 const uploadRoutes = require('./routes/upload');
 const platformReviewsRoute = require('./routes/platformReviews');
+const parameterRoutes = require('./routes/parameters');
 
 console.log('MONGODB_URI:', process.env.MONGODB_URI ? 'SET' : 'NOT SET');
 console.log('JWT_SECRET:', process.env.JWT_SECRET ? 'SET' : 'NOT SET');
@@ -190,6 +191,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/reviews', platformReviewsRoute);
+app.use('/api/parameters', parameterRoutes);
 
 // Error handling middleware (must be after routes)
 app.use(notFound);

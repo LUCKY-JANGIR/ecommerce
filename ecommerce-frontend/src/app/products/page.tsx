@@ -21,14 +21,17 @@ import { ProductsGridSkeleton } from '@/components/ui/Skeleton';
 const ProductCard = dynamic(() => import('@/components/ProductCard'), {
   loading: () => (
     <div className="bg-dark-bg-secondary rounded-2xl overflow-hidden shadow-sm border border-dark-border-primary">
-      <div className="relative aspect-square bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary overflow-hidden">
+      <div className="relative w-full h-64 sm:h-72 md:h-80 lg:h-96 xl:h-[28rem] bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary overflow-hidden flex items-center justify-center">
         <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
       </div>
-      <div className="p-4 space-y-3">
-        <div className="relative h-4 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
+      <div className="p-5 space-y-3">
+        <div className="relative h-3 w-16 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
           <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
         </div>
-        <div className="relative h-4 w-2/3 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
+        <div className="relative h-5 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
+          <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+        </div>
+        <div className="relative h-5 w-3/4 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
           <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
         </div>
       </div>
@@ -467,30 +470,33 @@ function ProductsPage() {
         </div>
 
         {/* Products Content */}
-        <div className="p-4 lg:p-8">
+        <div className="p-2 lg:p-4">
           {loading ? (
-            <div className={`grid gap-6 ${
+            <div className={`grid gap-4 ${
               viewMode === 'grid' 
-                ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' 
+                ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4' 
                 : 'grid-cols-1 max-w-4xl mx-auto'
             }`}>
               {[...Array(12)].map((_, index) => (
                 <div key={index} className="bg-dark-bg-secondary rounded-2xl overflow-hidden shadow-sm border border-dark-border-primary">
-                  <div className="relative aspect-square bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary overflow-hidden">
+                  <div className="relative w-full h-64 sm:h-72 md:h-80 lg:h-96 xl:h-[28rem] bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary overflow-hidden flex items-center justify-center">
                     <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                   </div>
-                  <div className="p-4 space-y-3">
-                    <div className="relative h-4 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
+                  <div className="p-5 space-y-3">
+                    <div className="relative h-3 w-16 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
                       <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                     </div>
-                    <div className="relative h-4 w-2/3 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
+                    <div className="relative h-5 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
+                      <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                    </div>
+                    <div className="relative h-5 w-3/4 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
                       <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                     </div>
                     <div className="flex items-center justify-between pt-2">
-                      <div className="relative h-5 w-20 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
+                      <div className="relative h-6 w-24 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded overflow-hidden">
                         <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                       </div>
-                      <div className="relative h-8 w-8 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded-full overflow-hidden">
+                      <div className="relative h-10 w-24 bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary rounded-xl overflow-hidden">
                         <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                       </div>
                     </div>
@@ -499,9 +505,9 @@ function ProductsPage() {
               ))}
             </div>
           ) : products.length > 0 ? (
-            <div className={`grid gap-6 ${
+            <div className={`grid gap-4 ${
               viewMode === 'grid' 
-                ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' 
+                ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4' 
                 : 'grid-cols-1 max-w-4xl mx-auto'
             }`}>
               {products.map((product, index) => (

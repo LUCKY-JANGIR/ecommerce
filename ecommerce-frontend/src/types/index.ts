@@ -13,6 +13,30 @@ export interface ProductImage {
   public_id?: string;
 }
 
+export interface Parameter {
+  _id: string;
+  name: string;
+  type: 'select' | 'text' | 'number' | 'custom-range' | 'dimensions';
+  options?: string[];
+  required: boolean;
+  unit?: string;
+  min?: number;
+  max?: number;
+  step?: number;
+  allowCustom?: boolean;
+  description?: string;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface SelectedParameter {
+  parameterId: string;
+  parameterName: string;
+  parameterType: string;
+  value: string | number | { length?: number; width?: number; height?: number };
+}
+
 export interface Product {
   _id: string;
   name: string;
@@ -21,6 +45,7 @@ export interface Product {
   images: (ProductImage | string)[];
   category: string | Category;
   stock: number;
+  parameters?: Parameter[];
   averageRating?: number;
   numReviews?: number;
   createdAt: string;
@@ -86,6 +111,7 @@ export interface RegisterData {
 export interface CartItem {
   product: Product;
   quantity: number;
+  selectedParameters?: SelectedParameter[];
 }
 
 export interface CartState {
@@ -101,6 +127,7 @@ export interface OrderItem {
   product: string | Product;
   quantity: number;
   price: number;
+  selectedParameters?: SelectedParameter[];
 }
 
 export interface ShippingAddress extends Address {

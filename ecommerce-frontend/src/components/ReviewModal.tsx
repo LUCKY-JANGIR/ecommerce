@@ -103,34 +103,59 @@ export default function ReviewModal({
     }
   };
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-xl font-semibold text-gray-900">
-            {existingReview ? 'Edit Review' : 'Write a Review'}
-          </h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-            disabled={isSubmitting}
-          >
-            <X className="h-6 w-6" />
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="p-6">
-          <div className="mb-4">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {productName}
-            </h3>
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+      role="dialog"
+      aria-modal="true"
+      data-lenis-prevent
+    >
+      <div 
+        className="bg-white rounded-lg shadow-xl max-w-md w-full universal-modal-container"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="universal-modal-content">
+          {/* Header */}
+          <div className="flex items-center justify-between p-6 border-b">
+            <h2 className="text-xl font-semibold text-gray-900">
+              {existingReview ? 'Edit Review' : 'Write a Review'}
+            </h2>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+              disabled={isSubmitting}
+            >
+              <X className="h-6 w-6" />
+            </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Content */}
+          <div className="p-6">
+            <div className="mb-4">
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                {productName}
+              </h3>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
             {/* Rating */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -221,6 +246,7 @@ export default function ReviewModal({
               </button>
             </div>
           </form>
+          </div>
         </div>
       </div>
     </div>

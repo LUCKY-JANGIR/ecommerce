@@ -29,7 +29,7 @@ export default function Header() {
       try {
         const response = await productsAPI.getFeatured();
         if (response && Array.isArray(response)) {
-          setFeaturedProducts(response.slice(0, 6)); // Get first 6 featured products
+          setFeaturedProducts(response.slice(0, 12)); // Get first 12 featured products
         }
       } catch (error) {
         console.error('Error fetching featured products:', error);
@@ -290,7 +290,7 @@ export default function Header() {
                 )}
 
                 {/* Scrollable Content */}
-                <div className="flex-1 overflow-y-scroll">
+                <div className="flex-1 overflow-y-auto">
                   {/* Navigation Links */}
                   <nav className="p-4 space-y-1">
                     <Link
@@ -321,7 +321,7 @@ export default function Header() {
                     <div className="border-t border-dark-border-primary">
                       <h3 className="text-sm font-medium text-dark-text-primary p-4 pb-2">Exclusive Products</h3>
                        <div 
-                         className="mx-4 mb-4 h-64 hamburger-scrollable"
+                         className="mx-4 mb-4 h-96 hamburger-scrollable"
                          data-lenis-prevent
                          style={{ 
                            overflowY: 'auto',

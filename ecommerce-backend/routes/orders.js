@@ -67,20 +67,27 @@ router.post('/', protect, [
             product: item.product,
             name: item.name || 'Product',
             image: item.image || '',
-            price: 0, // Negotiable
-            quantity: item.quantity
+            price: item.price || 0, // Use actual price if provided
+            quantity: item.quantity,
+            selectedParameters: item.selectedParameters || []
         }));
+
+        // Calculate prices based on items
+        const itemsPrice = processedOrderItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+        const taxPrice = itemsPrice > 0 ? Math.round(itemsPrice * 0.1 * 100) / 100 : 0;
+        const shippingPrice = itemsPrice > 100 ? 0 : 10;
+        const totalPrice = itemsPrice + taxPrice + shippingPrice;
 
         // Create order
         const order = await Order.create({
             user: req.user._id,
             orderItems: processedOrderItems,
             shippingAddress,
-            paymentMethod: 'Negotiable',
-            itemsPrice: 0,
-            taxPrice: 0,
-            shippingPrice: 0,
-            totalPrice: 0,
+            paymentMethod: paymentMethod || 'Negotiable',
+            itemsPrice,
+            taxPrice,
+            shippingPrice,
+            totalPrice,
             negotiationNotes: '',
         });
 
@@ -128,7 +135,8 @@ router.get('/my-orders', protect, async (req, res, next) => {
             .populate('orderItems.product', 'name images')
             .sort({ createdAt: -1 })
             .skip(skip)
-            .limit(limit);
+            .limit(limit)
+            .select('orderStatus createdAt isPaid itemsPrice shippingPrice taxPrice totalPrice negotiationNotes orderItems shippingAddress paymentMethod');
 
         const total = await Order.countDocuments({ user: req.user._id });
 
@@ -292,7 +300,8 @@ router.get('/', protect, admin, async (req, res, next) => {
             .populate('orderItems.product', 'name images')
             .sort({ createdAt: -1 })
             .skip(skip)
-            .limit(limit);
+            .limit(limit)
+            .select('orderStatus createdAt isPaid itemsPrice shippingPrice taxPrice totalPrice negotiationNotes orderItems shippingAddress paymentMethod user');
 
         const total = await Order.countDocuments(filter);
 

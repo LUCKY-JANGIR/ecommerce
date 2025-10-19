@@ -3,11 +3,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Users, ShoppingBag, BarChart3, Tag, Settings, Plus, Edit, Trash2, X, Star, User, MessageCircle } from 'lucide-react';
+import { Users, ShoppingBag, BarChart3, Tag, Settings, Plus, Edit, Trash2, X, Star, User, MessageCircle, DollarSign } from 'lucide-react';
 import UniversalModal from '@/components/UniversalModal';
 import { FiPackage } from 'react-icons/fi';
 import toast from 'react-hot-toast';
-import { productsAPI, categoriesAPI, uploadAPI } from "@/components/services/api";
+import { productsAPI, categoriesAPI, uploadAPI, parametersAPI } from "@/components/services/api";
 import { getOptimizedImageUrl } from "@/lib/cloudinary";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
@@ -29,7 +29,7 @@ interface Product {
   stock: number;
   isFeatured?: boolean;
   images?: Array<{ url: string; alt?: string }>;
-
+  parameters?: Array<{ _id: string; name: string; type: string }>;
 }
 
 interface Category {
@@ -136,10 +136,21 @@ export default function AdminPage() {
     orderStatus: string;
     isPaid: boolean;
     createdAt: string;
+    itemsPrice?: number;
+    shippingPrice?: number;
+    taxPrice?: number;
+    totalPrice?: number;
     orderItems: Array<{
       name: string;
       quantity: number;
       price: number;
+      image?: string;
+      selectedParameters?: Array<{
+        parameterId: string;
+        parameterName: string;
+        parameterType: string;
+        value: any;
+      }>;
     }>;
     negotiationNotes?: string;
     user?: {
@@ -357,18 +368,9 @@ export default function AdminPage() {
   // Parameter Management Functions
   const fetchParameters = async () => {
     try {
-      // This would be an API call to get parameters
-      // For now, using mock data
-      const mockParameters = [
-        { _id: '1', name: 'Size', type: 'select' as const, options: ['Small', 'Medium', 'Large', 'Extra Large'], required: true, allowCustom: false },
-        { _id: '2', name: 'Color', type: 'select' as const, options: ['Red', 'Blue', 'Green', 'Yellow'], required: true, allowCustom: false },
-        { _id: '3', name: 'Material', type: 'select' as const, options: ['Cotton', 'Silk', 'Wool', 'Linen'], required: false, allowCustom: false },
-        { _id: '4', name: 'Custom Message', type: 'text' as const, required: false, allowCustom: false },
-        { _id: '5', name: 'Quantity', type: 'number' as const, required: true, min: 1, max: 100, step: 1, allowCustom: false },
-        { _id: '6', name: 'Carpet Size', type: 'custom-range' as const, options: ['Small (3x5)', 'Medium (4x6)', 'Large (6x9)', 'Custom'], required: true, allowCustom: true, unit: 'ft' },
-        { _id: '7', name: 'Dimensions', type: 'dimensions' as const, required: true, unit: 'cm', min: 50, max: 500, step: 5, allowCustom: true }
-      ];
-      setParameters(mockParameters);
+      const response = await parametersAPI.getAll();
+      const parametersData = response.data || response || [];
+      setParameters(parametersData);
     } catch (error) {
       console.error('Error fetching parameters:', error);
       toast.error('Failed to load parameters');
@@ -387,20 +389,15 @@ export default function AdminPage() {
     }
 
     try {
-      // This would be an API call to save parameter
-      const newParameter = {
-        _id: editingParameter ? editingParameter._id : Date.now().toString(),
-        ...parameterForm
-      };
-
       if (editingParameter) {
-        setParameters(prev => prev.map(p => p._id === editingParameter._id ? newParameter : p));
+        await parametersAPI.update(editingParameter._id, parameterForm);
         toast.success('Parameter updated successfully');
       } else {
-        setParameters(prev => [...prev, newParameter]);
+        await parametersAPI.create(parameterForm);
         toast.success('Parameter created successfully');
       }
 
+      await fetchParameters();
       setShowParameterModal(false);
       setEditingParameter(null);
       setParameterForm({ name: '', type: 'select', options: [], required: false, allowCustom: false, unit: '', min: 0, max: 1000, step: 1 });
@@ -429,7 +426,8 @@ export default function AdminPage() {
   const handleDeleteParameter = async (parameterId: string) => {
     if (window.confirm('Are you sure you want to delete this parameter?')) {
       try {
-        setParameters(prev => prev.filter(p => p._id !== parameterId));
+        await parametersAPI.delete(parameterId);
+        await fetchParameters();
         toast.success('Parameter deleted successfully');
       } catch (error) {
         toast.error('Failed to delete parameter');
@@ -589,8 +587,15 @@ export default function AdminPage() {
       alt: img.alt || product.name
     }));
     setEditSelectedImages(existingImages);
-    // Reset parameters for now - in a real app, you'd load the product's assigned parameters
-    setSelectedParameters([]);
+    // Load the product's assigned parameters
+    if (product.parameters && Array.isArray(product.parameters)) {
+      const parameterIds = product.parameters.map((p: any) => 
+        typeof p === 'string' ? p : p._id
+      );
+      setSelectedParameters(parameterIds);
+    } else {
+      setSelectedParameters([]);
+    }
   };
 
   const handleProductEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -622,6 +627,11 @@ export default function AdminPage() {
       // Send the order of images (use URLs for existing images, IDs for new ones)
       const imageOrder = editSelectedImages.map(img => img.url || img.id);
       formData.append('imageOrder', JSON.stringify(imageOrder));
+      
+      // Add selected parameters
+      if (selectedParameters.length > 0) {
+        formData.append('parameters', JSON.stringify(selectedParameters));
+      }
       
       await productsAPI.update(productEditing._id, formData);
       toast.success('Product updated successfully');
@@ -668,6 +678,11 @@ export default function AdminPage() {
       formData.append('price', productAddForm.price);
       formData.append('stock', productAddForm.stock);
       formData.append('sku', productAddForm.sku);
+      
+      // Add selected parameters
+      if (selectedParameters.length > 0) {
+        formData.append('parameters', JSON.stringify(selectedParameters));
+      }
       
       // Add multiple images
       selectedImages.forEach((imageItem) => {
@@ -2624,6 +2639,7 @@ export default function AdminPage() {
                         quantity: number;
                         price: number;
                         image?: string;
+                        selectedParameters?: Array<{ parameterId: string; parameterName: string; parameterType: string; value: any }>;
                       }, index: number) => (
                         <div key={index} className="flex items-center gap-4 p-3 bg-dark-bg-primary rounded-lg hover:bg-dark-bg-secondary transition-colors">
                           <div className="w-16 h-16 bg-dark-bg-secondary rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0 border-2 border-dark-border-primary">
@@ -2635,15 +2651,77 @@ export default function AdminPage() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="font-semibold text-dark-text-primary truncate">{item.name}</p>
-                            <div className="flex items-center gap-4 mt-1">
+                            <div className="flex items-center gap-4 mt-1 flex-wrap">
                               <p className="text-sm text-dark-text-secondary">
                                 Qty: <span className="font-semibold text-dark-text-primary">{item.quantity}</span>
                               </p>
-                              <p className="text-sm text-orange-600 font-semibold">Negotiable</p>
+                              <p className="text-sm font-semibold">
+                                {item.price !== undefined && item.price > 0 
+                                  ? <span className="text-dark-text-primary">₹{item.price.toLocaleString()}</span>
+                                  : <span className="text-orange-600">Negotiable</span>}
+                              </p>
+                              {item.price !== undefined && item.price > 0 && item.quantity > 1 && (
+                                <p className="text-sm">
+                                  <span className="text-dark-text-muted">Total:</span> <span className="font-semibold text-green-600">₹{(item.price * item.quantity).toLocaleString()}</span>
+                                </p>
+                              )}
                             </div>
+                            
+                            {/* Display Selected Parameters */}
+                            {item.selectedParameters && item.selectedParameters.length > 0 && (
+                              <div className="mt-2 space-y-0.5 bg-dark-bg-secondary/50 p-2 rounded-lg">
+                                <p className="text-xs font-medium text-accent-400 mb-1">Customer Specifications:</p>
+                                {item.selectedParameters.map((param, idx) => (
+                                  <div key={idx} className="text-xs text-dark-text-secondary flex items-center gap-1">
+                                    <span className="font-medium text-accent-400">{param.parameterName}:</span>
+                                    <span className="text-dark-text-primary font-semibold">
+                                      {typeof param.value === 'object' && param.value !== null
+                                        ? `${param.value.length || 0} × ${param.value.width || 0} × ${param.value.height || 0}`
+                                        : param.value}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         </div>
                       ))}
+                    </div>
+                  </div>
+
+                  {/* Order Summary */}
+                  <div className="bg-gradient-to-br from-dark-bg-secondary to-dark-bg-tertiary rounded-xl p-6 border border-dark-border-primary">
+                    <h4 className="text-lg font-semibold text-dark-text-primary mb-4 flex items-center gap-2">
+                      <DollarSign className="w-5 h-5 text-accent-500" />
+                      Order Summary
+                    </h4>
+                    <div className="space-y-3">
+                      <div className="flex justify-between text-dark-text-secondary">
+                        <span>Items Total:</span>
+                        <span className="font-semibold text-dark-text-primary">
+                          {selectedOrder.itemsPrice ? `₹${selectedOrder.itemsPrice.toLocaleString()}` : 'Negotiable'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-dark-text-secondary">
+                        <span>Shipping:</span>
+                        <span className="font-semibold text-dark-text-primary">
+                          {selectedOrder.shippingPrice !== undefined 
+                            ? (selectedOrder.shippingPrice === 0 ? 'FREE' : `₹${selectedOrder.shippingPrice}`) 
+                            : 'TBD'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-dark-text-secondary">
+                        <span>Tax (10%):</span>
+                        <span className="font-semibold text-dark-text-primary">
+                          {selectedOrder.taxPrice ? `₹${selectedOrder.taxPrice.toLocaleString()}` : 'TBD'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-xl font-bold text-dark-text-primary pt-3 border-t border-dark-border-primary">
+                        <span>Grand Total:</span>
+                        <span className="text-accent-500">
+                          {selectedOrder.totalPrice ? `₹${selectedOrder.totalPrice.toLocaleString()}` : 'Negotiable'}
+                        </span>
+                      </div>
                     </div>
                   </div>
 

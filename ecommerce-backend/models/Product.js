@@ -65,6 +65,10 @@ const productSchema = new mongoose.Schema({
         name: String,
         value: String
     }],
+    parameters: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Parameter'
+    }],
     reviews: [reviewSchema],
     averageRating: {
         type: Number,

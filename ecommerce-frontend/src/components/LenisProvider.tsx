@@ -18,6 +18,28 @@ export default function LenisProvider({ children }: LenisProviderProps) {
       wheelMultiplier: 1,
       touchMultiplier: 2,
       infinite: false,
+      // Prevent Lenis from interfering with specific elements
+      prevent: (node) => {
+        // Prevent on elements with data-lenis-prevent attribute
+        if (node.hasAttribute && node.hasAttribute('data-lenis-prevent')) {
+          return true;
+        }
+        
+        // Prevent on modals and their children
+        if (node.closest && (
+          node.closest('.modal-scrollable') ||
+          node.closest('.universal-modal-container') ||
+          node.closest('[role="dialog"]') ||
+          node.closest('.fixed.inset-0') ||
+          node.closest('.hamburger-scrollable') ||
+          node.closest('.swiper') ||
+          node.closest('.swiper-wrapper')
+        )) {
+          return true;
+        }
+        
+        return false;
+      },
     });
 
     function raf(time: number) {
@@ -49,9 +71,27 @@ export default function LenisProvider({ children }: LenisProviderProps) {
 
     document.addEventListener('click', handleAnchorClick);
 
+    // Stop Lenis when modal is open
+    const stopLenisOnModal = () => {
+      const modals = document.querySelectorAll('.fixed.inset-0, [role="dialog"]');
+      if (modals.length > 0) {
+        lenis.stop();
+      } else {
+        lenis.start();
+      }
+    };
+
+    // Watch for modal changes
+    const observer = new MutationObserver(stopLenisOnModal);
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+
     return () => {
       lenis.destroy();
       document.removeEventListener('click', handleAnchorClick);
+      observer.disconnect();
     };
   }, []);
 

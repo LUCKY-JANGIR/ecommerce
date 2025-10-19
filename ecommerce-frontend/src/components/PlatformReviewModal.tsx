@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Star, Star as StarFilled } from 'lucide-react';
 import { platformReviewsAPI } from './services/api';
 import toast from 'react-hot-toast';
@@ -55,37 +55,62 @@ export default function PlatformReviewModal({
     }
   };
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-responsive">
-      <div className="bg-white rounded-responsive shadow-responsive modal-responsive max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between p-responsive border-b">
-          <h2 className="text-responsive-lg font-semibold text-gray-900">
-            Share Your Experience
-          </h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-            disabled={isSubmitting}
-          >
-            <X className="h-6 w-6" />
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="p-responsive">
-          <div className="mb-4">
-            <h3 className="text-responsive-base font-medium text-gray-900 mb-2">
-              How was your experience with our handloom products?
-            </h3>
-            <p className="text-responsive-sm text-gray-600">
-              Your feedback helps us improve and helps other customers make informed decisions.
-            </p>
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-responsive"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+      role="dialog"
+      aria-modal="true"
+      data-lenis-prevent
+    >
+      <div 
+        className="bg-white rounded-responsive shadow-responsive modal-responsive universal-modal-container"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="universal-modal-content">
+          {/* Header */}
+          <div className="flex items-center justify-between p-responsive border-b">
+            <h2 className="text-responsive-lg font-semibold text-gray-900">
+              Share Your Experience
+            </h2>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+              disabled={isSubmitting}
+            >
+              <X className="h-6 w-6" />
+            </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="form-responsive">
+          {/* Content */}
+          <div className="p-responsive">
+            <div className="mb-4">
+              <h3 className="text-responsive-base font-medium text-gray-900 mb-2">
+                How was your experience with our handloom products?
+              </h3>
+              <p className="text-responsive-sm text-gray-600">
+                Your feedback helps us improve and helps other customers make informed decisions.
+              </p>
+            </div>
+
+            <form onSubmit={handleSubmit} className="form-responsive">
             {/* Rating */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -163,6 +188,7 @@ export default function PlatformReviewModal({
               </button>
             </div>
           </form>
+          </div>
         </div>
       </div>
     </div>
