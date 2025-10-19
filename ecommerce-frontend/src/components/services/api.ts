@@ -499,6 +499,7 @@ export const ordersAPI = {
     page?: number;
     limit?: number;
     status?: string;
+    isPaid?: string;
   }) => {
     try {
       const response = await api.get('/orders', { params });

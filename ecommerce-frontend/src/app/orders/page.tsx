@@ -5,10 +5,12 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useStore } from '@/store/useStore';
 import { ordersAPI } from '@/components/services/api';
-import { ArrowLeft, Calendar, DollarSign } from 'lucide-react';
+import { ArrowLeft, Calendar, DollarSign, CreditCard, MessageCircle, AlertCircle } from 'lucide-react';
 import { FiPackage } from 'react-icons/fi';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
+import Image from 'next/image';
+import { getImagePreset } from '@/lib/cloudinary';
 
 export default function OrdersPage() {
   const router = useRouter();
@@ -18,9 +20,13 @@ export default function OrdersPage() {
     _id: string;
     orderStatus: string;
     createdAt: string;
+    isPaid: boolean;
+    negotiationNotes?: string;
     orderItems: Array<{
       name: string;
       quantity: number;
+      product?: string;
+      image?: string;
     }>;
   }>>([]);
 
@@ -145,36 +151,164 @@ export default function OrdersPage() {
                     </span>
                   </div>
 
-                  <div className="grid md:grid-cols-3 gap-6 mb-6">
-                    <div className="flex items-center">
-                      <Calendar className="h-5 w-5 text-dark-text-secondary mr-3" />
-                      <span className="text-dark-text-secondary">
-                        {new Date(order.createdAt).toLocaleDateString()}
-                      </span>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div className="bg-dark-bg-tertiary p-4 rounded-xl border border-dark-border-primary">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center">
+                          <Calendar className="h-5 w-5 text-blue-500" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-dark-text-muted font-medium">Order Date</p>
+                          <p className="text-sm font-semibold text-dark-text-primary">
+                            {new Date(order.createdAt).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric'
+                            })}
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center">
-                      <DollarSign className="h-5 w-5 text-dark-text-secondary mr-3" />
-                      <span className="text-dark-text-secondary">
-                        Total: {renderNegotiable()}
-                      </span>
+                    
+                    <div className="bg-dark-bg-tertiary p-4 rounded-xl border border-dark-border-primary">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center">
+                          <DollarSign className="h-5 w-5 text-green-500" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-dark-text-muted font-medium">Total Amount</p>
+                          <p className="text-sm font-semibold text-dark-text-primary">
+                            {renderNegotiable()}
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-dark-text-secondary">
-                      {order.orderItems.length} item(s)
+                    
+                    <div className="bg-dark-bg-tertiary p-4 rounded-xl border border-dark-border-primary">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${order.isPaid ? 'bg-green-500/10' : 'bg-orange-500/10'}`}>
+                          <CreditCard className={`h-5 w-5 ${order.isPaid ? 'text-green-500' : 'text-orange-500'}`} />
+                        </div>
+                        <div>
+                          <p className="text-xs text-dark-text-muted font-medium">Payment Status</p>
+                          <p className={`text-sm font-semibold ${order.isPaid ? 'text-green-600' : 'text-orange-600'}`}>
+                            {order.isPaid ? '✓ Paid' : '⏳ Pending'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-dark-bg-tertiary p-4 rounded-xl border border-dark-border-primary">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center">
+                          <FiPackage className="h-5 w-5 text-purple-500" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-dark-text-muted font-medium">Total Items</p>
+                          <p className="text-sm font-semibold text-dark-text-primary">
+                            {order.orderItems.length} item{order.orderItems.length !== 1 ? 's' : ''}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
                   <div className="border-t border-dark-border-primary pt-6">
                     <h4 className="font-serif font-bold text-dark-text-primary mb-4">Order Items:</h4>
-                    <div className="space-y-3">
-                                             {order.orderItems.map((item: { name: string; quantity: number }, itemIndex: number) => (
-                        <div key={itemIndex} className="flex items-center justify-between text-sm bg-dark-bg-accent-500 p-3 rounded-xl">
-                          <span className="text-dark-text-secondary font-medium">{item.name}</span>
-                          <span className="text-dark-text-primary font-semibold">
-                            Qty: {item.quantity} × {renderNegotiable()}
-                          </span>
+                    <div className="space-y-4 mb-6">
+                      {order.orderItems.map((item: { name: string; quantity: number; product?: string; image?: string }, itemIndex: number) => (
+                        <div key={itemIndex} className="bg-dark-bg-tertiary p-5 rounded-xl border border-dark-border-primary hover:border-accent-500/30 transition-colors">
+                          <div className="flex items-start gap-4">
+                            {/* Product Image */}
+                            <div className="w-20 h-20 bg-gradient-to-br from-accent-500/20 to-primary-500/20 rounded-xl flex items-center justify-center flex-shrink-0 border-2 border-dark-border-primary overflow-hidden">
+                              {item.image ? (
+                                <Image
+                                  src={getImagePreset(item.image, 'thumbnail')}
+                                  alt={item.name}
+                                  width={80}
+                                  height={80}
+                                  className="w-full h-full object-cover rounded-lg"
+                                  quality={85}
+                                />
+                              ) : (
+                                <FiPackage className="h-8 w-8 text-accent-500" />
+                              )}
+                            </div>
+                            
+                            {/* Product Details */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between gap-4">
+                                <div className="flex-1 min-w-0">
+                                  <h5 className="text-lg font-semibold text-dark-text-primary mb-1 truncate">
+                                    {item.name}
+                                  </h5>
+                                  <div className="flex items-center gap-4 text-sm text-dark-text-secondary">
+                                    <span className="flex items-center gap-1.5">
+                                      <span className="w-2 h-2 rounded-full bg-accent-500"></span>
+                                      Quantity: <span className="font-semibold text-dark-text-primary">{item.quantity}</span>
+                                    </span>
+                                    <span className="flex items-center gap-1.5">
+                                      <span className="w-2 h-2 rounded-full bg-orange-500"></span>
+                                      Price: {renderNegotiable()}
+                                    </span>
+                                  </div>
+                                </div>
+                                
+                                {/* Price Summary */}
+                                <div className="text-right flex-shrink-0">
+                                  <p className="text-sm text-dark-text-muted mb-1">Item Total</p>
+                                  <p className="text-lg font-bold text-accent-500">
+                                    {renderNegotiable()}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       ))}
                     </div>
+
+                    {/* Cancellation Information */}
+                    {order.orderStatus === 'Cancelled' && order.negotiationNotes && (
+                      <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
+                        <div className="flex items-start gap-3">
+                          <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <h5 className="text-sm font-semibold text-red-800 mb-1">Order Cancelled</h5>
+                            <p className="text-sm text-red-700">
+                              {order.negotiationNotes.includes('cancelled by admin') ? (
+                                <>
+                                  <span className="font-medium">Cancelled by Admin</span>
+                                  {order.negotiationNotes.includes('Reason:') && (
+                                    <span className="block mt-1">
+                                      Reason: {order.negotiationNotes.split('Reason:')[1]?.trim()}
+                                    </span>
+                                  )}
+                                </>
+                              ) : (
+                                <>
+                                  <span className="font-medium">Cancelled by Customer</span>
+                                  <span className="block mt-1">{order.negotiationNotes}</span>
+                                </>
+                              )}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Admin Notes */}
+                    {order.negotiationNotes && order.orderStatus !== 'Cancelled' && (
+                      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                        <div className="flex items-start gap-3">
+                          <MessageCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <h5 className="text-sm font-semibold text-blue-800 mb-1">Admin Notes</h5>
+                            <p className="text-sm text-blue-700">{order.negotiationNotes}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               ))}
