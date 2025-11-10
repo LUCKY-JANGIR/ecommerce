@@ -207,12 +207,13 @@ export default function Header() {
                     </span>
                   )}
                 </Link>
-                <button
+                <Link
+                  href="/login"
                   className="p-3 hover:bg-dark-bg-hover rounded-lg transition-colors"
                   aria-label="Account"
                 >
                   <FiUser className="w-6 h-6 text-dark-text-secondary" />
-                </button>
+                </Link>
               </div>
           </nav>
         </div>
@@ -272,6 +273,7 @@ export default function Header() {
               {auth.isAuthenticated ? (
                 <div className="relative" ref={profileDropdownRef}>
                   <button
+                    type="button"
                     id="profile-menu-button"
                     onClick={handleProfileToggle}
                     className="p-3 hover:bg-dark-bg-hover rounded-lg transition-colors"

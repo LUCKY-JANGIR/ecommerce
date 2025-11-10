@@ -237,7 +237,7 @@ export default function RegisterPage() {
                 <label htmlFor="email" className="block text-sm font-medium text-dark-text-secondary mb-2">
                   Email Address
                 </label>
-                <div className="flex gap-3 items-center">
+                <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
                   <div className="relative flex-1">
                     <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-dark-text-secondary" />
                     <input
@@ -253,7 +253,7 @@ export default function RegisterPage() {
                   <button
                     type="button"
                     onClick={() => sendOtp(emailRef.current?.value || '')}
-                    className="bg-accent-500 text-white font-semibold rounded-xl px-6 py-4 transition-colors disabled:opacity-50 shadow-lg hover:bg-primary-500 border border-accent-600"
+                    className="bg-accent-500 text-white font-semibold rounded-xl px-6 py-4 transition-colors disabled:opacity-50 shadow-lg hover:bg-primary-500 border border-accent-600 w-full sm:w-auto"
                     disabled={otpLoading || otpSent || otpVerified}
                   >
                     {otpLoading ? 'Sending...' : otpSent ? 'OTP Sent' : 'Send OTP'}
@@ -267,8 +267,8 @@ export default function RegisterPage() {
               </div>
 
               {/* OTP Field */}
-              <div className="col-span-1 md:col-span-2 flex gap-3 items-end">
-                <div className="flex-1">
+              <div className="col-span-1 md:col-span-2 flex flex-col sm:flex-row gap-3 sm:items-end">
+                <div className="flex-1 w-full">
                   <label htmlFor="otp" className="block text-sm font-medium text-dark-text-secondary mb-2">
                     Enter OTP
                   </label>
@@ -286,7 +286,7 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => verifyOtp(emailRef.current?.value || '', otp)}
-                  className="bg-green-600 text-white font-semibold rounded-xl px-6 py-4 mb-1 transition-colors disabled:opacity-50 shadow-lg hover:bg-green-700 border border-green-700"
+                  className="bg-green-600 text-white font-semibold rounded-xl px-6 py-4 sm:mb-1 transition-colors disabled:opacity-50 shadow-lg hover:bg-green-700 border border-green-700 w-full sm:w-auto"
                   disabled={otpLoading || !otpSent || otpVerified || otp.length !== 6}
                 >
                   {otpLoading ? 'Verifying...' : otpVerified ? 'Verified' : 'Verify OTP'}

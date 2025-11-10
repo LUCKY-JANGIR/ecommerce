@@ -258,10 +258,10 @@ export default function Home() {
               <button
                 key={index}
                 onClick={() => setCurrentSlide(index)}
-                className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 cursor-pointer ${
+                className={`h-1 sm:h-1.5 w-6 sm:w-8 rounded-full transition-all duration-300 cursor-pointer ${
                   index === currentSlide 
-                    ? 'bg-white w-3 sm:w-4' 
-                    : 'bg-white/50 hover:bg-white/70'
+                    ? 'bg-white shadow-[0_0_10px_rgba(255,255,255,0.45)]' 
+                    : 'bg-white/40 hover:bg-white/60'
                 }`}
               />
             ))}
@@ -284,7 +284,7 @@ export default function Home() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
-              className="space-y-6 sm:space-y-8"
+              className="space-y-6 sm:space-y-8 order-2 lg:order-1"
             >
               <div>
                 <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-dark-text-primary mb-4 sm:mb-6 underline decoration-accent-500 decoration-2 sm:decoration-4 underline-offset-4 sm:underline-offset-8">
@@ -313,7 +313,7 @@ export default function Home() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="relative"
+              className="relative order-1 lg:order-2"
             >
               <div className="relative aspect-[4/3] rounded-2xl sm:rounded-3xl overflow-hidden bg-dark-bg-secondary">
                 {modernImages.map((image, index) => (
