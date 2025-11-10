@@ -133,7 +133,7 @@ export default function Home() {
 
 
   return (
-    <main className="min-h-screen w-full overflow-x-hidden">
+    <div className="min-h-screen w-full overflow-x-hidden">
       {/* Hero Section */}
       {loading || !imagesLoaded ? (
         <HeroSkeleton />
@@ -453,6 +453,6 @@ export default function Home() {
       <Suspense fallback={<div className="py-12 bg-dark-bg-secondary animate-pulse" />}>
           <Footer />
       </Suspense>
-    </main>
+    </div>
   );
 }

@@ -1,0 +1,43 @@
+name: Responsive Tests
+
+on:
+  pull_request:
+    paths:
+      - 'ecommerce-frontend/**'
+      - 'ci/responsive-tests.yml'
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'ecommerce-frontend/**'
+      - 'ci/responsive-tests.yml'
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ecommerce-frontend
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: ecommerce-frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Run responsive tests
+        env:
+          NEXT_PUBLIC_API_URL: http://127.0.0.1:5001/api
+          NEXT_TELEMETRY_DISABLED: '1'
+        run: npm run test:e2e

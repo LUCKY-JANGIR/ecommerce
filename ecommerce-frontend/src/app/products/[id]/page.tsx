@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 import { productsAPI } from "@/components/services/api";
 import { Product } from "@/store/useStore";
@@ -11,8 +11,6 @@ import { useStore } from "@/store/useStore";
 import { 
   ShoppingCart, 
   ArrowLeft, 
-  Minus, 
-  Plus,
   Star as StarIcon,
   MessageCircle,
   Calendar,
@@ -25,7 +23,6 @@ import {
   Package,
   Shield,
   Truck,
-  CheckCircle,
   Info,
   Settings
 } from "lucide-react";
@@ -62,6 +59,8 @@ interface Parameter {
   description?: string;
 }
 
+type ParameterValue = string | number | { length?: number; width?: number; height?: number };
+
 export default function ProductDetailsPage() {
   const { id } = useParams();
   const [product, setProduct] = useState<Product | null>(null);
@@ -70,7 +69,15 @@ export default function ProductDetailsPage() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [parameters, setParameters] = useState<Parameter[]>([]);
-  const [selectedParameters, setSelectedParameters] = useState<Record<string, any>>({});
+  const [selectedParameters, setSelectedParameters] = useState<Record<string, ParameterValue>>({});
+
+  const getPrimitiveParameterValue = (parameterId: string): string | number | undefined => {
+    const value = selectedParameters[parameterId];
+    if (typeof value === 'object' && value !== null) {
+      return undefined;
+    }
+    return value;
+  };
 
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [editingReview, setEditingReview] = useState<Review | null>(null);
@@ -78,9 +85,6 @@ export default function ProductDetailsPage() {
   const [isFavorite, setIsFavorite] = useState(false);
   
   const { addToCart, auth } = useStore();
-  const cartItem = useStore((state) => state.cart.items.find((item) => item.product._id === (product?._id || '')));
-  const cartQuantity = cartItem ? cartItem.quantity : 0;
-  const { updateCartItemQuantity, removeFromCart } = useStore();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -137,6 +141,9 @@ export default function ProductDetailsPage() {
     
     addToCart(product, 1, parameterArray.length > 0 ? parameterArray : undefined);
     toast.success("Item added to cart");
+    
+    // Clear selected parameters after adding to cart
+    setSelectedParameters({});
   };
 
   const handleReviewSubmitted = async () => {
@@ -227,116 +234,142 @@ export default function ProductDetailsPage() {
 
   return (
     <div className="min-h-screen bg-dark-bg-primary">
-      {/* Hero Section with Breadcrumb */}
-      <div className="bg-gradient-to-b from-dark-bg-secondary to-dark-bg-primary border-b border-dark-border-primary">
-        <div className="container mx-auto px-4 py-6">
+      {/* Sleek Header */}
+      <div className="sticky top-0 z-40 bg-dark-bg-primary/95 backdrop-blur-xl border-b border-dark-border-primary/50">
+        <div className="container mx-auto px-4 py-4">
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
             className="flex items-center justify-between"
         >
           <Link
             href="/products"
-              className="flex items-center text-dark-text-muted hover:text-accent-500 transition-colors group"
+              className="flex items-center text-dark-text-muted hover:text-accent-500 transition-all group"
           >
               <ArrowLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-              <span className="font-medium">Back to Products</span>
+              <span className="font-medium">Back</span>
           </Link>
             
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <button
                 onClick={() => setIsFavorite(!isFavorite)}
-                className={`p-2 rounded-full transition-all ${
+                className={`p-2.5 rounded-xl transition-all ${
                   isFavorite 
-                    ? 'bg-accent-500 text-white' 
-                    : 'bg-dark-bg-tertiary text-dark-text-secondary hover:bg-dark-bg-hover'
+                    ? 'bg-accent-500 text-white shadow-lg shadow-accent-500/25' 
+                    : 'bg-dark-bg-secondary text-dark-text-secondary hover:bg-dark-bg-hover'
                 }`}
+                aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
               >
-                <Heart className={`h-5 w-5 ${isFavorite ? 'fill-current' : ''}`} />
+                <Heart className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
               </button>
               <button
                 onClick={handleShare}
-                className="p-2 rounded-full bg-dark-bg-tertiary text-dark-text-secondary hover:bg-dark-bg-hover transition-all"
+                className="p-2.5 rounded-xl bg-dark-bg-secondary text-dark-text-secondary hover:bg-dark-bg-hover transition-all"
+                aria-label="Share this product"
               >
-                <Share2 className="h-5 w-5" />
+                <Share2 className="h-4 w-4" />
               </button>
             </div>
         </motion.div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid lg:grid-cols-2 gap-12 xl:gap-16">
-          {/* Product Images Section */}
+      <div className="container mx-auto px-4 py-6">
+        {/* Breadcrumbs */}
+        <div className="mb-4">
+          <nav className="flex items-center space-x-2 text-xs text-dark-text-muted">
+            <Link href="/" className="hover:text-accent-500 transition-colors">Home</Link>
+            <span>/</span>
+            <Link href="/products" className="hover:text-accent-500 transition-colors">Products</Link>
+            <span>/</span>
+            <span className="text-dark-text-primary">{product.name}</span>
+          </nav>
+        </div>
+        
+        <div className="grid lg:grid-cols-3 gap-6 xl:gap-8">
+          {/* Product Images Section - 1/3 width */}
           <motion.div 
             initial={{ opacity: 0, x: -40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
-            className="space-y-6"
+            className="lg:col-span-1 space-y-3"
           >
-            {/* Main Image */}
-            <div className="relative aspect-square bg-dark-bg-secondary rounded-3xl overflow-hidden shadow-2xl group">
+            {/* Main Image with AR Button */}
+            <div className="space-y-3">
+              <div className="relative aspect-square bg-gradient-to-br from-dark-bg-secondary to-dark-bg-tertiary rounded-2xl overflow-hidden shadow-2xl border border-dark-border-primary/50 group">
               {images.length > 0 ? (
                 <div className="relative w-full h-full cursor-pointer" onClick={handleImageClick}>
                   <Image
                     src={typeof images[selectedImage] === 'string' ? getImagePreset(images[selectedImage], 'full') : getImagePreset(images[selectedImage]?.url || '/placeholder-product.svg', 'full')}
                     alt={`${product.name} ${selectedImage + 1}`}
                     fill
-                    className="object-contain transition-transform duration-500 group-hover:scale-105"
+                    className="object-contain transition-all duration-300 group-hover:scale-105"
                     priority
+                    sizes="(max-width:1024px) 100vw, 33vw"
                   />
                   
-                  {/* Zoom Overlay */}
-                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white rounded-full p-4">
-                      <ZoomIn className="w-8 h-8 text-gray-800" />
+                  {/* Sharp Zoom Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                    <div className="bg-white/90 backdrop-blur-sm rounded-xl p-3 shadow-xl">
+                      <ZoomIn className="w-6 h-6 text-gray-800" />
                     </div>
                   </div>
 
-                  {/* Badge */}
+                  {/* Sharp Badges */}
                   {product.featured && (
-                    <div className="absolute top-4 left-4 bg-accent-500 text-white px-4 py-2 rounded-full font-semibold text-sm shadow-lg">
+                    <div className="absolute top-3 left-3 bg-gradient-to-r from-accent-500 to-accent-600 text-white px-3 py-1.5 rounded-lg font-semibold text-xs shadow-lg">
                       Featured
                     </div>
                   )}
                   
                   {product.stock === 0 && (
-                    <div className="absolute top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-full font-semibold text-sm shadow-lg">
+                    <div className="absolute top-3 right-3 bg-gradient-to-r from-red-500 to-red-600 text-white px-3 py-1.5 rounded-lg font-semibold text-xs shadow-lg">
                       Out of Stock
                     </div>
                   )}
                 </div>
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-dark-bg-tertiary">
-                  <Package className="w-24 h-24 text-dark-text-muted" />
+                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-accent-500/10 to-primary-500/10">
+                  <Package className="w-12 h-12 text-accent-500" />
                 </div>
               )}
+              </div>
+              
             </div>
 
-            {/* Thumbnail Gallery */}
+            {/* Sleek Thumbnail Gallery */}
             {images.length > 1 && (
-              <div className="grid grid-cols-4 gap-4">
+              <div
+                className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 snap-x snap-mandatory scrollbar-hide lg:grid lg:grid-cols-4 lg:gap-2 lg:overflow-x-visible lg:pb-0 lg:mx-0"
+                data-lenis-prevent
+                aria-label="Product image thumbnails"
+              >
                 {images.map((image, index) => {
                   const imageUrl = typeof image === 'string' ? getImagePreset(image, 'thumbnail') : getImagePreset(image?.url || '/placeholder-product.svg', 'thumbnail');
+                  const isSelected = selectedImage === index;
                   return (
                     <button
+                      type="button"
                       key={index}
                       onClick={() => setSelectedImage(index)}
-                      className={`relative aspect-square bg-dark-bg-secondary rounded-2xl overflow-hidden border-2 transition-all shadow-md hover:shadow-xl ${
-                        selectedImage === index 
-                          ? 'border-accent-500 ring-4 ring-accent-500/20 scale-105' 
-                          : 'border-dark-border-primary hover:border-accent-300'
+                      className={`relative flex-shrink-0 aspect-square min-w-[72px] bg-gradient-to-br from-dark-bg-secondary to-dark-bg-tertiary rounded-xl overflow-hidden border transition-all duration-200 snap-start ${
+                        isSelected 
+                          ? 'border-accent-500 ring-2 ring-accent-500/30 scale-105 shadow-lg shadow-accent-500/20' 
+                          : 'border-dark-border-primary/50 hover:border-accent-300/50 hover:scale-[1.02]'
                       }`}
+                      aria-pressed={isSelected}
+                      aria-label={`View ${product.name} image ${index + 1}`}
                     >
-                         <Image
-                           src={imageUrl}
-                           alt={`${product.name} ${index + 1}`}
-                           fill
+                      <Image
+                        src={imageUrl}
+                        alt={`${product.name} ${index + 1}`}
+                        fill
                         className="object-contain"
+                        sizes="(max-width:1024px) 72px, 96px"
                       />
-                      {selectedImage === index && (
-                        <div className="absolute inset-0 bg-accent-500/20 flex items-center justify-center">
-                          <CheckCircle className="w-8 h-8 text-accent-500" />
+                      {isSelected && (
+                        <div className="absolute inset-0 bg-accent-500/10 flex items-center justify-center">
+                          <div className="w-2 h-2 bg-accent-500 rounded-full"></div>
                         </div>
                       )}
                     </button>
@@ -346,325 +379,331 @@ export default function ProductDetailsPage() {
             )}
           </motion.div>
 
-          {/* Product Details Section */}
+          {/* Product Details Section - 2/3 width */}
           <motion.div 
             initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="space-y-8"
+            className="lg:col-span-2 space-y-6"
           >
-            {/* Product Title & Rating */}
-            <div className="space-y-4">
-              <h1 className="text-4xl xl:text-5xl font-bold text-dark-text-primary leading-tight">
-                {product.name}
-              </h1>
-              
-              {/* Rating & Reviews */}
-              <div className="flex items-center gap-4 flex-wrap">
-                <div className="flex items-center gap-2">
-                  {renderStars(Number(averageRating))}
-                  <span className="text-lg font-semibold text-dark-text-primary">
-                    {averageRating}
-                  </span>
-                </div>
-                <span className="text-dark-text-muted">
-                  ({reviews.length} {reviews.length === 1 ? 'review' : 'reviews'})
-                </span>
-                {product.stock > 0 && (
-                  <div className="flex items-center gap-2 text-green-500">
-                    <CheckCircle className="w-5 h-5" />
-                    <span className="font-medium">{product.stock} in stock</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Price */}
-            <div className="bg-gradient-to-r from-dark-bg-secondary to-dark-bg-tertiary rounded-2xl p-6 border border-dark-border-primary">
-              {product.price === 0 ? (
+            <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)] lg:gap-8 xl:gap-10 space-y-6 lg:space-y-0">
+              <section className="space-y-4">
+                {/* Sharp Header */}
                 <div className="space-y-2">
-                  <div className="text-4xl font-bold text-accent-500">
-                    Negotiable
+                  <h1 className="text-2xl xl:text-3xl font-bold text-dark-text-primary leading-tight">
+                    {product.name}
+                  </h1>
+                  
+                  {/* Product Category */}
+                  <div className="flex items-center gap-3 text-xs text-dark-text-muted flex-wrap">
+                    <span>{typeof product.category === 'string' ? product.category : product.category?.name}</span>
+                    <Link 
+                      href="/products" 
+                      className="text-accent-500 hover:text-accent-400 transition-colors font-medium"
+                    >
+                      View Collection
+                    </Link>
                   </div>
-                  <p className="text-dark-text-muted flex items-center gap-2">
-                    <Info className="w-4 h-4" />
-                    Contact us for pricing
+                  
+                  {/* Compact Rating & Stock */}
+                  <div className="flex items-center gap-4 flex-wrap">
+                    <div className="flex items-center gap-2">
+                      {renderStars(Number(averageRating))}
+                      <span className="text-sm font-semibold text-dark-text-primary">
+                        {averageRating}
+                      </span>
+                      <span className="text-xs text-dark-text-muted">
+                        ({reviews.length})
+                      </span>
+                    </div>
+                    {product.stock > 0 ? (
+                      <div className="flex items-center gap-1.5 text-green-500 text-sm">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <span className="font-medium">{product.stock} in stock</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1.5 text-red-500 text-sm">
+                        <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                        <span className="font-medium">Out of stock</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Compact Details */}
+                <div className="flex items-center gap-3 flex-wrap text-xs">
+                  <div className="flex items-center gap-2 text-dark-text-muted">
+                    <span className="w-1.5 h-1.5 bg-accent-500 rounded-full"></span>
+                    <span>{typeof product.category === 'string' ? product.category : product.category?.name}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-dark-text-muted">
+                    <span className="w-1.5 h-1.5 bg-dark-text-muted rounded-full"></span>
+                    <span>{new Date(product.createdAt).toLocaleDateString()}</span>
+                  </div>
+                  {product.featured && (
+                    <div className="flex items-center gap-2 text-accent-500">
+                      <span className="w-1.5 h-1.5 bg-accent-500 rounded-full"></span>
+                      <span className="font-medium">Featured</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Concise Description */}
+                <div className="space-y-1.5">
+                  <h3 className="text-base font-semibold text-dark-text-primary">Description</h3>
+                  <p className="text-xs text-dark-text-secondary leading-relaxed">
+                    {product.description}
                   </p>
                 </div>
-              ) : (
-                <div className="space-y-2">
-                  <div className="text-4xl font-bold text-dark-text-primary">
-                    ₹{product.price.toLocaleString()}
-                  </div>
-                  <p className="text-dark-text-muted">Inclusive of all taxes</p>
-                </div>
-              )}
-            </div>
 
-            {/* Key Details */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-dark-bg-secondary rounded-2xl p-4 border border-dark-border-primary">
-                <p className="text-sm text-dark-text-muted">Category</p>
-                <p className="text-dark-text-primary font-semibold mt-1">{typeof product.category === 'string' ? product.category : product.category?.name}</p>
-              </div>
-              <div className="bg-dark-bg-secondary rounded-2xl p-4 border border-dark-border-primary">
-                <p className="text-sm text-dark-text-muted">Added</p>
-                <p className="text-dark-text-primary font-semibold mt-1">{new Date(product.createdAt).toLocaleDateString()}</p>
-              </div>
-              {product.featured && (
-                <div className="bg-accent-500/10 rounded-2xl p-4 border border-accent-500/30">
-                  <p className="text-sm text-accent-400">Badge</p>
-                  <p className="text-accent-300 font-semibold mt-1">Featured Product</p>
+                {/* Share Button */}
+                <div className="flex justify-start lg:justify-end">
+                  <button 
+                    onClick={handleShare}
+                    className="flex items-center gap-1.5 text-xs text-dark-text-muted hover:text-accent-500 transition-colors"
+                  >
+                    <Share2 className="h-3.5 w-3.5" />
+                    Share
+                  </button>
                 </div>
-              )}
-                </div>
-                
-            {/* Product Parameters - Redesigned */}
-            {parameters.length > 0 && (
-              <div className="bg-gradient-to-br from-dark-bg-secondary to-dark-bg-tertiary rounded-2xl p-6 border border-dark-border-primary">
-                <h3 className="text-2xl font-bold text-dark-text-primary mb-6 flex items-center gap-2">
-                  <Settings className="w-6 h-6 text-accent-500" />
-                  Customize Your Product
-                </h3>
-                <div className="space-y-6">
-                  {parameters.map((param) => (
-                    <div key={param._id} className="space-y-3">
-                      <label className="flex items-center gap-2 text-base font-semibold text-dark-text-primary">
-                        {param.name}
-                        {param.required && (
-                          <span className="px-2 py-0.5 bg-red-500/20 text-red-400 text-xs rounded-full">Required</span>
-                        )}
-                        {param.description && (
-                          <span className="text-xs font-normal text-dark-text-muted">- {param.description}</span>
-                        )}
-                      </label>
-                      
-                      {/* Select Type */}
-                      {param.type === 'select' && (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                          {param.options?.map((option) => (
-                            <button
-                              key={option}
-                              onClick={() => setSelectedParameters({...selectedParameters, [param._id]: option})}
-                              className={`px-4 py-3 rounded-xl font-medium transition-all text-sm ${
-                                selectedParameters[param._id] === option
-                                  ? 'bg-accent-500 text-white shadow-lg scale-105'
-                                  : 'bg-dark-bg-tertiary text-dark-text-secondary hover:bg-dark-bg-hover border border-dark-border-primary'
-                              }`}
-                            >
-                              {option}
-                            </button>
-                          ))}
-                        </div>
-                      )}
+              </section>
 
-                      {/* Custom Range Type */}
-                      {param.type === 'custom-range' && (
-                        <div className="space-y-3">
-                          {param.options && param.options.length > 0 && (
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                              {param.options.map((option) => (
+              <aside className="space-y-4 lg:sticky lg:top-28">
+                {/* Sharp Price Card */}
+                <div className="bg-gradient-to-r from-dark-bg-secondary to-dark-bg-tertiary rounded-xl p-4 border border-dark-border-primary/50">
+                  {product.price === 0 ? (
+                    <div className="space-y-1">
+                      <div className="text-2xl font-bold text-accent-500">
+                        Negotiable
+                      </div>
+                      <p className="text-xs text-dark-text-muted flex items-center gap-1.5">
+                        <Info className="w-3 h-3" />
+                        Contact for pricing
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-1">
+                      <div className="text-2xl font-bold text-dark-text-primary">
+                        ₹{product.price.toLocaleString()}
+                      </div>
+                      <p className="text-xs text-dark-text-muted">All taxes included</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Sleek Parameters */}
+                {parameters.length > 0 && (
+                  <div className="bg-gradient-to-br from-dark-bg-secondary to-dark-bg-tertiary rounded-xl p-4 border border-dark-border-primary/50">
+                    <h3 className="text-base font-bold text-dark-text-primary mb-3 flex items-center gap-2">
+                      <Settings className="w-4 h-4 text-accent-500" />
+                      Customize
+                    </h3>
+                    <div className="space-y-3">
+                      {parameters.map((param) => (
+                        <div key={param._id} className="space-y-1.5">
+                          <label className="flex items-center gap-2 text-xs font-semibold text-dark-text-primary">
+                            {param.name}
+                            {param.required && (
+                              <span className="px-1.5 py-0.5 bg-red-500/20 text-red-400 text-xs rounded-md">Required</span>
+                            )}
+                            {param.description && (
+                              <span className="text-xs font-normal text-dark-text-muted">- {param.description}</span>
+                            )}
+                          </label>
+                          
+                          {/* Sleek Select Type */}
+                          {param.type === 'select' && (
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                              {param.options?.map((option) => (
                                 <button
+                                  type="button"
                                   key={option}
                                   onClick={() => setSelectedParameters({...selectedParameters, [param._id]: option})}
-                                  className={`px-4 py-3 rounded-xl font-medium transition-all text-sm ${
+                                  className={`px-2.5 py-1.5 rounded-lg font-medium transition-all text-xs ${
                                     selectedParameters[param._id] === option
-                                      ? 'bg-accent-500 text-white shadow-lg'
-                                      : 'bg-dark-bg-tertiary text-dark-text-secondary hover:bg-dark-bg-hover border border-dark-border-primary'
+                                      ? 'bg-accent-500 text-white shadow-lg shadow-accent-500/25 scale-105'
+                                      : 'bg-dark-bg-tertiary text-dark-text-secondary hover:bg-dark-bg-hover border border-dark-border-primary/50'
                                   }`}
+                                  aria-pressed={selectedParameters[param._id] === option}
                                 >
                                   {option}
                                 </button>
                               ))}
                             </div>
                           )}
-                          {param.allowCustom && (
-                            <input
-                              type="text"
-                              placeholder={`Enter custom ${param.name.toLowerCase()}${param.unit ? ` (${param.unit})` : ''}`}
-                              value={selectedParameters[param._id] || ''}
+
+                          {/* Custom Range Type */}
+                          {param.type === 'custom-range' && (
+                            <div className="space-y-3">
+                              {param.options && param.options.length > 0 && (
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                  {param.options.map((option) => (
+                                    <button
+                                      type="button"
+                                      key={option}
+                                      onClick={() => setSelectedParameters({...selectedParameters, [param._id]: option})}
+                                      className={`px-4 py-3 rounded-xl font-medium transition-all text-sm ${
+                                        selectedParameters[param._id] === option
+                                          ? 'bg-accent-500 text-white shadow-lg'
+                                          : 'bg-dark-bg-tertiary text-dark-text-secondary hover:bg-dark-bg-hover border border-dark-border-primary'
+                                      }`}
+                                      aria-pressed={selectedParameters[param._id] === option}
+                                    >
+                                      {option}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                              {param.allowCustom && (
+                                <input
+                                  type="text"
+                                  placeholder={`Enter custom ${param.name.toLowerCase()}${param.unit ? ` (${param.unit})` : ''}`}
+                                  value={getPrimitiveParameterValue(param._id) ?? ''}
+                                  onChange={(e) => setSelectedParameters({...selectedParameters, [param._id]: e.target.value})}
+                                  className="w-full px-4 py-3 bg-dark-bg-tertiary text-dark-text-primary border-2 border-dark-border-primary rounded-xl focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all placeholder:text-dark-text-muted"
+                                />
+                              )}
+                            </div>
+                          )}
+
+                          {/* Number Type */}
+                          {param.type === 'number' && (
+                            <div className="relative">
+                              <input
+                                type="number"
+                                min={param.min}
+                                max={param.max}
+                                step={param.step || 1}
+                                value={getPrimitiveParameterValue(param._id) ?? ''}
+                                onChange={(e) => setSelectedParameters({...selectedParameters, [param._id]: e.target.value})}
+                                className="w-full px-4 py-3 bg-dark-bg-tertiary text-dark-text-primary border-2 border-dark-border-primary rounded-xl focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all"
+                                placeholder={`${param.min || 0} - ${param.max || 100}`}
+                              />
+                              {param.unit && (
+                                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-dark-text-muted font-medium">
+                                  {param.unit}
+                                </span>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Text Type */}
+                          {param.type === 'text' && (
+                            <textarea
+                              value={getPrimitiveParameterValue(param._id) ?? ''}
                               onChange={(e) => setSelectedParameters({...selectedParameters, [param._id]: e.target.value})}
-                              className="w-full px-4 py-3 bg-dark-bg-tertiary text-dark-text-primary border-2 border-dark-border-primary rounded-xl focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all placeholder:text-dark-text-muted"
+                              className="w-full px-4 py-3 bg-dark-bg-tertiary text-dark-text-primary border-2 border-dark-border-primary rounded-xl focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all resize-none placeholder:text-dark-text-muted"
+                              placeholder={`Enter ${param.name.toLowerCase()}...`}
+                              rows={3}
                             />
                           )}
-                        </div>
-                      )}
 
-                      {/* Number Type */}
-                      {param.type === 'number' && (
-                        <div className="relative">
-                          <input
-                            type="number"
-                            min={param.min}
-                            max={param.max}
-                            step={param.step || 1}
-                            value={selectedParameters[param._id] || ''}
-                            onChange={(e) => setSelectedParameters({...selectedParameters, [param._id]: e.target.value})}
-                            className="w-full px-4 py-3 bg-dark-bg-tertiary text-dark-text-primary border-2 border-dark-border-primary rounded-xl focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all"
-                            placeholder={`${param.min || 0} - ${param.max || 100}`}
-                          />
-                          {param.unit && (
-                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-dark-text-muted font-medium">
-                              {param.unit}
-                            </span>
+                          {/* Dimensions Type */}
+                          {param.type === 'dimensions' && (
+                            <div className="grid grid-cols-3 gap-3">
+                              <div>
+                                <input
+                                  type="number"
+                                  placeholder="Length"
+                                  min={param.min}
+                                  max={param.max}
+                                  step={param.step || 1}
+                                  onChange={(e) => {
+                                    const existing = selectedParameters[param._id];
+                                    const current = typeof existing === 'object' && existing !== null ? existing : {};
+                                    setSelectedParameters({
+                                      ...selectedParameters,
+                                      [param._id]: { ...current, length: Number(e.target.value) }
+                                    });
+                                  }}
+                                  className="w-full px-3 py-3 bg-dark-bg-tertiary text-dark-text-primary border-2 border-dark-border-primary rounded-xl focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all text-center"
+                                />
+                                <p className="text-xs text-dark-text-muted mt-1 text-center">L {param.unit && `(${param.unit})`}</p>
+                              </div>
+                              <div>
+                                <input
+                                  type="number"
+                                  placeholder="Width"
+                                  min={param.min}
+                                  max={param.max}
+                                  step={param.step || 1}
+                                  onChange={(e) => {
+                                    const existing = selectedParameters[param._id];
+                                    const current = typeof existing === 'object' && existing !== null ? existing : {};
+                                    setSelectedParameters({
+                                      ...selectedParameters,
+                                      [param._id]: { ...current, width: Number(e.target.value) }
+                                    });
+                                  }}
+                                  className="w-full px-3 py-3 bg-dark-bg-tertiary text-dark-text-primary border-2 border-dark-border-primary rounded-xl focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all text-center"
+                                />
+                                <p className="text-xs text-dark-text-muted mt-1 text-center">W {param.unit && `(${param.unit})`}</p>
+                              </div>
+                              <div>
+                                <input
+                                  type="number"
+                                  placeholder="Height"
+                                  min={param.min}
+                                  max={param.max}
+                                  step={param.step || 1}
+                                  onChange={(e) => {
+                                    const existing = selectedParameters[param._id];
+                                    const current = typeof existing === 'object' && existing !== null ? existing : {};
+                                    setSelectedParameters({
+                                      ...selectedParameters,
+                                      [param._id]: { ...current, height: Number(e.target.value) }
+                                    });
+                                  }}
+                                  className="w-full px-3 py-3 bg-dark-bg-tertiary text-dark-text-primary border-2 border-dark-border-primary rounded-xl focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all text-center"
+                                />
+                                <p className="text-xs text-dark-text-muted mt-1 text-center">H {param.unit && `(${param.unit})`}</p>
+                              </div>
+                            </div>
                           )}
                         </div>
-                      )}
-
-                      {/* Text Type */}
-                      {param.type === 'text' && (
-                        <textarea
-                          value={selectedParameters[param._id] || ''}
-                          onChange={(e) => setSelectedParameters({...selectedParameters, [param._id]: e.target.value})}
-                          className="w-full px-4 py-3 bg-dark-bg-tertiary text-dark-text-primary border-2 border-dark-border-primary rounded-xl focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all resize-none placeholder:text-dark-text-muted"
-                          placeholder={`Enter ${param.name.toLowerCase()}...`}
-                          rows={3}
-                        />
-                      )}
-
-                      {/* Dimensions Type */}
-                      {param.type === 'dimensions' && (
-                        <div className="grid grid-cols-3 gap-3">
-                          <div>
-                            <input
-                              type="number"
-                              placeholder="Length"
-                              min={param.min}
-                              max={param.max}
-                              step={param.step || 1}
-                              onChange={(e) => {
-                                const current = selectedParameters[param._id] || {};
-                                setSelectedParameters({
-                                  ...selectedParameters,
-                                  [param._id]: { ...current, length: Number(e.target.value) }
-                                });
-                              }}
-                              className="w-full px-3 py-3 bg-dark-bg-tertiary text-dark-text-primary border-2 border-dark-border-primary rounded-xl focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all text-center"
-                            />
-                            <p className="text-xs text-dark-text-muted mt-1 text-center">L {param.unit && `(${param.unit})`}</p>
-                          </div>
-                          <div>
-                            <input
-                              type="number"
-                              placeholder="Width"
-                              min={param.min}
-                              max={param.max}
-                              step={param.step || 1}
-                              onChange={(e) => {
-                                const current = selectedParameters[param._id] || {};
-                                setSelectedParameters({
-                                  ...selectedParameters,
-                                  [param._id]: { ...current, width: Number(e.target.value) }
-                                });
-                              }}
-                              className="w-full px-3 py-3 bg-dark-bg-tertiary text-dark-text-primary border-2 border-dark-border-primary rounded-xl focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all text-center"
-                            />
-                            <p className="text-xs text-dark-text-muted mt-1 text-center">W {param.unit && `(${param.unit})`}</p>
-                          </div>
-                          <div>
-                            <input
-                              type="number"
-                              placeholder="Height"
-                              min={param.min}
-                              max={param.max}
-                              step={param.step || 1}
-                              onChange={(e) => {
-                                const current = selectedParameters[param._id] || {};
-                                setSelectedParameters({
-                                  ...selectedParameters,
-                                  [param._id]: { ...current, height: Number(e.target.value) }
-                                });
-                              }}
-                              className="w-full px-3 py-3 bg-dark-bg-tertiary text-dark-text-primary border-2 border-dark-border-primary rounded-xl focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all text-center"
-                            />
-                            <p className="text-xs text-dark-text-muted mt-1 text-center">H {param.unit && `(${param.unit})`}</p>
-                          </div>
-                        </div>
-                      )}
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            {/* Description */}
-            <div className="space-y-3">
-              <h3 className="text-xl font-semibold text-dark-text-primary">About This Product</h3>
-              <p className="text-dark-text-secondary leading-relaxed">
-                {product.description}
-              </p>
-            </div>
+                  </div>
+                )}
 
-            {/* Quantity & Add to Cart */}
-            <div className="space-y-4">
-              {cartQuantity > 0 ? (
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center bg-dark-bg-secondary rounded-2xl border border-dark-border-primary overflow-hidden">
+                {/* Sleek Add to Cart */}
+                <div className="space-y-2">
                   <button
-                    onClick={() => {
-                        if (cartQuantity === 1) {
-                          removeFromCart(product._id);
-                        } else {
-                          updateCartItemQuantity(product._id, cartQuantity - 1);
-                        }
-                      }}
-                      className="p-4 hover:bg-dark-bg-hover transition-colors"
-                    >
-                      <Minus className="h-5 w-5 text-dark-text-primary" />
-                  </button>
-                    <span className="px-6 text-lg font-semibold text-dark-text-primary">
-                      {cartQuantity}
-                    </span>
-                  <button
-                    onClick={() => {
-                        if (cartQuantity < product.stock) {
-                          updateCartItemQuantity(product._id, cartQuantity + 1);
-                        } else {
-                          toast.error('Maximum stock reached');
-                        }
-                      }}
-                      className="p-4 hover:bg-dark-bg-hover transition-colors"
-                    disabled={cartQuantity >= product.stock}
+                    onClick={handleAddToCart}
+                    disabled={product.stock === 0}
+                    className="w-full bg-accent-500 text-white py-3 px-4 rounded-xl hover:bg-accent-600 transition-all font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm"
                   >
-                      <Plus className="h-5 w-5 text-dark-text-primary" />
+                    <ShoppingCart className="h-4 w-4" />
+                    {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
                   </button>
-                </div>
                   
                   <Link
                     href="/cart"
-                    className="flex-1 bg-accent-500 text-white py-4 px-6 rounded-2xl hover:bg-accent-600 transition-all font-semibold text-center shadow-lg hover:shadow-xl"
+                    className="w-full bg-dark-bg-secondary text-dark-text-primary py-2.5 px-4 rounded-xl hover:bg-dark-bg-hover transition-all font-medium text-center border border-dark-border-primary/50 flex items-center justify-center gap-2 text-xs"
                   >
-                    Go to Cart
+                    View Cart
                   </Link>
                 </div>
-              ) : (
-                <button
-                  onClick={handleAddToCart}
-                  disabled={product.stock === 0}
-                  className="w-full bg-accent-500 text-white py-4 px-6 rounded-2xl hover:bg-accent-600 transition-all font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 text-lg"
-                >
-                  <ShoppingCart className="h-6 w-6" />
-                  {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
-                </button>
-              )}
-            </div>
 
-            {/* Features */}
-            <div className="grid grid-cols-3 gap-4">
-              <div className="bg-dark-bg-secondary rounded-2xl p-4 text-center border border-dark-border-primary">
-                <Truck className="w-8 h-8 text-accent-500 mx-auto mb-2" />
-                <p className="text-sm font-medium text-dark-text-secondary">Free Shipping</p>
-              </div>
-              <div className="bg-dark-bg-secondary rounded-2xl p-4 text-center border border-dark-border-primary">
-                <Shield className="w-8 h-8 text-accent-500 mx-auto mb-2" />
-                <p className="text-sm font-medium text-dark-text-secondary">Secure Payment</p>
-              </div>
-              <div className="bg-dark-bg-secondary rounded-2xl p-4 text-center border border-dark-border-primary">
-                <Package className="w-8 h-8 text-accent-500 mx-auto mb-2" />
-                <p className="text-sm font-medium text-dark-text-secondary">Easy Returns</p>
-              </div>
+                {/* Compact Features */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-dark-text-muted">
+                  <div className="flex items-center gap-1">
+                    <Truck className="w-3 h-3 text-accent-500" />
+                    <span>Free Shipping</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Shield className="w-3 h-3 text-accent-500" />
+                    <span>Secure Payment</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Package className="w-3 h-3 text-accent-500" />
+                    <span>Easy Returns</span>
+                  </div>
+                </div>
+              </aside>
             </div>
           </motion.div>
+
         </div>
 
         {/* Reviews Section */}
@@ -672,13 +711,13 @@ export default function ProductDetailsPage() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="mt-20"
+          className="mt-12"
         >
-          <div className="bg-dark-bg-secondary rounded-3xl p-8 border border-dark-border-primary">
-            <div className="flex items-center justify-between mb-8">
+          <div className="bg-dark-bg-secondary rounded-2xl p-6 border border-dark-border-primary">
+            <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-3xl font-bold text-dark-text-primary mb-2">Customer Reviews</h2>
-                <p className="text-dark-text-muted">See what our customers are saying</p>
+                <h2 className="text-2xl font-bold text-dark-text-primary mb-1">Customer Reviews</h2>
+                <p className="text-xs text-dark-text-muted">See what our customers are saying</p>
               </div>
             {auth.isAuthenticated && (
               <button
@@ -686,62 +725,62 @@ export default function ProductDetailsPage() {
                   setEditingReview(null);
                   setIsReviewModalOpen(true);
                 }}
-                  className="bg-accent-500 text-white px-6 py-3 rounded-xl hover:bg-accent-600 transition-all font-semibold flex items-center gap-2"
+                  className="bg-accent-500 text-white px-4 py-2 rounded-lg hover:bg-accent-600 transition-all font-semibold flex items-center gap-2 text-sm"
               >
-                  <MessageCircle className="h-5 w-5" />
+                  <MessageCircle className="h-4 w-4" />
                 Write a Review
               </button>
             )}
           </div>
 
             {reviews.length === 0 ? (
-              <div className="text-center py-12">
-                <MessageCircle className="w-16 h-16 text-dark-text-muted mx-auto mb-4" />
-                <p className="text-dark-text-muted text-lg">No reviews yet. Be the first to review!</p>
+              <div className="text-center py-8">
+                <MessageCircle className="w-12 h-12 text-dark-text-muted mx-auto mb-3" />
+                <p className="text-dark-text-muted text-sm">No reviews yet. Be the first to review!</p>
               </div>
             ) : (
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {reviews.map((review) => (
-                  <div key={review._id} className="bg-dark-bg-tertiary rounded-2xl p-6 border border-dark-border-primary">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-accent-500 rounded-full flex items-center justify-center">
-                          <User className="w-6 h-6 text-white" />
+                  <div key={review._id} className="bg-dark-bg-tertiary rounded-xl p-4 border border-dark-border-primary">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-accent-500 rounded-full flex items-center justify-center">
+                          <User className="w-5 h-5 text-white" />
                       </div>
                       <div>
-                          <h4 className="font-semibold text-dark-text-primary">{review.user.name}</h4>
-                          <div className="flex items-center gap-2 mt-1">
+                          <h4 className="font-semibold text-sm text-dark-text-primary">{review.user.name}</h4>
+                          <div className="flex items-center gap-1 mt-0.5">
                           {renderStars(review.rating)}
                         </div>
                       </div>
                     </div>
                       
                       <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-1 text-dark-text-muted text-sm">
-                          <Calendar className="w-4 h-4" />
+                        <div className="flex items-center gap-1 text-dark-text-muted text-xs">
+                          <Calendar className="w-3 h-3" />
                         {new Date(review.createdAt).toLocaleDateString()}
                       </div>
                         
                         {auth.user?._id === review.user._id && (
-                          <div className="flex gap-2">
+                          <div className="flex gap-1.5">
                           <button
                             onClick={() => handleEditReview(review)}
-                              className="p-2 hover:bg-dark-bg-hover rounded-lg transition-colors"
+                              className="p-1.5 hover:bg-dark-bg-hover rounded-lg transition-colors"
                           >
-                              <Edit className="w-4 h-4 text-blue-500" />
+                              <Edit className="w-3.5 h-3.5 text-blue-500" />
                           </button>
                           <button
                             onClick={() => handleDeleteReview(review._id)}
-                              className="p-2 hover:bg-dark-bg-hover rounded-lg transition-colors"
+                              className="p-1.5 hover:bg-dark-bg-hover rounded-lg transition-colors"
                           >
-                              <Trash2 className="w-4 h-4 text-red-500" />
+                              <Trash2 className="w-3.5 h-3.5 text-red-500" />
                           </button>
                         </div>
                       )}
                     </div>
                   </div>
                     
-                    <p className="text-dark-text-secondary leading-relaxed">{review.comment}</p>
+                    <p className="text-xs text-dark-text-secondary leading-relaxed">{review.comment}</p>
                   </div>
               ))}
             </div>
@@ -750,7 +789,7 @@ export default function ProductDetailsPage() {
         </motion.div>
 
         {/* Recommended Products */}
-        <div className="mt-20">
+        <div className="mt-12">
           <RecommendedProducts currentProductId={product._id} />
         </div>
       </div>

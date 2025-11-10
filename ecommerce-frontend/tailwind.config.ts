@@ -8,6 +8,14 @@ const config: Config = {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
+    screens: {
+      xs: "360px",
+      sm: "640px",
+      md: "768px",
+      lg: "1024px",
+      xl: "1280px",
+      "2xl": "1536px",
+    },
   	extend: {
 		colors: {
 			// Hastkari Brand Color Palette - Authentic Indian Handloom
@@ -72,55 +80,55 @@ const config: Config = {
 				800: '#292524',
 				900: '#1c1917',
 			},
-  			background: {
-  				light: '#fafaf9',
-  				dark: '#0a0a0a',
-  				cream: '#fefcf8',
-  			},
-  			card: {
-  				light: '#ffffff',
-  				dark: '#1a1a1a',
-  			},
-  			muted: {
-  				light: '#6b7280',
-  				dark: '#9ca3af',
-  			},
-  			text: {
-  				primary: {
-  					light: '#1f2937',
-  					dark: '#f9fafb',
-  				},
-  				secondary: {
-  					light: '#4b5563',
-  					dark: '#d1d5db',
-  				},
-  				muted: {
-  					light: '#9ca3af',
-  					dark: '#6b7280',
-  				},
-  			},
-  			// Dark theme specific colors
-  			dark: {
-  				bg: {
-  					primary: '#0a0a0a',
-  					secondary: '#1a1a1a',
-  					tertiary: '#2a2a2a',
-  					card: '#1a1a1a',
-  					hover: '#2a2a2a',
-  				},
-  				text: {
-  					primary: '#f9fafb',
-  					secondary: '#d1d5db',
-  					muted: '#9ca3af',
-  					accent: '#d97706',
-  				},
-  				border: {
-  					primary: '#374151',
-  					secondary: '#4b5563',
-  					accent: '#d97706',
-  				},
-  			},
-  		},
+		  	background: {
+		  		light: '#fafaf9',
+		  		dark: '#0a0a0a',
+		  		cream: '#fefcf8',
+		  	},
+		  	card: {
+		  		light: '#ffffff',
+		  		dark: '#1a1a1a',
+		  	},
+		  	muted: {
+		  		light: '#6b7280',
+		  		dark: '#9ca3af',
+		  	},
+		  	text: {
+		  		primary: {
+		  			light: '#1f2937',
+		  			dark: '#f9fafb',
+		  		},
+		  		secondary: {
+		  			light: '#4b5563',
+		  			dark: '#d1d5db',
+		  		},
+		  		muted: {
+		  			light: '#9ca3af',
+		  			dark: '#6b7280',
+		  		},
+		  	},
+		  	// Dark theme specific colors
+		  	dark: {
+		  		bg: {
+		  			primary: '#0a0a0a',
+		  			secondary: '#1a1a1a',
+		  			tertiary: '#2a2a2a',
+		  			card: '#1a1a1a',
+		  			hover: '#2a2a2a',
+		  		},
+		  		text: {
+		  			primary: '#f9fafb',
+		  			secondary: '#d1d5db',
+		  			muted: '#9ca3af',
+		  			accent: '#d97706',
+		  		},
+		  		border: {
+		  			primary: '#374151',
+		  			secondary: '#4b5563',
+		  			accent: '#d97706',
+		  		},
+		  	},
+		},
 		animation: {
 			'fade-in': 'fadeIn 0.6s ease-out',
 			'slide-up': 'slideUp 0.4s ease-out',

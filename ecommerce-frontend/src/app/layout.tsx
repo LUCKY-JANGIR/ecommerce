@@ -9,6 +9,7 @@ import HydrationProvider from "@/components/HydrationProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import LenisProvider from "@/components/LenisProvider";
 import "@/app/fonts.css";
+import "@/styles/responsive.overrides.css";
 import { Toaster } from 'react-hot-toast';
 import { Analytics } from "@vercel/analytics/next"
 export const metadata: Metadata = {
@@ -19,8 +20,6 @@ export const metadata: Metadata = {
 export const viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
 };
 
 export default function RootLayout({
@@ -45,7 +44,9 @@ export default function RootLayout({
           <LenisProvider>
             <HydrationProvider />
             <Header />
-            {children}
+            <main id="main-content" className="min-h-screen">
+              {children}
+            </main>
             <Analytics />
           </LenisProvider>
         </ErrorBoundary>

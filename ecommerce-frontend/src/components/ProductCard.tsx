@@ -1,13 +1,11 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Product } from '@/store/useStore';
 import { Star } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { getImagePreset } from '@/lib/cloudinary';
-import { getResponsiveImageSizes, getBlurPlaceholder } from '@/lib/imageUtils';
+import { ProductImage } from '@/components/ui/OptimizedImage';
 
 interface ProductCardProps {
   product: Product;
@@ -15,6 +13,21 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
+
+  const fallbackImage = '/placeholder-product.svg';
+  const coverImage = React.useMemo(() => {
+    if (Array.isArray(product.images) && product.images.length > 0) {
+      const firstImage = product.images[0] as unknown;
+      if (typeof firstImage === 'string') {
+        return firstImage;
+      }
+      if (typeof firstImage === 'object' && firstImage && 'url' in (firstImage as Record<string, unknown>)) {
+        const withUrl = firstImage as { url?: string };
+        return withUrl.url || fallbackImage;
+      }
+    }
+    return fallbackImage;
+  }, [product.images]);
 
   const renderPrice = () => {
     if (product.price === 0) {
@@ -45,17 +58,16 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
         <div className="bg-dark-bg-secondary rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-dark-border-primary group">
           <div className="flex">
             {/* Product Image */}
-            <div
-              className="relative w-40 h-40 sm:w-56 sm:h-56 flex-shrink-0 bg-dark-bg-tertiary rounded-l-xl"
-              aria-label={product.name}
-              role="img"
-              style={{
-                backgroundImage: `url(${typeof product.images?.[0] === 'string' ? getImagePreset(product.images[0], 'card') : product.images?.[0]?.url ? getImagePreset(product.images[0].url, 'card') : '/placeholder-product.svg'})`,
-                backgroundSize: 'contain',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat'
-              }}
-            />
+            <div className="relative w-40 h-40 sm:w-56 sm:h-56 flex-shrink-0 bg-dark-bg-tertiary rounded-l-xl overflow-hidden">
+              <ProductImage
+                src={coverImage}
+                alt={product.name}
+                fill
+                className="object-contain object-center"
+                sizes="(max-width:768px) 45vw, 320px"
+                quality={85}
+              />
+            </div>
 
             {/* Product Info */}
             <div className="flex-1 p-6">
@@ -102,22 +114,19 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
         transition={{ duration: 0.3, type: "spring", stiffness: 300 }}
       >
         {/* Product Image */}
-        <div
-          className="relative w-full h-64 sm:h-72 md:h-80 lg:h-96 xl:h-[28rem] overflow-hidden bg-dark-bg-tertiary"
-          aria-label={product.name}
-          role="img"
-          style={{
-            backgroundImage: `url(${typeof product.images?.[0] === 'string' ? getImagePreset(product.images[0], 'card') : product.images?.[0]?.url ? getImagePreset(product.images[0].url, 'card') : '/placeholder-product.svg'})`,
-            backgroundSize: 'contain',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat'
-          }}
-        >
+        <div className="relative w-full aspect-[4/3] overflow-hidden bg-dark-bg-tertiary">
+          <ProductImage
+            src={coverImage}
+            alt={product.name}
+            fill
+            className="object-contain object-center transition-all duration-300 group-hover:scale-105"
+            sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, (max-width:1440px) 25vw, 320px"
+            quality={90}
+          />
           
           {/* Handwoven Pattern Overlay */}
           <div className="absolute inset-0 bg-handloom-pattern opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
           
-
           {/* Stock Badge - Only show if out of stock */}
           {product.stock === 0 && (
             <motion.div 

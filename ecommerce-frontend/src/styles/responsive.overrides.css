@@ -1,0 +1,18 @@
+/* responsive.overrides.css
+ * Purpose: Scoped responsive adjustments layered after legacy globals without destructive edits
+ * Author: GPT-5 Codex
+ * Timestamp: 2025-11-10T00:00:00Z
+ */
+
+:root {
+  /* Reserved for future responsive overrides. Document each block in RESPONSIVE_AUDIT.md. */
+}
+
+html.playwright-test *,
+html.playwright-test *::before,
+html.playwright-test *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+

@@ -21,7 +21,7 @@ import { ProductsGridSkeleton } from '@/components/ui/Skeleton';
 const ProductCard = dynamic(() => import('@/components/ProductCard'), {
   loading: () => (
     <div className="bg-dark-bg-secondary rounded-2xl overflow-hidden shadow-sm border border-dark-border-primary">
-      <div className="relative w-full h-64 sm:h-72 md:h-80 lg:h-96 xl:h-[28rem] bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary overflow-hidden flex items-center justify-center">
+      <div className="relative w-full aspect-[4/3] bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary overflow-hidden flex items-center justify-center">
         <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
       </div>
       <div className="p-5 space-y-3">
@@ -162,7 +162,7 @@ function ProductsPage() {
       const response = await productsAPI.getAll(params);
       if (response.products && response.products.length > 0) {
         setProducts(prev => [...prev, ...response.products]);
-        setPagination(prev => ({
+        setPagination(() => ({
           ...response.pagination,
           currentPage: nextPage,
         }));
@@ -474,12 +474,12 @@ function ProductsPage() {
           {loading ? (
             <div className={`grid gap-4 ${
               viewMode === 'grid' 
-                ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4' 
+                ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4' 
                 : 'grid-cols-1 max-w-4xl mx-auto'
             }`}>
               {[...Array(12)].map((_, index) => (
                 <div key={index} className="bg-dark-bg-secondary rounded-2xl overflow-hidden shadow-sm border border-dark-border-primary">
-                  <div className="relative w-full h-64 sm:h-72 md:h-80 lg:h-96 xl:h-[28rem] bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary overflow-hidden flex items-center justify-center">
+                  <div className="relative w-full aspect-[4/3] bg-gradient-to-r from-dark-bg-tertiary via-dark-bg-hover to-dark-bg-tertiary overflow-hidden flex items-center justify-center">
                     <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
                   </div>
                   <div className="p-5 space-y-3">
@@ -507,7 +507,7 @@ function ProductsPage() {
           ) : products.length > 0 ? (
             <div className={`grid gap-4 ${
               viewMode === 'grid' 
-                ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4' 
+                ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4' 
                 : 'grid-cols-1 max-w-4xl mx-auto'
             }`}>
               {products.map((product, index) => (

@@ -1,27 +1,92 @@
 "use client";
-import React, { useState, useEffect, useRef } from 'react';
+
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiUser, FiShoppingCart, FiLogIn, FiMenu, FiX } from "react-icons/fi";
 import { useStore } from '@/store/useStore';
 import { getImagePreset } from '@/lib/cloudinary';
 import { productsAPI } from '@/components/services/api';
+import type { Product } from '@/types';
 
 export default function Header() {
   const { auth, cart, logout, hydrated } = useStore();
   const router = useRouter();
+  const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
+  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
+  const closeMenuButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileNavRef = useRef<HTMLDivElement>(null);
+
+  const mobileMenuId = 'mobile-navigation-panel';
+  const mobileMenuHeadingId = 'mobile-navigation-heading';
+  const profileMenuId = 'primary-profile-menu';
+
+  const closeMobileMenu = useCallback(() => {
+    setMobileMenuOpen(false);
+    window.setTimeout(() => {
+      mobileMenuButtonRef.current?.focus();
+    }, 0);
+  }, []);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (mobileMenuOpen && closeMenuButtonRef.current) {
+      closeMenuButtonRef.current.focus();
+    }
+  }, [mobileMenuOpen]);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeMobileMenu();
+        return;
+      }
+
+      if (event.key !== 'Tab' || !mobileNavRef.current) {
+        return;
+      }
+
+      const focusableSelectors = 'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])';
+      const focusableElements = Array.from(mobileNavRef.current.querySelectorAll<HTMLElement>(focusableSelectors))
+        .filter((element) => !element.hasAttribute('data-focus-guard'));
+
+      if (focusableElements.length === 0) {
+        return;
+      }
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      if (!event.shiftKey && document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+
+      if (event.shiftKey && document.activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [mobileMenuOpen, closeMobileMenu]);
 
   // Fetch featured products for hamburger menu
   useEffect(() => {
@@ -91,6 +156,11 @@ export default function Header() {
     }
   }, [mobileMenuOpen]);
 
+  useEffect(() => {
+    setProfileDropdownOpen(false);
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
 
   const handleProfileToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -105,19 +175,30 @@ export default function Header() {
       <header className="fixed top-0 left-0 right-0 z-50 w-full">
           <div className="absolute inset-0 bg-dark-bg-primary/80 backdrop-blur-md" />
           <div className="relative w-full">
-            <nav className="flex items-center justify-between h-16 sm:h-18 md:h-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-              {/* Mobile Logo */}
-              <Link href="/" className="flex-shrink-0 lg:hidden">
-                <h1 className="text-lg sm:text-xl md:text-2xl font-sans font-bold text-dark-text-primary bg-gradient-to-r from-accent-500 to-primary-500 bg-clip-text text-transparent">
-                  hastkari
-                  <span className="block text-xs sm:text-sm font-handcrafted text-dark-text-secondary -mt-1">
-                    since 1989
-                  </span>
-              </h1>
-              </Link>
-              
-              {/* Mobile Menu Button & Cart */}
-              <div className="flex items-center space-x-2 flex-shrink-0">
+            <nav className="flex items-center h-16 sm:h-18 md:h-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto" aria-label="Primary">
+              <button
+                type="button"
+                ref={mobileMenuButtonRef}
+                aria-label="Open navigation menu"
+                aria-controls={mobileMenuId}
+                aria-expanded={false}
+                aria-haspopup="dialog"
+                className="p-3 hover:bg-dark-bg-hover rounded-lg transition-colors"
+                onClick={() => setMobileMenuOpen(true)}
+              >
+                <FiMenu className="w-6 h-6 text-dark-text-secondary" />
+              </button>
+              <div className="flex-1 flex justify-center">
+                <Link href="/" className="focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 rounded-lg">
+                  <h1 className="text-lg sm:text-xl md:text-2xl font-samarkan font-bold text-dark-text-primary bg-gradient-to-r from-accent-500 to-primary-500 bg-clip-text text-transparent">
+                    hastkari
+                    <span className="block text-xs sm:text-sm font-handcrafted text-dark-text-secondary -mt-1">
+                      since 1989
+                    </span>
+                </h1>
+                </Link>
+              </div>
+              <div className="flex items-center space-x-2">
                 <Link href="/cart" className="p-3 relative hover:bg-dark-bg-hover rounded-lg transition-colors">
                   <FiShoppingCart className="w-6 h-6 text-dark-text-secondary" />
                   {mounted && cart.totalItems > 0 && (
@@ -127,12 +208,12 @@ export default function Header() {
                   )}
                 </Link>
                 <button
-                  onClick={() => setMobileMenuOpen(true)}
                   className="p-3 hover:bg-dark-bg-hover rounded-lg transition-colors"
+                  aria-label="Account"
                 >
-                  <FiMenu className="w-6 h-6 text-dark-text-secondary" />
+                  <FiUser className="w-6 h-6 text-dark-text-secondary" />
                 </button>
-            </div>
+              </div>
           </nav>
         </div>
       </header>
@@ -149,34 +230,39 @@ export default function Header() {
         }`} />
         
         <div className="relative w-full">
-          <nav className="flex items-center h-16 sm:h-18 md:h-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-            {/* Hamburger Menu Button - Left */}
-            <div className="flex items-center flex-shrink-0">
-              <button
-                onClick={() => setMobileMenuOpen(true)}
-                className="p-3 hover:bg-dark-bg-hover rounded-lg transition-colors"
-              >
-                <FiMenu className="w-6 h-6 text-dark-text-secondary" />
-              </button>
-            </div>
+          <nav className="flex items-center h-16 sm:h-18 md:h-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto" aria-label="Primary">
+            <button
+              type="button"
+              ref={mobileMenuButtonRef}
+              onClick={() => (mobileMenuOpen ? closeMobileMenu() : setMobileMenuOpen(true))}
+              className="p-3 hover:bg-dark-bg-hover rounded-lg transition-colors"
+              aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              aria-expanded={mobileMenuOpen}
+              aria-controls={mobileMenuId}
+              aria-haspopup="dialog"
+            >
+              <FiMenu className="w-6 h-6 text-dark-text-secondary" />
+            </button>
 
-            {/* Centered Logo */}
             <div className="flex-1 flex justify-center">
-            <Link href="/" className="flex-shrink-0">
+              <Link href="/" className="focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 rounded-lg">
                 <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-samarkan font-bold text-dark-text-primary bg-gradient-to-r from-accent-500 to-primary-500 bg-clip-text text-transparent">
                   hastkari
                   <span className="block text-xs sm:text-sm font-handcrafted text-dark-text-secondary -mt-1">
                     since 1989
                   </span>
               </h1>
-            </Link>
+              </Link>
             </div>
 
-            {/* Right Side Actions - Cart, Profile */}
-            <div className="flex items-center space-x-2 flex-shrink-0">
-              <Link href="/cart" className="p-3 relative hover:bg-dark-bg-hover rounded-lg transition-colors">
+            <div className="flex items-center space-x-2">
+              <Link
+                href="/cart"
+                className="p-3 relative hover:bg-dark-bg-hover rounded-lg transition-colors"
+                aria-label="View cart"
+              >
                 <FiShoppingCart className="w-6 h-6 text-dark-text-secondary" />
-                {mounted && cart.totalItems > 0 && (
+                {cart.totalItems > 0 && (
                   <span className="absolute -top-1 -right-1 bg-accent-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full font-medium">
                     {cart.totalItems}
                   </span>
@@ -186,17 +272,27 @@ export default function Header() {
               {auth.isAuthenticated ? (
                 <div className="relative" ref={profileDropdownRef}>
                   <button
+                    id="profile-menu-button"
                     onClick={handleProfileToggle}
                     className="p-3 hover:bg-dark-bg-hover rounded-lg transition-colors"
+                    aria-haspopup="menu"
+                    aria-expanded={profileDropdownOpen}
+                    aria-controls={profileDropdownOpen ? profileMenuId : undefined}
                   >
                     <FiUser className="w-6 h-6 text-dark-text-secondary" />
                   </button>
                   
                   {profileDropdownOpen && (
-                    <div className="absolute right-0 top-full mt-2 w-48 bg-dark-bg-secondary border border-dark-border-primary rounded-lg shadow-lg z-50">
-                      <div className="py-2">
+                    <div
+                      id={profileMenuId}
+                      role="menu"
+                      aria-labelledby="profile-menu-button"
+                      className="absolute right-0 top-full mt-2 w-48 bg-dark-bg-secondary border border-dark-border-primary rounded-lg shadow-lg z-50"
+                    >
+                      <div className="py-2" role="none">
                         <Link
                           href="/profile"
+                          role="menuitem"
                           className="block px-4 py-2 text-sm text-dark-text-primary hover:bg-dark-bg-hover"
                           onClick={() => setProfileDropdownOpen(false)}
                         >
@@ -204,6 +300,7 @@ export default function Header() {
                         </Link>
                         <Link
                           href="/orders"
+                          role="menuitem"
                           className="block px-4 py-2 text-sm text-dark-text-primary hover:bg-dark-bg-hover"
                           onClick={() => setProfileDropdownOpen(false)}
                         >
@@ -212,6 +309,7 @@ export default function Header() {
                         {auth.user?.role === 'admin' && (
                           <Link
                             href="/admin"
+                            role="menuitem"
                             className="block px-4 py-2 text-sm text-dark-text-primary hover:bg-dark-bg-hover"
                             onClick={() => setProfileDropdownOpen(false)}
                           >
@@ -219,6 +317,7 @@ export default function Header() {
                           </Link>
                         )}
                         <button
+                          role="menuitem"
                           onClick={() => {
                             logout();
                             setProfileDropdownOpen(false);
@@ -236,12 +335,12 @@ export default function Header() {
                 <Link
                   href="/login"
                   className="p-3 hover:bg-dark-bg-hover rounded-lg transition-colors"
+                  aria-label="Sign in"
                 >
                   <FiLogIn className="w-6 h-6 text-dark-text-secondary" />
                 </Link>
               )}
             </div>
-
           </nav>
 
 
@@ -257,9 +356,8 @@ export default function Header() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
-              onClick={() => {
-                setMobileMenuOpen(false);
-              }}
+              aria-hidden="true"
+              onClick={closeMobileMenu}
             />
 
             <motion.div
@@ -268,14 +366,22 @@ export default function Header() {
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
               className="fixed top-0 left-0 h-screen w-full bg-dark-bg-primary z-50"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby={mobileMenuHeadingId}
+              id={mobileMenuId}
+              ref={mobileNavRef}
             >
               <div className="flex flex-col h-full">
                 {/* Fixed Header */}
                 <div className="flex items-center justify-between p-4 border-b border-dark-border-primary flex-shrink-0">
-                  <h2 className="text-lg font-serif font-bold text-dark-text-primary">Menu</h2>
+                  <h2 id={mobileMenuHeadingId} className="text-lg font-serif font-bold text-dark-text-primary">Menu</h2>
                   <button 
-                    onClick={() => setMobileMenuOpen(false)} 
+                    type="button"
+                    ref={closeMenuButtonRef}
+                    onClick={closeMobileMenu} 
                     className="p-2 hover:bg-dark-bg-hover rounded-lg transition-colors"
+                    aria-label="Close navigation menu"
                   >
                     <FiX className="w-5 h-5 text-dark-text-secondary" />
                   </button>
@@ -292,25 +398,28 @@ export default function Header() {
                 {/* Scrollable Content */}
                 <div className="flex-1 overflow-y-auto">
                   {/* Navigation Links */}
-                  <nav className="p-4 space-y-1">
+                  <nav className="p-4 space-y-1" role="menu">
                     <Link
                       href="/categories"
+                      role="menuitem"
                       className="block px-3 py-2 rounded-lg hover:bg-dark-bg-hover text-sm text-dark-text-primary transition-colors"
-                      onClick={() => setMobileMenuOpen(false)}
+                      onClick={closeMobileMenu}
                     >
                       Traditional Crafts
                     </Link>
                     <Link
                       href="/products"
+                      role="menuitem"
                       className="block px-3 py-2 rounded-lg hover:bg-dark-bg-hover text-sm text-dark-text-primary transition-colors"
-                      onClick={() => setMobileMenuOpen(false)}
+                      onClick={closeMobileMenu}
                     >
                       Our Collection
                     </Link>
                     <Link
                       href="/products"
+                      role="menuitem"
                       className="block px-3 py-2 rounded-lg hover:bg-dark-bg-hover text-sm text-dark-text-primary transition-colors"
-                      onClick={() => setMobileMenuOpen(false)}
+                      onClick={closeMobileMenu}
                     >
                       Search Products
                     </Link>
@@ -340,7 +449,7 @@ export default function Header() {
                               key={product._id}
                               href={`/products/${product._id}`}
                               className="flex items-center space-x-3 p-2 rounded-lg hover:bg-dark-bg-hover transition-colors"
-                              onClick={() => setMobileMenuOpen(false)}
+                              onClick={closeMobileMenu}
                             >
                               <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
                                 {product.images?.[0] ? (

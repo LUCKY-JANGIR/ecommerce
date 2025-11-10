@@ -35,8 +35,8 @@ interface AppState {
   // Cart
   cart: CartState;
   addToCart: (product: Product, quantity?: number, selectedParameters?: SelectedParameter[]) => void;
-  removeFromCart: (productId: string) => void;
-  updateCartItemQuantity: (productId: string, quantity: number) => void;
+  removeFromCart: (itemIndex: number) => void;
+  updateCartItemQuantity: (itemIndex: number, quantity: number) => void;
   clearCart: () => void;
   
   // UI
@@ -176,12 +176,12 @@ export const useStore = create<AppState>()(
       },
       
       /**
-       * Remove product from cart completely
+       * Remove product from cart completely by item index
        */
-      removeFromCart: (productId: string) => {
+      removeFromCart: (itemIndex: number) => {
         set((state) => {
           const newItems = state.cart.items.filter(
-            (item) => item.product._id !== productId
+            (_, index) => index !== itemIndex
           );
           
           const { totalItems, totalPrice } = calculateCartTotals(newItems);
@@ -197,12 +197,12 @@ export const useStore = create<AppState>()(
       },
       
       /**
-       * Update quantity of a specific cart item
+       * Update quantity of a specific cart item by item index
        */
-      updateCartItemQuantity: (productId: string, quantity: number) => {
+      updateCartItemQuantity: (itemIndex: number, quantity: number) => {
         set((state) => {
-          const newItems = state.cart.items.map((item) =>
-            item.product._id === productId ? { ...item, quantity } : item
+          const newItems = state.cart.items.map((item, index) =>
+            index === itemIndex ? { ...item, quantity } : item
           );
           
           const { totalItems, totalPrice } = calculateCartTotals(newItems);
