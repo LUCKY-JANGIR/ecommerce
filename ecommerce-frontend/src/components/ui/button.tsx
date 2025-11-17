@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import { cn } from '@/lib/utils';
@@ -50,16 +50,33 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         ref={ref}
-        className={cn(baseStyles,variants[variant],sizes[size],handcraftedStyles,fullWidth && 'w-full',className)}
+        className={cn(
+          baseStyles,
+          variants[variant],
+          sizes[size],
+          handcraftedStyles,
+          fullWidth && 'w-full',
+          className
+        )}
         disabled={disabled || loading}
         {...props}
       >
-        {loading && <div className="absolute inset-0 flex items-center justify-center"><div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" /></div>}
-        <span className={cn('flex items-center gap-2', loading && 'opacity-0')}>{icon && iconPosition === 'left' && icon}{children}{icon && iconPosition === 'right' && icon}</span>
+        {loading && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+          </div>
+        )}
+        
+        <span className={cn('flex items-center gap-2', loading && 'opacity-0')}>
+          {icon && iconPosition === 'left' && icon}
+          {children}
+          {icon && iconPosition === 'right' && icon}
+        </span>
       </button>
     );
   }
 );
 
 Button.displayName = 'Button';
+
 export default Button;
