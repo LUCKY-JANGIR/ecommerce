@@ -1,4 +1,6 @@
+// components/Header.tsx
 "use client";
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -135,17 +137,26 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [mounted]);
 
-  // click outside for profile dropdown
+  // --- IMPROVED click-outside: only active when profile dropdown is open ---
   useEffect(() => {
-    if (!mounted) return;
+    if (!mounted || !profileDropdownOpen) return;
+
     const handleClickOutside = (event: MouseEvent) => {
-      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
+      const root = profileDropdownRef.current;
+      if (!root) {
+        setProfileDropdownOpen(false);
+        return;
+      }
+      if (!root.contains(event.target as Node)) {
         setProfileDropdownOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [mounted]);
+
+    // Use 'click' so the button's onClick runs first (avoids mousedown race)
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [mounted, profileDropdownOpen]);
+  // -------------------------------------------------------------------------
 
   // Close dropdown when mobile menu opens
   useEffect(() => {
@@ -160,7 +171,12 @@ export default function Header() {
 
   const handleProfileToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setProfileDropdownOpen((v) => !v);
+    // optional debug:
+    // console.log('profile toggle (before):', profileDropdownOpen);
+    setProfileDropdownOpen((v) => {
+      // console.log('profile toggle (after):', !v);
+      return !v;
+    });
   };
 
   // Safe cart count
