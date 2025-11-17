@@ -1,11 +1,10 @@
 "use client";
-
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiUser, FiShoppingCart, FiLogIn, FiMenu, FiX } from "react-icons/fi";
+import { FiUser, FiShoppingCart, FiLogIn, FiMenu, FiX } from 'react-icons/fi';
 import { useStore } from '@/store/useStore';
 import { getImagePreset } from '@/lib/cloudinary';
 import { productsAPI } from '@/components/services/api';
@@ -15,22 +14,26 @@ export default function Header() {
   const { auth, cart, logout, hydrated } = useStore();
   const router = useRouter();
   const pathname = usePathname();
+
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
-  const profileDropdownRef = useRef<HTMLDivElement>(null);
-  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
-  const closeMenuButtonRef = useRef<HTMLButtonElement>(null);
-  const mobileNavRef = useRef<HTMLDivElement>(null);
+
+  const profileDropdownRef = useRef<HTMLDivElement | null>(null);
+  const mobileMenuButtonRef = useRef<HTMLButtonElement | null>(null);
+  const closeMenuButtonRef = useRef<HTMLButtonElement | null>(null);
+  const mobileNavRef = useRef<HTMLDivElement | null>(null);
 
   const mobileMenuId = 'mobile-navigation-panel';
   const mobileMenuHeadingId = 'mobile-navigation-heading';
   const profileMenuId = 'primary-profile-menu';
 
+  // helpers
   const closeMobileMenu = useCallback(() => {
     setMobileMenuOpen(false);
+    // return focus to toggle button
     window.setTimeout(() => {
       mobileMenuButtonRef.current?.focus();
     }, 0);
@@ -40,16 +43,18 @@ export default function Header() {
     setMounted(true);
   }, []);
 
+  // focus close button when mobile menu opens
   useEffect(() => {
     if (mobileMenuOpen && closeMenuButtonRef.current) {
       closeMenuButtonRef.current.focus();
     }
   }, [mobileMenuOpen]);
 
+  // keyboard trap for mobile nav + escape
   useEffect(() => {
-    if (!mobileMenuOpen) {
-      return;
-    }
+    if (!mobileMenuOpen || !mobileNavRef.current) return;
+
+    const root = mobileNavRef.current;
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -58,18 +63,14 @@ export default function Header() {
         return;
       }
 
-      if (event.key !== 'Tab' || !mobileNavRef.current) {
-        return;
-      }
+      if (event.key !== 'Tab') return;
 
-      const focusableSelectors = 'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])';
-      const focusableElements = Array.from(mobileNavRef.current.querySelectorAll<HTMLElement>(focusableSelectors))
-        .filter((element) => !element.hasAttribute('data-focus-guard'));
+      const focusableSelectors =
+        'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])';
+      const focusableElements = Array.from(root.querySelectorAll<HTMLElement>(focusableSelectors))
+        .filter((el) => !el.hasAttribute('data-focus-guard'));
 
-      if (focusableElements.length === 0) {
-        return;
-      }
-
+      if (focusableElements.length === 0) return;
       const firstElement = focusableElements[0];
       const lastElement = focusableElements[focusableElements.length - 1];
 
@@ -88,20 +89,24 @@ export default function Header() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [mobileMenuOpen, closeMobileMenu]);
 
-  // Fetch featured products for hamburger menu
+  // Fetch featured products for hamburger menu (limit to 8)
   useEffect(() => {
+    let cancelled = false;
     const fetchFeaturedProducts = async () => {
       try {
         const response = await productsAPI.getFeatured();
-        if (response && Array.isArray(response)) {
-          setFeaturedProducts(response.slice(0, 12)); // Get first 12 featured products
+        if (!cancelled && response && Array.isArray(response)) {
+          setFeaturedProducts(response.slice(0, 8));
         }
       } catch (error) {
         console.error('Error fetching featured products:', error);
       }
     };
-    
+
     fetchFeaturedProducts();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Prevent body scroll when mobile menu is open
@@ -115,8 +120,6 @@ export default function Header() {
       document.body.style.position = '';
       document.body.style.width = '';
     }
-    
-    // Cleanup on unmount
     return () => {
       document.body.style.overflow = '';
       document.body.style.position = '';
@@ -124,58 +127,59 @@ export default function Header() {
     };
   }, [mobileMenuOpen]);
 
+  // header scroll visual state
   useEffect(() => {
     if (!mounted) return;
-    
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-
-    window.addEventListener('scroll', handleScroll);
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, [mounted]);
 
-
+  // click outside for profile dropdown
   useEffect(() => {
     if (!mounted) return;
-    
     const handleClickOutside = (event: MouseEvent) => {
       if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
         setProfileDropdownOpen(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [mounted]);
 
   // Close dropdown when mobile menu opens
   useEffect(() => {
-    if (mobileMenuOpen) {
-      setProfileDropdownOpen(false);
-    }
+    if (mobileMenuOpen) setProfileDropdownOpen(false);
   }, [mobileMenuOpen]);
 
+  // Close menus when route changes
   useEffect(() => {
     setProfileDropdownOpen(false);
     setMobileMenuOpen(false);
   }, [pathname]);
 
-
   const handleProfileToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setProfileDropdownOpen(!profileDropdownOpen);
+    setProfileDropdownOpen((v) => !v);
   };
 
+  // Safe cart count
+  const cartCount = (cart?.totalItems ?? 0);
 
-  // Don't render until hydrated and mounted to prevent hydration mismatches
+  // Product link helper — prefer slug
+  const productHref = (p: Product) => `/products/${(p as any).slug ?? p._id}`;
+
+  // If not hydrated or not mounted, render minimal header to avoid hydration mismatch
   if (!hydrated || !mounted) {
     return (
       <>
-      <header className="fixed top-0 left-0 right-0 z-50 w-full">
+        <header className="fixed top-0 left-0 right-0 z-50 w-full" role="banner" aria-hidden={false}>
           <div className="absolute inset-0 bg-dark-bg-primary/80 backdrop-blur-md" />
           <div className="relative w-full">
-            <nav className="flex items-center h-16 sm:h-18 md:h-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto" aria-label="Primary">
+            <nav
+              className="flex items-center h-16 sm:h-18 md:h-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto"
+              aria-label="Primary"
+            >
               <button
                 type="button"
                 ref={mobileMenuButtonRef}
@@ -188,48 +192,52 @@ export default function Header() {
               >
                 <FiMenu className="w-6 h-6 text-dark-text-secondary" />
               </button>
+
               <div className="flex-1 flex justify-center">
-                <Link href="/" className="focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 rounded-lg">
-                  <h1 className="text-lg sm:text-xl md:text-2xl font-samarkan font-bold text-dark-text-primary bg-gradient-to-r from-accent-500 to-primary-500 bg-clip-text text-transparent">
-                    hastkari
-                    <span className="block text-xs sm:text-sm font-handcrafted text-dark-text-secondary -mt-1">
-                      since 1989
+                <Link href="/" className="focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 rounded-lg" aria-label="Hastkari home">
+                  {/* Logo/Brand — not an H1 in global header (let pages set their H1s) */}
+                  <div className="text-lg sm:text-xl md:text-2xl font-samarkan font-bold text-dark-text-primary bg-gradient-to-r from-accent-500 to-primary-500 bg-clip-text text-transparent">
+                    <span className="sr-only">Hastkari — Handwoven Stories</span>
+                    <span aria-hidden className="inline-block">
+                      hastkari
+                      <span className="block text-xs sm:text-sm font-handcrafted text-dark-text-secondary -mt-1">since 1989</span>
                     </span>
-                </h1>
+                  </div>
                 </Link>
               </div>
+
               <div className="flex items-center space-x-2">
-                <Link href="/cart" className="p-3 relative hover:bg-dark-bg-hover rounded-lg transition-colors">
+                <Link href="/cart" className="p-3 relative hover:bg-dark-bg-hover rounded-lg transition-colors" aria-label="View cart">
                   <FiShoppingCart className="w-6 h-6 text-dark-text-secondary" />
-                  {mounted && cart.totalItems > 0 && (
+                  {cartCount > 0 && (
                     <span className="absolute -top-1 -right-1 bg-accent-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full font-medium">
-                      {cart.totalItems}
+                      {cartCount}
                     </span>
                   )}
                 </Link>
-                <Link
-                  href="/login"
-                  className="p-3 hover:bg-dark-bg-hover rounded-lg transition-colors"
-                  aria-label="Account"
-                >
+
+                <Link href="/login" className="p-3 hover:bg-dark-bg-hover rounded-lg transition-colors" aria-label="Sign in">
                   <FiUser className="w-6 h-6 text-dark-text-secondary" />
                 </Link>
               </div>
-          </nav>
-        </div>
-      </header>
+            </nav>
+          </div>
+        </header>
         <div className="h-16 sm:h-18 md:h-20" />
       </>
     );
   }
 
+  // Fully interactive header after mount
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 w-full">
-        <div className={`absolute inset-0 transition-all duration-300 ${
-          scrolled ? 'bg-dark-bg-primary shadow-lg shadow-black/20' : 'bg-dark-bg-primary/80 backdrop-blur-md'
-        }`} />
-        
+      <header className="fixed top-0 left-0 right-0 z-50 w-full" role="banner">
+        <div
+          className={`absolute inset-0 transition-all duration-300 ${
+            scrolled ? 'bg-dark-bg-primary shadow-lg shadow-black/20' : 'bg-dark-bg-primary/80 backdrop-blur-md'
+          }`}
+        />
+
         <div className="relative w-full">
           <nav className="flex items-center h-16 sm:h-18 md:h-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto" aria-label="Primary">
             <button
@@ -246,30 +254,27 @@ export default function Header() {
             </button>
 
             <div className="flex-1 flex justify-center">
-              <Link href="/" className="focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 rounded-lg">
-                <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-samarkan font-bold text-dark-text-primary bg-gradient-to-r from-accent-500 to-primary-500 bg-clip-text text-transparent">
-                  hastkari
-                  <span className="block text-xs sm:text-sm font-handcrafted text-dark-text-secondary -mt-1">
-                    since 1989
+              <Link href="/" className="focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 rounded-lg" aria-label="Hastkari home">
+                <div className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-samarkan font-bold text-dark-text-primary bg-gradient-to-r from-accent-500 to-primary-500 bg-clip-text text-transparent">
+                  <span className="sr-only">Hastkari — Handwoven Stories</span>
+                  <span aria-hidden>
+                    hastkari
+                    <span className="block text-xs sm:text-sm font-handcrafted text-dark-text-secondary -mt-1">since 1989</span>
                   </span>
-              </h1>
+                </div>
               </Link>
             </div>
 
             <div className="flex items-center space-x-2">
-              <Link
-                href="/cart"
-                className="p-3 relative hover:bg-dark-bg-hover rounded-lg transition-colors"
-                aria-label="View cart"
-              >
+              <Link href="/cart" className="p-3 relative hover:bg-dark-bg-hover rounded-lg transition-colors" aria-label="View cart">
                 <FiShoppingCart className="w-6 h-6 text-dark-text-secondary" />
-                {cart.totalItems > 0 && (
+                {cartCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-accent-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full font-medium">
-                    {cart.totalItems}
+                    {cartCount}
                   </span>
                 )}
               </Link>
-              
+
               {auth.isAuthenticated ? (
                 <div className="relative" ref={profileDropdownRef}>
                   <button
@@ -283,7 +288,7 @@ export default function Header() {
                   >
                     <FiUser className="w-6 h-6 text-dark-text-secondary" />
                   </button>
-                  
+
                   {profileDropdownOpen && (
                     <div
                       id={profileMenuId}
@@ -334,18 +339,12 @@ export default function Header() {
                   )}
                 </div>
               ) : (
-                <Link
-                  href="/login"
-                  className="p-3 hover:bg-dark-bg-hover rounded-lg transition-colors"
-                  aria-label="Sign in"
-                >
+                <Link href="/login" className="p-3 hover:bg-dark-bg-hover rounded-lg transition-colors" aria-label="Sign in">
                   <FiLogIn className="w-6 h-6 text-dark-text-secondary" />
                 </Link>
               )}
             </div>
           </nav>
-
-
         </div>
       </header>
 
@@ -378,10 +377,10 @@ export default function Header() {
                 {/* Fixed Header */}
                 <div className="flex items-center justify-between p-4 border-b border-dark-border-primary flex-shrink-0">
                   <h2 id={mobileMenuHeadingId} className="text-lg font-serif font-bold text-dark-text-primary">Menu</h2>
-                  <button 
+                  <button
                     type="button"
                     ref={closeMenuButtonRef}
-                    onClick={closeMobileMenu} 
+                    onClick={closeMobileMenu}
                     className="p-2 hover:bg-dark-bg-hover rounded-lg transition-colors"
                     aria-label="Close navigation menu"
                   >
@@ -409,6 +408,7 @@ export default function Header() {
                     >
                       Traditional Crafts
                     </Link>
+
                     <Link
                       href="/products"
                       role="menuitem"
@@ -417,8 +417,9 @@ export default function Header() {
                     >
                       Our Collection
                     </Link>
+
                     <Link
-                      href="/products"
+                      href="/search"
                       role="menuitem"
                       className="block px-3 py-2 rounded-lg hover:bg-dark-bg-hover text-sm text-dark-text-primary transition-colors"
                       onClick={closeMobileMenu}
@@ -431,25 +432,25 @@ export default function Header() {
                   {featuredProducts.length > 0 && (
                     <div className="border-t border-dark-border-primary">
                       <h3 className="text-sm font-medium text-dark-text-primary p-4 pb-2">Exclusive Products</h3>
-                       <div 
-                         className="mx-4 mb-4 h-96 hamburger-scrollable"
-                         data-lenis-prevent
-                         style={{ 
-                           overflowY: 'auto',
-                           scrollbarWidth: 'thin',
-                           scrollbarColor: '#6B7280 #374151',
-                           WebkitOverflowScrolling: 'touch',
-                           touchAction: 'pan-y'
-                         }}
-                         onTouchStart={(e) => e.stopPropagation()}
-                         onTouchMove={(e) => e.stopPropagation()}
-                         onWheel={(e) => e.stopPropagation()}
-                       >
+                      <div
+                        className="mx-4 mb-4 h-96 hamburger-scrollable"
+                        data-lenis-prevent
+                        style={{
+                          overflowY: 'auto',
+                          scrollbarWidth: 'thin',
+                          scrollbarColor: '#6B7280 #374151',
+                          WebkitOverflowScrolling: 'touch',
+                          touchAction: 'pan-y',
+                        }}
+                        onTouchStart={(e) => e.stopPropagation()}
+                        onTouchMove={(e) => e.stopPropagation()}
+                        onWheel={(e) => e.stopPropagation()}
+                      >
                         <div className="p-4 space-y-2">
                           {featuredProducts.map((product) => (
                             <Link
                               key={product._id}
-                              href={`/products/${product._id}`}
+                              href={productHref(product)}
                               className="flex items-center space-x-3 p-2 rounded-lg hover:bg-dark-bg-hover transition-colors"
                               onClick={closeMobileMenu}
                             >
@@ -465,20 +466,15 @@ export default function Header() {
                                   />
                                 ) : (
                                   <div className="w-full h-full bg-gradient-to-r from-accent-500/20 to-primary-500/20 flex items-center justify-center">
-                                    <span className="text-accent-500 text-xs font-medium">
-                                      {product.name.charAt(0)}
-                                    </span>
+                                    <span className="text-accent-500 text-xs font-medium">{product.name.charAt(0)}</span>
                                   </div>
                                 )}
                               </div>
+
                               <div className="flex-1 min-w-0">
                                 <p className="text-sm font-medium text-dark-text-primary truncate">{product.name}</p>
                                 <p className="text-xs text-dark-text-muted">
-                                  {product.price === 0 ? (
-                                    <span className="text-orange-600 font-semibold">Negotiable</span>
-                                  ) : (
-                                    `₹${product.price}`
-                                  )}
+                                  {product.price === 0 ? <span className="text-orange-600 font-semibold">Negotiable</span> : `₹${product.price}`}
                                 </p>
                               </div>
                             </Link>
